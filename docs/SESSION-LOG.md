@@ -24,6 +24,8 @@ Newest entry at the top. Each session adds one entry.
 3. Build one of each new defender: Vine Snare and Barricade on the purple trail spots, Ballista and Healing Shrine on the stone pads. Upgrade a couple.
 4. Tell me: does each one feel worth its price? Is the Vine Snare hold long enough to matter? Does the Ballista feel strong enough for how slowly it fires?
 
+**Mr. Scott's test (Nov 21):** all four work and feel good, maybe a little easy, but he forged a lot of words (more crystals than a typical student). No change now. Balance check in M11 with students, and Test mode opens every defender, which Level 3 players will not have.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus for the specialty choices, which hands the coding to Sonnet.
 
