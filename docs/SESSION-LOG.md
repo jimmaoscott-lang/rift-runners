@@ -43,8 +43,13 @@ Newest entry at the top. Each session adds one entry.
 **Next up**
 - M3: speak mode for the same battle. Read the word into the mic; lenient matching for accented speech; tap mode stays one tap away. Follow the mic rule in DESIGN.md section 10.
 
+**Decided after the session (Mr. Scott)**
+- Hearing a word first counts as help with a smaller hit (as built).
+- Reading instruction choices are left to Claude. First call: final blends like "bend" wait for World 2. Recorded in CLAUDE.md and DESIGN.md.
+- Hold off on the all-in-one file. It is built by GitHub at no Claude cost, so it keeps building, but Claude stops testing it each session and checks it once before December 2. It will not work for the full game (8 MB already); see DESIGN.md section 13.
+- New build progress page: https://jimmaoscott-lang.github.io/rift-runners/progress.html (percent done, sessions left, December 2 demo mark). Data in `progress.json`, updated every session.
+
 **Open questions**
-- DESIGN.md section 15, items 9 and 10: does hearing a word first count as help, and should final blends ("bend") wait for World 2?
 - Still open from Session 2: world names in DESIGN.md section 4.1A.
 
 ---

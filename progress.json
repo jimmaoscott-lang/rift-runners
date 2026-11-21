@@ -1,0 +1,18 @@
+{
+  "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
+  "updated": "2026-11-21",
+  "sessionsSoFar": 3,
+  "milestones": [
+    { "id": "M0", "name": "Project plan and design", "sessions": [1, 1], "done": true },
+    { "id": "M1", "name": "Title screen and settings", "sessions": [1, 1], "done": true },
+    { "id": "M2", "name": "First battle (tap mode)", "sessions": [1, 1], "done": true },
+    { "id": "M3", "name": "Speak mode (read into the mic)", "sessions": [1, 2], "done": false, "demo": true },
+    { "id": "M4", "name": "World 1 area, skill shrine, Level Clear screen", "sessions": [2, 3], "done": false, "demo": true },
+    { "id": "M5", "name": "Creatures and save codes", "sessions": [2, 3], "done": false },
+    { "id": "M6", "name": "First rhythm boss and fluency score", "sessions": [2, 3], "done": false },
+    { "id": "M7", "name": "Opening mission that places students", "sessions": [1, 2], "done": false },
+    { "id": "M8", "name": "Worlds 2 to 8", "sessions": [7, 12], "done": false },
+    { "id": "M9", "name": "Teacher reports in Google Sheets", "sessions": [2, 3], "done": false },
+    { "id": "M10", "name": "Polish, music, classroom testing", "sessions": [2, 4], "done": false }
+  ]
+}

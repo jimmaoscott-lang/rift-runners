@@ -8,4 +8,6 @@ Students play a retro adventure game where reading is their power. Across 8 worl
 
 Play: https://jimmaoscott-lang.github.io/rift-runners/
 
-Status: M1 game skeleton (title screen and settings). World 1 comes next.
+Status: M2 done, the first World 1 battle is playable in tap mode. Speak mode comes next.
+
+Build progress: https://jimmaoscott-lang.github.io/rift-runners/progress.html

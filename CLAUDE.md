@@ -16,6 +16,7 @@ Full design: `docs/DESIGN.md`. That file is the source of truth. If a build deci
 - Keep communication direct and concise.
 - Writing rules for everything you write, including docs, game text and commit messages: no em dashes, no "not X, it's Y" sentences, no paragraphs that begin with "On".
 - Tell him if a different Claude model would fit a task better (for example, a lighter model for simple content entry).
+- **Reading instruction choices are Claude's call.** Mr. Scott has handed over decisions about the skill sequence, word lists, which patterns go in which world, and how support works. Make the choice using structured literacy practice, record it in DESIGN.md, and tell him what was decided. Ask him about game feel, his students and classroom logistics.
 
 ## How each session runs
 
@@ -26,8 +27,10 @@ He builds in small sessions, often at the end of the week with leftover credits.
 3. Build one small, finished, testable piece. A playable small piece beats a large broken one.
 4. Test it yourself before calling it done (load the game, check the console, play through the new part).
 5. Commit and push to `main` with a clear message.
-6. Add a SESSION-LOG entry: what was built, what to test, what is next, any open questions.
+6. Add a SESSION-LOG entry: what was built, what to test, what is next, any open questions. Update `progress.json` (milestones done, session estimates, session count) so the progress page stays current.
 7. Tell him what to try, with the play link once GitHub Pages is live.
+
+The all-in-one offline file is built automatically by GitHub (no Claude usage). Do not spend session time testing it until a check right before the December 2 meeting, or when he asks.
 
 If a session is running long, stop at a clean point, update the log and push. Unfinished work must never be left uncommitted.
 

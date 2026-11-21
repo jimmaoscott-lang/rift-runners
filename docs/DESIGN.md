@@ -292,6 +292,7 @@ If a number drops (common when a new world brings harder words), the screen show
   - Small assets: pixel art, and short mono audio at a low bitrate
   - A GitHub Action (`.github/workflows/deploy.yml`) builds both versions on every push: the website and the all-in-one file. The all-in-one file is published at `dist/rift-runners-offline.html` on the website (download it for the offline backup) and as `dist/apps-script/index.html` with a small `Code.gs` for Apps Script. The builder is `tools/build_single.py`.
   - Speak mode must be tested inside Apps Script early, because the microphone may be blocked inside Google's frame. Tap mode always works as the fallback.
+  - **Size limit (Nov 21):** the all-in-one file was 8 MB after M2, mostly voice files, and the full game will be far bigger. It stays a backup for the December 2 demo only. The long-term home is the website. If the district keeps github.io blocked, the plan is an Apps Script version that loads the art and audio as separate files (for example from Google Drive) instead of packing everything into one file. The file is built by GitHub for free on each push; Claude only tests it right before December 2.
 
 ---
 
@@ -329,5 +330,5 @@ Each milestone is a playable, testable step.
 6. District approval to send student-code progress data to a teacher-owned Google Sheet
 7. Mastery threshold and how many words per battle
 8. Fluency goal on boss passages (use published oral reading fluency norms to set it)
-9. Does a student who taps a move's speaker before casting count as "help"? (M2 says yes: smaller hit, noted in the record.) Mr. Scott to confirm.
-10. Final consonant blends ("bend", "jump"): M2 keeps them out of World 1 and saves them for World 2. Mr. Scott to confirm.
+9. ~~Hearing a word before casting~~ Decided Nov 21: counts as help, smaller hit.
+10. ~~Final consonant blends~~ Decided Nov 21: they wait for World 2 with the other blends. Mr. Scott handed reading instruction decisions to Claude; they are recorded in this file as they are made.
