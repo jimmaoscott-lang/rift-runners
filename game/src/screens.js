@@ -105,21 +105,29 @@ window.RF = window.RF || {};
     row('settings.textSize', [{ v: 'normal', id: 'settings.size.normal' }, { v: 'large', id: 'settings.size.large' }, { v: 'xlarge', id: 'settings.size.xlarge' }], function () { return st.textSize; }, function (v) { st.textSize = v; });
     row('settings.font', [{ v: 'lexend', id: 'settings.font.lexend' }, { v: 'dyslexic', id: 'settings.font.dyslexic' }], function () { return st.font; }, function (v) { st.font = v; }, function (v) { return v === 'dyslexic' ? 'OpenDyslexic' : 'Lexend'; });
     // Volume
-    D.line('settings.volume', '', grid);
-    const vol = D.el('div', null, null, grid);
-    vol.style.cssText = 'display:flex;gap:10px;align-items:center';
-    const minus = D.el('button', 'btn', '&minus;', vol);
-    const val = D.el('div', 'chip', String(st.volume), vol);
-    val.style.minWidth = '60px'; val.style.justifyContent = 'center';
-    const plus = D.el('button', 'btn', '+', vol);
-    [[minus, -1], [plus, 1]].forEach(function (pair) {
-      pair[0].setAttribute('aria-label', pair[1] < 0 ? 'Quieter' : 'Louder');
-      pair[0].addEventListener('click', function () {
-        st.volume = Math.max(0, Math.min(10, st.volume + pair[1]));
-        val.textContent = String(st.volume);
-        RF.saveSettings();
-        RF.sfx('select');
-        RF.speak('num.' + st.volume);
+    // Volume (read-aloud voice), Music and Effects: 0 to 10 each.
+    [['settings.volume', 'volume', 8], ['settings.music', 'music', 6], ['settings.effects', 'effects', 8]].forEach(function (vr) {
+      const key = vr[1];
+      if (st[key] == null) st[key] = vr[2];
+      D.line(vr[0], '', grid);
+      const vol = D.el('div', null, null, grid);
+      vol.style.cssText = 'display:flex;gap:10px;align-items:center';
+      const minus = D.el('button', 'btn', '&minus;', vol);
+      const val = D.el('div', 'chip', String(st[key]), vol);
+      val.style.minWidth = '60px'; val.style.justifyContent = 'center';
+      const plus = D.el('button', 'btn', '+', vol);
+      [[minus, -1], [plus, 1]].forEach(function (pair) {
+        pair[0].setAttribute('aria-label', pair[1] < 0 ? 'Quieter' : 'Louder');
+        pair[0].addEventListener('click', function () {
+          st[key] = Math.max(0, Math.min(10, st[key] + pair[1]));
+          val.textContent = String(st[key]);
+          RF.saveSettings();
+          if (RF.audio) RF.audio.applyVolumes();
+          if (key === 'effects') RF.audio.fx('arrowHit');
+          else RF.sfx('select');
+          if (key === 'music' && RF.battle && RF.battle.active && st.music > 0) RF.audio.music(RF.battle.phase === 'wave' ? 'attack' : 'calm');
+          RF.speak('num.' + st[key]);
+        });
       });
     });
     row('settings.motion', [{ v: false, id: 'settings.motion.full' }, { v: true, id: 'settings.motion.reduced' }], function () { return !!st.reducedMotion; }, function (v) { st.reducedMotion = v; });

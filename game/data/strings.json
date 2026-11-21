@@ -17,7 +17,7 @@
     "settings.font": "Font",
     "settings.font.lexend": "Lexend",
     "settings.font.dyslexic": "OpenDyslexic",
-    "settings.volume": "Volume",
+    "settings.volume": "Voice",
     "settings.motion": "Motion",
     "settings.motion.full": "Full",
     "settings.motion.reduced": "Reduced",
@@ -264,7 +264,9 @@
     "grow.newPat": "New this level. Your first tries start the graph.",
     "unlock.title": "Unlocked",
     "unlock.stone": "New stone open:",
-    "unlock.def": "New defender:"
+    "unlock.def": "New defender:",
+    "settings.music": "Music",
+    "settings.effects": "Effects"
   },
   "es": {
     "title.name": "Rift Runners",
@@ -283,7 +285,7 @@
     "settings.font": "Letra",
     "settings.font.lexend": "Lexend",
     "settings.font.dyslexic": "OpenDyslexic",
-    "settings.volume": "Volumen",
+    "settings.volume": "Voz",
     "settings.motion": "Movimiento",
     "settings.motion.full": "Completo",
     "settings.motion.reduced": "Reducido",
@@ -530,6 +532,8 @@
     "grow.newPat": "Nuevo en este nivel. Tus primeros intentos empiezan la gráfica.",
     "unlock.title": "Desbloqueado",
     "unlock.stone": "Piedra nueva abierta:",
-    "unlock.def": "Defensor nuevo:"
+    "unlock.def": "Defensor nuevo:",
+    "settings.music": "Música",
+    "settings.effects": "Efectos"
   }
 }

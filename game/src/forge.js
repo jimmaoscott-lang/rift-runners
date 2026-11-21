@@ -202,7 +202,7 @@ window.RF = window.RF || {};
       const how = F.revealed ? 'forge.r.shown' : F.tries > 0 ? 'forge.r.second' : F.help ? 'forge.r.heard' : w.kind === 'rune' ? 'forge.r.rune' : 'forge.r.first';
       F.recent.unshift({ w: w.w, how: how, amount: amount });
       renderRecent();
-      RF.sfx(mega ? 'win' : first ? 'hit' : 'select');
+      if (!mega) RF.sfx(first ? 'hit' : 'select');
       opts.onPay(amount, forgeBtn);
 
       // Spanish meaning and cognate, for real words with Spanish on.

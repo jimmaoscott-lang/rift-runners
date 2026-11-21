@@ -62,6 +62,7 @@ window.RF = window.RF || {};
     B.updatePads();
     canvasOn();
     B.toast('hud.buildStart', true);
+    RF.audio.music('calm');
   };
 
   // ---------- HUD ----------
@@ -301,7 +302,8 @@ window.RF = window.RF || {};
     B.wave++;
     B.waveTime = 0;
     B.phase = 'wave';
-    RF.sfx('open');
+    RF.audio.fx('waveStart');
+    if (!B.paused) RF.audio.music('attack');
     B.renderTop();
     B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);
   };
@@ -373,7 +375,7 @@ window.RF = window.RF || {};
     pad.def = def;
     B.defenders.push(def);
     popIn(def.obj);
-    RF.sfx('big');
+    RF.audio.fx('build');
     RF.metrics.support('build');
     B.selectBuild(null);
     B.renderTop(); B.renderCards();
@@ -405,7 +407,7 @@ window.RF = window.RF || {};
     ring.rotation.x = Math.PI / 2;
     if (def.type === 'golem') { const nl = d.levels[def.lv - 1]; def.max = nl.hp; def.hp = nl.hp; }
     if (def.type === 'frost') scaleFrost(def);
-    RF.sfx('win');
+    RF.audio.fx('upgrade');
     RF.metrics.support('upgrade');
     B.renderTop(); B.renderCards();
     B.showDefPopup(def);
@@ -588,6 +590,7 @@ window.RF = window.RF || {};
     if (B.phase === 'done') return;
     B.paused = on;
     RF.sfx(on ? 'back' : 'select');
+    RF.audio.music(on || B.phase !== 'wave' ? 'calm' : 'attack');
     B.renderTop();
     const box = B.pausePanel;
     D.clear(box);
@@ -619,6 +622,7 @@ window.RF = window.RF || {};
     const dmg = B.U.forge.megaBlast;
     B.creatures.slice().forEach(function (c) { hurt(c, dmg, false, 'break'); burst(c.x, 1.2, c.z, G.TEX.yellow, 4); });
     if (!RF.settings.reducedMotion) B.shake = 0.4;
+    RF.audio.fx('mega');
   };
 
   // ---------- Effects ----------
@@ -652,7 +656,7 @@ window.RF = window.RF || {};
     (c.obj.userData.shield || []).forEach(function (m) { m.visible = false; });
     burst(c.x, 1.4, c.z, RF.G.TEX.purple, 8);
     burst(c.x, 1.4, c.z, RF.G.TEX.cyan, 4);
-    RF.sfx('big');
+    RF.audio.fx('shieldBreak');
     if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.12);
   }
   // A bolt that fades out fast.
@@ -680,7 +684,7 @@ window.RF = window.RF || {};
     const ring = G.sprite(G.TEX.orange, lv.radius * 1.2, x, 0.6, z, B.world.dyn, 0.9);
     B.fx.push({ life: 0.35, t: 0, update: function (f) { ring.material.opacity = 0.9 * (1 - f); ring.scale.setScalar(lv.radius * (1.2 + f * 1.6)); }, end: function () { B.world.dyn.remove(ring); } });
     if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.08);
-    RF.sfx('big');
+    RF.audio.fx('emberBoom');
   }
   function kill(c, byDefense) {
     c.alive = false;
@@ -695,6 +699,7 @@ window.RF = window.RF || {};
       B.crystals += cd.shards;
       B.renderTop(); B.renderCards();
       burst(c.x, 1.0, c.z, RF.G.TEX.purple, c.type === 'wisp' || c.type === 'bramble' ? 3 : 7);
+      RF.audio.fx(c.type === 'wisp' ? 'wispDie' : c.type === 'bramble' ? 'brambleDie' : 'thornDie');
       const p = screenOf(c.x, 2.0, c.z);
       B.floatText('+' + cd.shards, p.x, p.y, '#7ef3ff', 16, true);
     }
@@ -736,8 +741,9 @@ window.RF = window.RF || {};
       if (d.type !== 'frost') return;
       const lv = U.defenders.frost.levels[d.lv - 1];
       B.creatures.forEach(function (c) {
-        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; }
+        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; d.chill = true; }
       });
+      if (d.chill) { RF.audio.fxEvery('frost', d.pad.id, 3.5); d.chill = false; }
     });
     // Golems hold creatures in place
     B.defenders.forEach(function (d) {
@@ -760,6 +766,7 @@ window.RF = window.RF || {};
       d.cd -= dt;
       if (d.cd <= 0 && d.held.length) {
         d.cd = 1 / lv.rate;
+        RF.audio.fxEvery('golem', d.pad.id, 0.5);
         hurt(d.held[0], lv.dmg, true);
         if (!RF.settings.reducedMotion) { d.obj.rotation.x = -0.25; setTimeout(function () { d.obj.rotation.x = 0; }, 160); }
       }
@@ -781,6 +788,7 @@ window.RF = window.RF || {};
       B.creatures.slice().forEach(function (c) {
         if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { hurt(c, lv.dps * dt); any = true; }
       });
+      if (any) RF.audio.fxEvery('spike', d.pad.id, 0.7);
       if (!RF.settings.reducedMotion) d.obj.position.y = any ? Math.abs(Math.sin(RF.app.time * 18)) * 0.15 : 0;
     });
     // Creatures move
@@ -796,7 +804,7 @@ window.RF = window.RF || {};
         B.anchor -= cd.anchor;
         world.anchorFlash = 0.6;
         if (!RF.settings.reducedMotion) B.shake = 0.25;
-        RF.sfx('back');
+        RF.audio.fx('anchorHit');
         kill(c, false);
         B.renderTop();
         if (B.anchor <= 0) return B.finish(false);
@@ -816,6 +824,7 @@ window.RF = window.RF || {};
       if (!best) return;
       d.cd = 1 / lv.rate;
       const a = RF.G.arrow(d.pad.x, 3.2, d.pad.z, world.dyn);
+      RF.audio.fxEvery('archer', d.pad.id, 0.3);
       B.shots.push({ obj: a, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
     });
     // Ember Cannons lob a slow shell at the creature furthest along the trail.
@@ -846,7 +855,7 @@ window.RF = window.RF || {};
       B.shots.push({ shell: true, obj: ball, glow: glow, fx: sx, fy: sy, fz: sz, tx: tx, tz: tz, T: T, t: 0, lv: lv, arc: sh.arc, def: d });
       if (!RF.settings.reducedMotion) { yoke.position.z = 0.25; setTimeout(function () { yoke.position.z = 0; }, 120); }
       burst(sx, sy, sz, RF.G.TEX.orange, 2);
-      RF.sfx('soft');
+      RF.audio.fxEvery('ember', d.pad.id, 0.4);
     });
     // Lightning Spires zap the furthest creature, then jump to nearby ones.
     B.defenders.forEach(function (d) {
@@ -880,7 +889,7 @@ window.RF = window.RF || {};
         if (nxt) hit.push(nxt);
         cur = nxt;
       }
-      RF.sfx('soft');
+      RF.audio.fxEvery('lightning', d.pad.id, 0.4);
     });
     // Shells fly in an arc and splash where they land
     for (let i = B.shots.length - 1; i >= 0; i--) {
@@ -907,7 +916,7 @@ window.RF = window.RF || {};
       const dist = Math.hypot(dx, dy, dz);
       const step = sh.speed * dt;
       if (dist <= step) {
-        if (sh.target.alive) { hurt(sh.target, sh.dmg, true); burst(sh.tx, ty, sh.tz, RF.G.TEX.yellow, 2); }
+        if (sh.target.alive) { RF.audio.fxEvery('arrowHit', 'arrowHit', 0.09); hurt(sh.target, sh.dmg, true); burst(sh.tx, ty, sh.tz, RF.G.TEX.yellow, 2); }
         world.dyn.remove(sh.obj);
         B.shots.splice(i, 1);
       } else {
@@ -921,7 +930,8 @@ window.RF = window.RF || {};
       if (B.finalWave) return B.finish(true);
       B.phase = 'between';
       B.renderTop();
-      RF.sfx('win');
+      RF.audio.fx('waveClear');
+      RF.audio.music('calm');
       B.toast('hud.waveCleared', true);
     }
   };
@@ -1000,13 +1010,15 @@ window.RF = window.RF || {};
       patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
       ms: Date.now() - B.started
     });
-    RF.sfx(win ? 'win' : 'soft');
+    RF.audio.music(null);
+    if (win) RF.audio.fx('win'); else RF.sfx('soft');
     setTimeout(function () {
       RF.screens.results({ win: win, stars: stars, stats: fs, L: B.L, levelIndex: B.levelIndex, locks: B.locks, waves: win ? B.wave : Math.max(0, B.wave - 1), prev: prev });
     }, win ? 700 : 900);
   };
   B.cleanup = function () {
     B.active = false;
+    RF.audio.music(null);
     RF.stopSpeaking();
     clearTimeout(B.toastTimer);
     if (B.hud) { B.hud.remove(); B.hud = null; }

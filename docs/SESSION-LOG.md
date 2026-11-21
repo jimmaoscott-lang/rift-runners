@@ -4,6 +4,30 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 9b: November 21, 2026 (battle sound and music)
+
+**Asked by Mr. Scott:** weapon sounds and music during attacks. He listened to the sample page (https://jimmaoscott-lang.github.io/rift-runners/sound-samples.html) and approved it as is.
+
+**Built**
+- `game/src/audio.js`: all sounds and the music, made in code (no files). Arrows, arrow hits, Ember Cannon fire and boom, Lightning, Spike Pit, Golem slam, Frost shimmer, build, upgrade, each creature's death, shield break, Anchor hit, wave horn, wave clear, Mega Forge, rift closed.
+- Battle music: calm while building, between waves and paused; attack during waves. Stops on the end screen and the map.
+- Music and effects drop a little while a line is read, and low while a word is read.
+- Settings: Voice, Music and Effects volumes.
+
+**Tested (by Claude, headless Chrome)**
+- Level 3 with 10 defenders through a wave: calm and attack music switch, sounds play, volume drop during speech, pause goes calm, music stops at the end. No console errors.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, open the game, play a level with sound on.
+2. Check that Forge words are still easy to hear over the battle.
+3. In Settings, try turning Music down to 0 and Effects up and down.
+4. Tell me if anything is too loud, annoying after a while, or missing.
+
+**Next up**
+- Unchanged: M5 speak mode, starting with Opus.
+
+---
+
 ## Session 9: November 21, 2026 (M4 World 1 map, Levels 2 and 3, growth screen)
 
 **Built**

@@ -39,7 +39,7 @@ window.RF = window.RF || {};
   // ---------- Settings ----------
   const SETTINGS_KEY = 'riftrunners.settings.v1';
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, reducedMotion: prefersReduced, focus: false };
+  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, music: 6, effects: 8, reducedMotion: prefersReduced, focus: false };
   RF.settings = Object.assign({}, DEFAULTS);
   RF.loadSettings = function () {
     try {
@@ -79,6 +79,7 @@ window.RF = window.RF || {};
   let speakToken = 0;
   RF.stopSpeaking = function () {
     speakToken++;
+    if (RF.audio) RF.audio.duck(0);
     if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   };
@@ -127,17 +128,21 @@ window.RF = window.RF || {};
       return file ? playFile('../assets/audio/words/' + file, word, l, token) : speakNow(word, l, token);
     };
   }
-  function run(jobs) {
+  function run(jobs, isWord) {
     RF.stopSpeaking();
     const token = speakToken;
+    // Music and battle sounds drop while a line is read aloud, and drop low for a word to decode.
+    if (RF.audio) RF.audio.duck(isWord ? 2 : 1);
     return jobs.reduce(function (p, job) {
       return p.then(function () { return token === speakToken ? job(token) : null; });
-    }, Promise.resolve());
+    }, Promise.resolve()).then(function () {
+      if (token === speakToken && RF.audio) RF.audio.duck(0);
+    });
   }
   RF.speak = function (id, lang) { return run([lineJob(id, lang)]); };
-  RF.speakWord = function (word, lang) { return run([wordJob(word, lang)]); };
+  RF.speakWord = function (word, lang) { return run([wordJob(word, lang)], true); };
   RF.speakText = function (text, lang) {
-    return run([function (token) { return speakNow(text, lang, token); }]);
+    return run([function (token) { return speakNow(text, lang, token); }], true);
   };
   // Several in a row: items are { id } for a line, { word } for a battle word, { es } for a Spanish meaning.
   RF.speakSeq = function (items) {
@@ -146,17 +151,17 @@ window.RF = window.RF || {};
       if (it.es) return wordJob(it.es, 'es');
       if (it.text != null) return function (token) { return speakNow(String(it.text), it.lang || RF.lang(), token); };
       return lineJob(it.id, it.lang);
-    }));
+    }), items.some(function (it) { return it.word || it.es; }));
   };
 
   // ---------- Sound effects (made in code, chiptune style, no files) ----------
-  let actx = null;
+  // They play through the Effects volume (game/src/audio.js).
   RF.sfx = function (kind) {
-    const vol = RF.settings.volume / 10;
-    if (vol <= 0) return;
+    const vol = 1;
+    if (!RF.audio || (RF.settings.effects == null ? 8 : RF.settings.effects) <= 0) return;
     try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === 'suspended') actx.resume();
+      const actx = RF.audio.context();
+      if (!actx) return;
       const notes = {
         move: [[660, 0.05]],
         select: [[523, 0.06], [784, 0.09]],
@@ -176,7 +181,7 @@ window.RF = window.RF || {};
         osc.frequency.value = n[0];
         gain.gain.setValueAtTime(0.08 * vol, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + n[1]);
-        osc.connect(gain).connect(actx.destination);
+        osc.connect(gain).connect(RF.audio.fxOut());
         osc.start(t);
         osc.stop(t + n[1] + 0.02);
         t += n[1];
