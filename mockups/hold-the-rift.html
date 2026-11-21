@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hold the Rift: mockup</title>
+<link rel="icon" href="data:,">
+<style>
+  @font-face { font-family: 'Lexend'; font-weight: 400; src: url('../assets/fonts/lexend-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Lexend'; font-weight: 600; src: url('../assets/fonts/lexend-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Lexend'; font-weight: 700; src: url('../assets/fonts/lexend-latin-700-normal.woff2') format('woff2'); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #070912; overflow: hidden; font-family: Lexend, sans-serif; color: #fff; }
+  #view { position: fixed; inset: 0; }
+  .hud { position: fixed; pointer-events: none; }
+  .hud * { pointer-events: auto; }
+  .chip { background: rgba(14,16,34,.88); border: 2px solid #4b4f9c; border-radius: 12px; padding: 6px 14px; display: flex; align-items: center; gap: 10px; font-weight: 700; box-shadow: 0 4px 0 rgba(0,0,0,.45); }
+  .gold { color: #ffd76a; }
+  .cyan { color: #7ef3ff; }
+  .btn { background: #232a63; border: 2px solid #9aa6ff; color: #fff; font: 700 17px Lexend; border-radius: 10px; padding: 8px 14px; box-shadow: 0 4px 0 #090b1c; }
+  .spk { width: 40px; height: 40px; border-radius: 10px; background: #1b2150; border: 2px solid #7d89d8; display: inline-flex; align-items: center; justify-content: center; }
+  .spk svg { width: 22px; height: 22px; fill: #ffe9a8; }
+  .label { position: fixed; transform: translate(-50%, -100%); pointer-events: none; text-align: center; font-weight: 700; text-shadow: 0 2px 0 #000, 0 0 6px #000; white-space: nowrap; }
+  .bar { width: 46px; height: 7px; background: #120a10; border: 1px solid #000; border-radius: 3px; overflow: hidden; margin: 0 auto; }
+  .bar i { display: block; height: 100%; background: #ff5d6c; }
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div id="ui"></div>
+<script src="../game/lib/three.min.js"></script>
+<script>
+// ============================================================================
+// Hold the Rift: look-and-feel mockup. Two views: ?view=battle (default) and ?view=map.
+// Every model here is built from simple shapes in code (original art, no outside assets).
+// ============================================================================
+const VIEW = new URLSearchParams(location.search).get('view') || 'battle';
+const W = innerWidth, H = innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NoToneMapping;
+document.getElementById('view').appendChild(renderer.domElement);
+
+let seed = 7;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+const R = (a, b) => a + rnd() * (b - a);
+
+const mat = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.85, metalness: 0.05, flatShading: true }, o || {}));
+const glow = (color, k) => mat(color, { emissive: color, emissiveIntensity: k || 1.6, roughness: 0.4 });
+function mesh(geo, m, x, y, z, parent) {
+  const o = new THREE.Mesh(geo, m);
+  o.position.set(x || 0, y || 0, z || 0);
+  o.castShadow = true; o.receiveShadow = true;
+  if (parent) parent.add(o);
+  return o;
+}
+function group(x, y, z, parent) { const g = new THREE.Group(); g.position.set(x || 0, y || 0, z || 0); if (parent) parent.add(g); return g; }
+
+// Soft glow sprite texture (for magic light, particles, rift).
+function glowTex(inner, outer) {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, inner); gr.addColorStop(0.35, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); return t;
+}
+const TEX = {
+  purple: glowTex('rgba(255,230,255,1)', 'rgba(190,80,255,0.55)'),
+  cyan: glowTex('rgba(230,255,255,1)', 'rgba(80,230,255,0.5)'),
+  orange: glowTex('rgba(255,250,220,1)', 'rgba(255,140,40,0.55)'),
+  yellow: glowTex('rgba(255,255,240,1)', 'rgba(255,230,80,0.6)'),
+  ice: glowTex('rgba(240,255,255,1)', 'rgba(140,210,255,0.45)')
+};
+function sprite(tex, size, x, y, z, parent, opacity) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: opacity || 1 }));
+  s.scale.set(size, size, 1); s.position.set(x, y, z); if (parent) parent.add(s); return s;
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+const M = {
+  bark: mat(0x5b3a22), barkDark: mat(0x3e2716), leaf1: mat(0x2f7d3a), leaf2: mat(0x3f9a45), leaf3: mat(0x25603a),
+  stone: mat(0x8a8f9c), stoneDark: mat(0x5d6170), wood: mat(0x9a6a3c), woodDark: mat(0x6e4826), roof: mat(0x3a4d9a),
+  cloth: mat(0xd9c9a3), red: mat(0xb8383f), metal: mat(0x9aa3b5, { metalness: 0.6, roughness: 0.35 }),
+  thornBody: mat(0x3f7a35), thornDark: mat(0x22401f), thornSpike: mat(0xe0c983), rift: glow(0xc04dff, 2.2), riftCore: glow(0xff9cff, 3),
+  eye: glow(0xff4dd2, 3), ice: glow(0x8fe3ff, 1.2), iceSolid: mat(0xbfefff, { roughness: 0.2, metalness: 0.1, emissive: 0x3aa8d8, emissiveIntensity: 0.5 }),
+  ember: glow(0xff8a2a, 2.5), bolt: glow(0xfff27a, 3), anchor: glow(0x5ff0ff, 1.8), vine: mat(0x4caf50, { emissive: 0x1d5f22, emissiveIntensity: 0.6 }),
+  gold: mat(0xe9b949, { metalness: 0.7, roughness: 0.3 }), crystalP: mat(0x2a1440, { emissive: 0x7a2ac0, emissiveIntensity: 0.7, roughness: 0.3 })
+};
+
+function tree(x, z, parent, s, tainted) {
+  s = s || 1;
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(0.18 * s, 0.26 * s, 1.2 * s, 6), M.bark, 0, 0.6 * s, 0, g);
+  const leaves = tainted ? [mat(0x3b2d52), mat(0x4a3666), mat(0x2d2342)] : [M.leaf1, M.leaf2, M.leaf3];
+  const lv = Math.floor(R(0, 3));
+  for (let i = 0; i < 3; i++) {
+    const c = mesh(new THREE.ConeGeometry((1.25 - i * 0.3) * s, 1.5 * s, 7), leaves[(lv + i) % 3], 0, (1.5 + i * 0.75) * s, 0, g);
+    c.rotation.y = R(0, 3);
+  }
+  if (tainted && rnd() < 0.6) sprite(TEX.purple, 1.2 * s, 0, 2.2 * s, 0, g, 0.5);
+  g.rotation.y = R(0, 6);
+  return g;
+}
+function roundTree(x, z, parent, s) {
+  s = s || 1;
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(0.16 * s, 0.24 * s, 1.4 * s, 6), M.bark, 0, 0.7 * s, 0, g);
+  mesh(new THREE.DodecahedronGeometry(1.0 * s, 0), [M.leaf2, M.leaf1][Math.floor(R(0, 2))], 0, 1.9 * s, 0, g);
+  mesh(new THREE.DodecahedronGeometry(0.7 * s, 0), M.leaf2, 0.5 * s, 2.4 * s, 0.2 * s, g);
+  return g;
+}
+function rock(x, z, parent, s, y) {
+  const r = mesh(new THREE.DodecahedronGeometry(s || 0.6, 0), rnd() < 0.5 ? M.stone : M.stoneDark, x, (y || 0) + (s || 0.6) * 0.45, z, parent);
+  r.rotation.set(R(0, 3), R(0, 3), R(0, 3)); r.scale.y = 0.7; return r;
+}
+
+// ---- Defenders ----
+function archerTower(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(0.95, 1.15, 1.6, 8), M.stone, 0, 0.8, 0, g);
+  mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.2, 8), M.stoneDark, 0, 1.65, 0, g);
+  for (let i = 0; i < 4; i++) { const p = mesh(new THREE.BoxGeometry(0.15, 1.3, 0.15), M.woodDark, Math.cos(i * 1.57 + 0.78) * 0.75, 2.4, Math.sin(i * 1.57 + 0.78) * 0.75, g); }
+  mesh(new THREE.BoxGeometry(1.7, 0.25, 1.7), M.wood, 0, 1.85, 0, g);
+  mesh(new THREE.ConeGeometry(1.35, 1.1, 4), M.roof, 0, 3.55, 0, g).rotation.y = Math.PI / 4;
+  // archer
+  mesh(new THREE.CylinderGeometry(0.15, 0.22, 0.6, 6), mat(0x2f6b3d), 0.2, 2.3, 0.1, g);
+  mesh(new THREE.SphereGeometry(0.16, 8, 6), mat(0xe0b48a), 0.2, 2.7, 0.1, g);
+  const bow = mesh(new THREE.TorusGeometry(0.3, 0.03, 4, 10, Math.PI), M.woodDark, 0.45, 2.45, 0.2, g); bow.rotation.z = -Math.PI / 2;
+  mesh(new THREE.BoxGeometry(0.5, 0.35, 0.03), M.red, 0, 4.35, 0, g).position.x = 0.25;
+  mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 4), M.woodDark, 0, 4.2, 0, g);
+  return g;
+}
+function frostTotem(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(0.7, 0.85, 0.4, 7), M.stoneDark, 0, 0.2, 0, g);
+  mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.8, 6), M.stone, 0, 1.3, 0, g);
+  const c = mesh(new THREE.OctahedronGeometry(0.6, 0), M.iceSolid, 0, 2.8, 0, g); c.scale.y = 1.6;
+  for (let i = 0; i < 4; i++) { const s = mesh(new THREE.OctahedronGeometry(0.22, 0), M.ice, Math.cos(i * 1.57) * 0.75, 2.4, Math.sin(i * 1.57) * 0.75, g); s.scale.y = 1.8; }
+  sprite(TEX.ice, 3.2, 0, 2.8, 0, g, 0.8);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(3.6, 3.8, 48), new THREE.MeshBasicMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.55 }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.06; g.add(ring);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(3.6, 48), new THREE.MeshBasicMaterial({ color: 0x7fd6ff, transparent: true, opacity: 0.12, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2; disc.position.y = 0.05; g.add(disc);
+  return g;
+}
+function lightningSpire(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(0.8, 1.0, 0.5, 6), M.stoneDark, 0, 0.25, 0, g);
+  mesh(new THREE.CylinderGeometry(0.12, 0.5, 3.4, 6), M.metal, 0, 2.2, 0, g);
+  for (let i = 0; i < 3; i++) { const r = mesh(new THREE.TorusGeometry(0.42 - i * 0.08, 0.05, 4, 12), M.gold, 0, 1.4 + i * 0.7, 0, g); r.rotation.x = Math.PI / 2; }
+  mesh(new THREE.SphereGeometry(0.38, 12, 8), M.bolt, 0, 4.1, 0, g);
+  sprite(TEX.yellow, 2.6, 0, 4.1, 0, g, 1);
+  const l = new THREE.PointLight(0xfff27a, 1.6, 9); l.position.set(0, 4.1, 0); g.add(l);
+  return g;
+}
+function emberCannon(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(1.0, 1.2, 0.9, 8), M.stone, 0, 0.45, 0, g);
+  const yoke = group(0, 1.1, 0, g);
+  mesh(new THREE.BoxGeometry(0.9, 0.5, 1.1), M.woodDark, 0, 0, 0, yoke);
+  const barrel = mesh(new THREE.CylinderGeometry(0.32, 0.42, 1.8, 10), mat(0x34363f, { metalness: 0.5, roughness: 0.4 }), 0, 0.35, -0.3, yoke);
+  barrel.rotation.x = -1.15;
+  mesh(new THREE.TorusGeometry(0.36, 0.07, 6, 12), M.gold, 0, 0.75, -1.05, yoke).rotation.x = -1.15 + Math.PI / 2;
+  sprite(TEX.orange, 1.2, 0, 0.75, -1.1, yoke, 0.9);
+  yoke.rotation.y = 0.9;
+  return g;
+}
+function golem(x, z, parent, s) {
+  s = s || 1;
+  const g = group(x, 0, z, parent); g.scale.setScalar(s);
+  const body = mat(0x7d8496); const moss = mat(0x4e8a3c);
+  mesh(new THREE.BoxGeometry(0.55, 0.9, 0.55), body, -0.35, 0.45, 0, g);
+  mesh(new THREE.BoxGeometry(0.55, 0.9, 0.55), body, 0.35, 0.45, 0, g);
+  const torso = mesh(new THREE.DodecahedronGeometry(0.95, 0), body, 0, 1.7, 0, g); torso.scale.set(1.15, 1, 0.85);
+  mesh(new THREE.DodecahedronGeometry(0.4, 0), moss, 0.3, 2.45, 0.1, g);
+  mesh(new THREE.BoxGeometry(0.6, 0.5, 0.55), body, 0, 2.7, 0.1, g);
+  mesh(new THREE.BoxGeometry(0.12, 0.07, 0.05), M.anchor, -0.14, 2.75, -0.19, g);
+  mesh(new THREE.BoxGeometry(0.12, 0.07, 0.05), M.anchor, 0.14, 2.75, -0.19, g);
+  const a1 = mesh(new THREE.BoxGeometry(0.45, 1.3, 0.45), body, -1.05, 1.55, -0.2, g); a1.rotation.z = 0.25; a1.rotation.x = -0.5;
+  const a2 = mesh(new THREE.BoxGeometry(0.45, 1.3, 0.45), body, 1.05, 1.55, -0.2, g); a2.rotation.z = -0.25; a2.rotation.x = -0.7;
+  mesh(new THREE.DodecahedronGeometry(0.38, 0), body, -1.2, 0.85, -0.55, g);
+  mesh(new THREE.DodecahedronGeometry(0.38, 0), body, 1.25, 0.8, -0.65, g);
+  // rune glowing on chest
+  mesh(new THREE.BoxGeometry(0.4, 0.08, 0.05), M.anchor, 0, 1.9, -0.8, g);
+  mesh(new THREE.BoxGeometry(0.08, 0.4, 0.05), M.anchor, 0, 1.9, -0.8, g);
+  return g;
+}
+function spikePit(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  const base = mesh(new THREE.CylinderGeometry(1.4, 1.5, 0.12, 10), M.woodDark, 0, 0.06, 0, g);
+  for (let i = 0; i < 14; i++) {
+    const a = R(0, 6.28), r = R(0, 1.2);
+    const s = mesh(new THREE.ConeGeometry(0.12, R(0.5, 0.9), 5), M.metal, Math.cos(a) * r, 0.35, Math.sin(a) * r, g);
+    s.rotation.set(R(-0.3, 0.3), 0, R(-0.3, 0.3));
+  }
+  return g;
+}
+function vineSnare(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  for (let i = 0; i < 5; i++) {
+    const v = mesh(new THREE.TorusGeometry(0.8 + i * 0.05, 0.08, 5, 16, Math.PI * 1.3), M.vine, 0, 0.3 + i * 0.28, 0, g);
+    v.rotation.set(Math.PI / 2 + R(-0.4, 0.4), R(0, 6), R(-0.3, 0.3));
+  }
+  for (let i = 0; i < 6; i++) { const l = mesh(new THREE.ConeGeometry(0.12, 0.35, 4), M.leaf2, Math.cos(i) * 0.9, R(0.4, 1.6), Math.sin(i) * 0.9, g); }
+  return g;
+}
+function ballista(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.BoxGeometry(1.8, 0.6, 1.8), M.woodDark, 0, 0.3, 0, g);
+  const top = group(0, 0.9, 0, g);
+  mesh(new THREE.BoxGeometry(0.3, 0.3, 2.4), M.wood, 0, 0, 0, top);
+  const arm = mesh(new THREE.TorusGeometry(1.1, 0.08, 4, 12, Math.PI), M.woodDark, 0, 0.1, -0.6, top);
+  arm.rotation.x = Math.PI / 2;
+  mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.0, 5), M.metal, 0, 0.25, -0.1, top).rotation.x = Math.PI / 2;
+  mesh(new THREE.ConeGeometry(0.12, 0.35, 5), M.metal, 0, 0.25, -1.2, top).rotation.x = -Math.PI / 2;
+  top.rotation.x = -0.45; top.rotation.y = -0.6;
+  return g;
+}
+function healShrine(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.CylinderGeometry(1.0, 1.1, 0.3, 8), M.stone, 0, 0.15, 0, g);
+  for (let i = 0; i < 4; i++) mesh(new THREE.BoxGeometry(0.3, 1.6, 0.3), M.stone, Math.cos(i * 1.57) * 0.75, 1.0, Math.sin(i * 1.57) * 0.75, g);
+  mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.25, 8), M.stoneDark, 0, 1.9, 0, g);
+  mesh(new THREE.IcosahedronGeometry(0.35, 0), glow(0x7dff9c, 2), 0, 1.0, 0, g);
+  sprite(glowTex('rgba(240,255,240,1)', 'rgba(110,255,140,0.5)'), 2.4, 0, 1.0, 0, g, 0.9);
+  return g;
+}
+function barricade(x, z, parent, rot) {
+  const g = group(x, 0, z, parent); g.rotation.y = rot || 0;
+  for (let i = -2; i <= 2; i++) { const s = mesh(new THREE.CylinderGeometry(0.16, 0.18, 1.5, 6), M.wood, i * 0.38, 0.75, 0, g); }
+  for (let i = -1; i <= 1; i += 2) { const c = mesh(new THREE.BoxGeometry(2.1, 0.14, 0.14), M.woodDark, 0, 0.75 + i * 0.35, -0.16, g); c.rotation.z = i * 0.2; }
+  for (let i = -2; i <= 2; i++) mesh(new THREE.ConeGeometry(0.16, 0.3, 6), M.wood, i * 0.38, 1.65, 0, g);
+  return g;
+}
+
+// ---- Rift creatures ----
+function thornback(x, z, parent, s, rot) {
+  s = s || 1;
+  const g = group(x, 0, z, parent); g.scale.setScalar(s); g.rotation.y = rot || 0;
+  const b = mesh(new THREE.DodecahedronGeometry(0.85, 0), M.thornBody, 0, 0.95, 0, g); b.scale.set(1.35, 0.8, 0.9);
+  mesh(new THREE.DodecahedronGeometry(0.45, 0), M.thornDark, 0, 0.85, -1.0, g);
+  mesh(new THREE.SphereGeometry(0.09, 6, 4), M.eye, -0.18, 0.95, -1.38, g);
+  mesh(new THREE.SphereGeometry(0.09, 6, 4), M.eye, 0.18, 0.95, -1.38, g);
+  mesh(new THREE.ConeGeometry(0.06, 0.3, 4), M.thornSpike, -0.25, 0.6, -1.35, g).rotation.x = Math.PI;
+  mesh(new THREE.ConeGeometry(0.06, 0.3, 4), M.thornSpike, 0.25, 0.6, -1.35, g).rotation.x = Math.PI;
+  for (let i = 0; i < 6; i++) { const sp = mesh(new THREE.ConeGeometry(0.13, 0.6, 4), M.thornSpike, R(-0.5, 0.5), 1.55, -0.6 + i * 0.25, g); sp.rotation.set(R(-0.4, 0.4), 0, R(-0.4, 0.4)); }
+  mesh(new THREE.BoxGeometry(0.08, 0.06, 1.1), M.rift, 0.12, 1.42, 0.1, g).rotation.y = 0.3;
+  for (const [lx, lz] of [[-0.5, -0.45], [0.5, -0.45], [-0.5, 0.45], [0.5, 0.45]]) mesh(new THREE.BoxGeometry(0.25, 0.6, 0.25), M.thornDark, lx, 0.3, lz, g);
+  return g;
+}
+function wisp(x, y, z, parent) {
+  const g = group(x, y, z, parent);
+  mesh(new THREE.IcosahedronGeometry(0.28, 0), glow(0xd36bff, 2.5), 0, 0, 0, g);
+  sprite(TEX.purple, 1.8, 0, 0, 0, g, 0.9);
+  for (let i = 1; i <= 4; i++) sprite(TEX.purple, 1.2 - i * 0.2, i * 0.35, -i * 0.05, i * 0.25, g, 0.5 - i * 0.1);
+  return g;
+}
+function riftBat(x, y, z, parent, rot) {
+  const g = group(x, y, z, parent); g.rotation.y = rot || 0;
+  mesh(new THREE.DodecahedronGeometry(0.35, 0), mat(0x2a1f3d), 0, 0, 0, g);
+  const wmat = mat(0x3d2c5c, { side: THREE.DoubleSide });
+  const shape = new THREE.Shape(); shape.moveTo(0, 0); shape.lineTo(1.4, 0.4); shape.lineTo(1.1, -0.1); shape.lineTo(0.8, 0.05); shape.lineTo(0.5, -0.25); shape.lineTo(0, -0.1);
+  const wg = new THREE.ShapeGeometry(shape);
+  const w1 = mesh(wg, wmat, 0.2, 0.05, 0, g); w1.rotation.x = -Math.PI / 2 + 0.4;
+  const w2 = mesh(wg, wmat, -0.2, 0.05, 0, g); w2.rotation.x = -Math.PI / 2 + 0.4; w2.scale.x = -1;
+  mesh(new THREE.SphereGeometry(0.06, 6, 4), M.eye, -0.12, 0.08, -0.32, g);
+  mesh(new THREE.SphereGeometry(0.06, 6, 4), M.eye, 0.12, 0.08, -0.32, g);
+  return g;
+}
+function shieldBrute(x, z, parent, rot) {
+  const g = group(x, 0, z, parent); g.rotation.y = rot || 0;
+  const body = mat(0x463a5e);
+  mesh(new THREE.BoxGeometry(0.4, 0.8, 0.4), body, -0.3, 0.4, 0, g);
+  mesh(new THREE.BoxGeometry(0.4, 0.8, 0.4), body, 0.3, 0.4, 0, g);
+  mesh(new THREE.DodecahedronGeometry(0.75, 0), body, 0, 1.45, 0, g);
+  mesh(new THREE.BoxGeometry(0.5, 0.45, 0.5), body, 0, 2.25, -0.1, g);
+  mesh(new THREE.BoxGeometry(0.1, 0.06, 0.05), M.eye, -0.12, 2.3, -0.36, g);
+  mesh(new THREE.BoxGeometry(0.1, 0.06, 0.05), M.eye, 0.12, 2.3, -0.36, g);
+  const sh = mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.15, 6), M.crystalP, -0.4, 1.4, -0.75, g); sh.rotation.x = Math.PI / 2;
+  sprite(TEX.purple, 1.4, -0.4, 1.4, -0.85, g, 0.4);
+  return g;
+}
+function hero(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  mesh(new THREE.ConeGeometry(0.55, 1.6, 8), mat(0x1f6f8b), 0, 0.8, 0, g);
+  const cape = mesh(new THREE.ConeGeometry(0.62, 1.4, 8, 1, true, Math.PI * 0.2, Math.PI * 1.2), mat(0xb8383f, { side: THREE.DoubleSide }), 0, 0.85, 0.05, g);
+  mesh(new THREE.SphereGeometry(0.28, 10, 8), mat(0xc98d63), 0, 1.85, 0, g);
+  mesh(new THREE.ConeGeometry(0.33, 0.45, 8), mat(0x173f5a), 0, 2.15, 0.03, g);
+  mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.3, 5), M.woodDark, 0.55, 1.2, -0.1, g);
+  mesh(new THREE.OctahedronGeometry(0.2, 0), M.anchor, 0.55, 2.45, -0.1, g);
+  sprite(TEX.cyan, 1.5, 0.55, 2.45, -0.1, g);
+  const aura = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.05, 32), new THREE.MeshBasicMaterial({ color: 0x7ef3ff, transparent: true, opacity: 0.8 }));
+  aura.rotation.x = -Math.PI / 2; aura.position.y = 0.05; g.add(aura);
+  return g;
+}
+
+// ---- Camp and rift ----
+function camp(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  for (let i = 0; i < 26; i++) {
+    const a = (i / 26) * Math.PI * 2;
+    if (a > 2.6 && a < 3.4) continue; // gate facing the path
+    const p = mesh(new THREE.CylinderGeometry(0.2, 0.22, R(1.4, 1.8), 6), M.wood, Math.cos(a) * 4.2, 0.8, Math.sin(a) * 4.2, g);
+    mesh(new THREE.ConeGeometry(0.2, 0.35, 6), M.wood, Math.cos(a) * 4.2, 1.75, Math.sin(a) * 4.2, g);
+  }
+  const tent = (tx, tz, c) => { const t = mesh(new THREE.ConeGeometry(1.1, 1.6, 4), mat(c), tx, 0.8, tz, g); t.rotation.y = R(0, 2); };
+  tent(-1.8, 1.6, 0xd9c9a3); tent(1.9, 1.4, 0xb8383f); tent(1.6, -1.9, 0xd9c9a3);
+  // fire
+  for (let i = 0; i < 6; i++) { const l = mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8, 5), M.woodDark, -1.6 + Math.cos(i) * 0.15, 0.12, -1.4 + Math.sin(i) * 0.15, g); l.rotation.set(Math.PI / 2, i, 0); }
+  mesh(new THREE.ConeGeometry(0.28, 0.6, 6), M.ember, -1.6, 0.4, -1.4, g);
+  sprite(TEX.orange, 2.4, -1.6, 0.6, -1.4, g);
+  const fl = new THREE.PointLight(0xff9a3c, 2.2, 10); fl.position.set(-1.6, 1.2, -1.4); g.add(fl);
+  // Rift Anchor: the crystal you defend
+  mesh(new THREE.CylinderGeometry(0.9, 1.2, 0.5, 6), M.stone, 0, 0.25, 0, g);
+  const c = mesh(new THREE.OctahedronGeometry(0.85, 0), M.anchor, 0, 2.0, 0, g); c.scale.y = 1.9;
+  for (let i = 0; i < 5; i++) { const s = mesh(new THREE.OctahedronGeometry(0.25, 0), M.anchor, Math.cos(i * 1.26) * 1.0, 0.7, Math.sin(i * 1.26) * 1.0, g); s.scale.y = 2; }
+  sprite(TEX.cyan, 5.5, 0, 2.1, 0, g, 0.9);
+  const cl = new THREE.PointLight(0x5ff0ff, 2.6, 14); cl.position.set(0, 2.6, 0); g.add(cl);
+  // banner
+  mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.4, 5), M.woodDark, 2.8, 1.7, -2.8, g);
+  const flag = mesh(new THREE.PlaneGeometry(1.1, 0.7), mat(0x2a3a9a, { side: THREE.DoubleSide }), 3.35, 3.0, -2.8, g);
+  return g;
+}
+function riftGate(x, z, parent) {
+  const g = group(x, 0, z, parent);
+  for (let i = 0; i < 14; i++) {
+    const a = (i / 14) * Math.PI * 2;
+    const r = R(2.3, 3.0);
+    const c = mesh(new THREE.ConeGeometry(R(0.25, 0.5), R(1.5, 3.5), 5), M.crystalP, Math.cos(a) * r, 0.8, Math.sin(a) * r * 0.6, g);
+    c.rotation.set(R(-0.4, 0.4), 0, Math.cos(a) * 0.4);
+  }
+  // the tear itself: a tall glowing jagged sheet
+  const shape = new THREE.Shape();
+  const pts = [[0, 0], [0.6, 1.2], [0.3, 2.2], [0.9, 3.4], [0.4, 4.6], [0, 5.4], [-0.5, 4.4], [-0.2, 3.3], [-0.8, 2.1], [-0.3, 1.1]];
+  shape.moveTo(pts[0][0], pts[0][1]); pts.slice(1).forEach(p => shape.lineTo(p[0] * 1.8, p[1]));
+  const tear = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: 0xffb3ff, side: THREE.DoubleSide }));
+  tear.position.set(0, 0.2, 0); g.add(tear);
+  sprite(TEX.purple, 11, 0, 2.8, 0.2, g, 1);
+  sprite(TEX.purple, 6, 0, 2.8, 0.4, g, 1);
+  const l = new THREE.PointLight(0xc04dff, 4, 22); l.position.set(0, 3, 1.5); g.add(l);
+  for (let i = 0; i < 40; i++) sprite(TEX.purple, R(0.2, 0.6), R(-3.5, 3.5), R(0.3, 6), R(-1.5, 2.5), g, R(0.4, 1));
+  return g;
+}
+
+// ---- Effects ----
+function boltLine(a, b, parent, color) {
+  const pts = [];
+  const n = 9;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const p = a.clone().lerp(b, t);
+    if (i > 0 && i < n) p.add(new THREE.Vector3(R(-0.4, 0.4), R(-0.4, 0.4), R(-0.4, 0.4)));
+    pts.push(p);
+  }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 30, 0.07, 4), new THREE.MeshBasicMaterial({ color: color || 0xfff7b0 }));
+  parent.add(tube);
+  for (let i = 0; i < 6; i++) { const p = curve.getPoint(i / 5); sprite(TEX.yellow, 1.2, p.x, p.y, p.z, parent, 0.7); }
+}
+function arrow(x, y, z, parent, ry, rx) {
+  const g = group(x, y, z, parent); g.rotation.set(rx || 0, ry || 0, 0);
+  mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 4), M.wood, 0, 0, 0, g).rotation.x = Math.PI / 2;
+  mesh(new THREE.ConeGeometry(0.07, 0.18, 4), M.metal, 0, 0, -0.5, g).rotation.x = -Math.PI / 2;
+  sprite(TEX.yellow, 0.5, 0, 0, 0.45, g, 0.5);
+  return g;
+}
+
+// ---------------------------------------------------------------------------
+// Terrain
+// ---------------------------------------------------------------------------
+function noise(x, z) {
+  return Math.sin(x * 0.21 + 1.3) * Math.cos(z * 0.17 + 0.7) * 0.9 + Math.sin(x * 0.53 + z * 0.41) * 0.35 + Math.cos(x * 0.11 - z * 0.23) * 0.6;
+}
+function terrain(w, d, seg, heightFn, colorFn, parent) {
+  const geo = new THREE.PlaneGeometry(w, d, seg, Math.round(seg * d / w));
+  geo.rotateX(-Math.PI / 2);
+  const pos = geo.attributes.position;
+  const colors = [];
+  const col = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), z = pos.getZ(i);
+    const y = heightFn(x, z);
+    pos.setY(i, y);
+  }
+  const g2 = geo.toNonIndexed();
+  const p2 = g2.attributes.position;
+  for (let i = 0; i < p2.count; i += 3) {
+    const cx = (p2.getX(i) + p2.getX(i + 1) + p2.getX(i + 2)) / 3;
+    const cz = (p2.getZ(i) + p2.getZ(i + 1) + p2.getZ(i + 2)) / 3;
+    const cy = (p2.getY(i) + p2.getY(i + 1) + p2.getY(i + 2)) / 3;
+    colorFn(cx, cz, cy, col);
+    for (let k = 0; k < 3; k++) colors.push(col.r, col.g, col.b);
+  }
+  g2.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  g2.computeVertexNormals();
+  const m = new THREE.Mesh(g2, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 }));
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+function pathDistance(samples, x, z) {
+  let best = 1e9;
+  for (const p of samples) { const d = (p.x - x) ** 2 + (p.z - z) ** 2; if (d < best) best = d; }
+  return Math.sqrt(best);
+}
+
+// ---------------------------------------------------------------------------
+// HUD helpers
+// ---------------------------------------------------------------------------
+const SPK = '<svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" stroke="#ffe9a8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const CRYSTAL = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path d="M12 1l7 7-7 15L5 8z" fill="#7ef3ff"/><path d="M12 1l7 7h-14z" fill="#d9fbff"/><path d="M12 23L5 8h14z" fill="#3fc6e0" opacity=".7"/></svg>`;
+function html(s) { const d = document.createElement('div'); d.innerHTML = s; return d.firstElementChild; }
+function addUI(s) { const el = html(s); document.getElementById('ui').appendChild(el); return el; }
+function project(v, camera) { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; }
+function labelAt(v, camera, inner, extra) {
+  const p = project(v, camera);
+  addUI(`<div class="label" style="left:${p.x}px;top:${p.y}px;${extra || ''}">${inner}</div>`);
+}
+
+// Render a model to a small picture for the build menu.
+function iconOf(factory, camPos, look) {
+  const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+  r.setSize(96, 96);
+  const s = new THREE.Scene();
+  s.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.1));
+  const d = new THREE.DirectionalLight(0xffffff, 1.0); d.position.set(3, 6, 4); s.add(d);
+  factory(s);
+  const c = new THREE.PerspectiveCamera(35, 1, 0.1, 100); c.position.copy(camPos); c.lookAt(look);
+  r.render(s, c);
+  const url = r.domElement.toDataURL(); r.dispose(); return url;
+}
+
+// ===========================================================================
+// VIEW 1: BATTLE
+// ===========================================================================
+function battle() {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x141a2e);
+  scene.fog = new THREE.Fog(0x141a2e, 60, 110);
+  const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 300);
+  camera.position.set(0.5, 35, 33);
+  camera.lookAt(-2, 0, 3.2);
+
+  scene.add(new THREE.HemisphereLight(0xb8c8ff, 0x302545, 0.55));
+  scene.add(new THREE.AmbientLight(0x404060, 0.25));
+  const sun = new THREE.DirectionalLight(0xffe2b8, 0.95);
+  sun.position.set(-20, 40, 18); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 35, bottom: -35, near: 1, far: 120 });
+  scene.add(sun);
+
+  // Path: from the rift (top left) winding to the camp (bottom right).
+  const curve = new THREE.CatmullRomCurve3([
+    [-30, 0, -15], [-22, 0, -14], [-17, 0, -6], [-21, 0, 2], [-14, 0, 8], [-4, 0, 5], [0, 0, -4], [8, 0, -6], [12, 0, 1], [6, 0, 6], [2.5, 0, 12]
+  ].map(p => new THREE.Vector3(p[0], p[1], p[2])), false, 'catmullrom', 0.4);
+  const samples = curve.getSpacedPoints(260);
+  const riverX = (z) => 22 + Math.sin(z * 0.2) * 3;
+
+  terrain(110, 80, 110, (x, z) => {
+    const dp = pathDistance(samples, x, z);
+    let h = noise(x, z) * 0.9 + 0.6;
+    if (dp < 2.6) h *= dp / 2.6 * 0.6;
+    const rv = Math.abs(x - riverX(z));
+    if (rv < 3.2) h = -1.2 + rv * 0.15;
+    if (Math.hypot(x + 8, z + 18) < 7) h += (7 - Math.hypot(x + 8, z + 18)) * 0.7; // hill
+    return h;
+  }, (x, z, y, col) => {
+    const dp = pathDistance(samples, x, z);
+    const rv = Math.abs(x - riverX(z));
+    const riftNear = Math.max(0, 1 - Math.hypot(x + 30, z + 15) / 14);
+    if (rv < 2.6) col.setHex(0x3a6f8f);
+    else if (rv < 3.4) col.setHex(0xb59f74);
+    else if (dp < 1.9) col.setHex(rnd() < 0.5 ? 0x9b7a50 : 0x8d6d45);
+    else if (dp < 2.5) col.setHex(0x7a8a45);
+    else if (y > 2.6) col.setHex(rnd() < 0.5 ? 0x6f7f5a : 0x7d8b66);
+    else col.setHex([0x4f9a3f, 0x55a345, 0x4a9038, 0x5aa84a][Math.floor(rnd() * 4)]);
+    if (riftNear > 0) col.lerp(new THREE.Color(0x3a2a55), riftNear * 0.85);
+  }, scene);
+  // river surface
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(8, 90, 1, 30), new THREE.MeshStandardMaterial({ color: 0x3fa9d6, transparent: true, opacity: 0.8, roughness: 0.15, metalness: 0.2 }));
+  water.rotation.x = -Math.PI / 2; water.position.set(22, -0.55, 0); scene.add(water);
+  // path stones
+  for (let i = 0; i < 70; i++) { const p = samples[Math.floor(rnd() * samples.length)]; const s = mesh(new THREE.CylinderGeometry(R(0.15, 0.35), R(0.2, 0.4), 0.1, 6), M.stone, p.x + R(-1.3, 1.3), 0.03, p.z + R(-1.3, 1.3), scene); }
+
+  // Forest (keep off the path and the river)
+  const free = (x, z, r) => pathDistance(samples, x, z) > (r || 3.4) && Math.abs(x - riverX(z)) > 4.2 && Math.hypot(x - 3, z - 13.5) > 6.5;
+  let placed = 0;
+  for (let i = 0; i < 900 && placed < 230; i++) {
+    const x = R(-52, 52), z = R(-38, 30);
+    if (!free(x, z)) continue;
+    if (Math.hypot(x + 30, z + 15) < 5) continue;
+    const tainted = Math.hypot(x + 30, z + 15) < 13;
+    if (rnd() < 0.75) tree(x, z, scene, R(0.8, 1.35), tainted); else roundTree(x, z, scene, R(0.8, 1.2));
+    placed++;
+  }
+  for (let i = 0; i < 40; i++) { const x = R(-45, 45), z = R(-30, 25); if (free(x, z, 2.6)) rock(x, z, scene, R(0.3, 0.9)); }
+
+  // Rift and camp
+  riftGate(-31, -15.5, scene).rotation.y = 0.6;
+  camp(3, 13.5, scene);
+
+  // Defenders
+  const at1 = archerTower(-10, 1, scene);
+  archerTower(4, 2, scene);
+  frostTotem(-17.8, -1.2, scene);
+  lightningSpire(3.5, -9.5, scene);
+  emberCannon(-8, 9, scene);
+  golem(-2.2, 4.6, scene, 1.05).rotation.y = 1.9;
+  spikePit(-19.5, -10.5, scene);
+  vineSnare(-17.5, 4.8, scene);
+  ballista(15.5, -2, scene);
+  healShrine(12, 8, scene);
+  barricade(8.5, 9.5, scene, 0.3);
+  const hr = hero(-12.5, -9, scene);
+  rock(-12.5, -9, scene, 1.1).position.y = -0.3;
+  hr.position.y = 0.55;
+
+  // Range ring on the selected archer tower
+  const rr = new THREE.Mesh(new THREE.RingGeometry(7.8, 8.05, 64), new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.9 }));
+  rr.rotation.x = -Math.PI / 2; rr.position.set(-10, 0.12, 1); scene.add(rr);
+  const rd = new THREE.Mesh(new THREE.CircleGeometry(7.8, 64), new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.07, depthWrite: false }));
+  rd.rotation.x = -Math.PI / 2; rd.position.set(-10, 0.1, 1); scene.add(rd);
+
+  // Creatures along the path
+  const along = (t) => { const p = curve.getPointAt(t); const tan = curve.getTangentAt(t); return { p, rot: Math.atan2(tan.x, tan.z) + Math.PI }; };
+  const creatures = [];
+  const put = (t, fn, off) => { const a = along(t); const o = fn(a.p.x + (off || 0), a.p.z, a.rot); creatures.push({ o, a }); return o; };
+  put(0.06, (x, z, r) => thornback(x, z, scene, 1.0, r));
+  put(0.10, (x, z, r) => thornback(x, z, scene, 0.85, r), 0.9);
+  put(0.17, (x, z, r) => shieldBrute(x, z, scene, r));
+  put(0.255, (x, z, r) => thornback(x, z, scene, 0.9, r)); // in frost ring
+  put(0.285, (x, z, r) => thornback(x, z, scene, 1.0, r), -0.8);
+  put(0.37, (x, z, r) => thornback(x, z, scene, 1.15, r)); // snared
+  put(0.5, (x, z, r) => thornback(x, z, scene, 1.0, r)); // blocked by golem
+  put(0.47, (x, z, r) => shieldBrute(x, z, scene, r), 0.6);
+  const w1 = wisp(-8, 1.6, 6.5, scene);
+  const w2 = wisp(1.5, 1.5, -6.2, scene);
+  const w3 = wisp(9.6, 1.5, -2.8, scene);
+  const b1 = riftBat(9, 5.5, -9, scene, 2.2);
+  const b2 = riftBat(5.5, 6.5, -12.5, scene, 2.5);
+  // ice on a frozen creature
+  const ice = mesh(new THREE.IcosahedronGeometry(1.1, 0), new THREE.MeshStandardMaterial({ color: 0xbff3ff, transparent: true, opacity: 0.45, roughness: 0.1, flatShading: true }), creatures[3].a.p.x, 0.9, creatures[3].a.p.z, scene);
+  vineSnare(creatures[5].a.p.x, creatures[5].a.p.z, scene).scale.setScalar(0.9);
+
+  // Shots in the air
+  arrow(-9, 4.2, 3.2, scene, 2.6, -0.2);
+  arrow(-7.5, 3.6, 4.6, scene, 2.4, -0.15);
+  arrow(1.5, 4, 2.0, scene, -1.2, -0.25);
+  boltLine(new THREE.Vector3(3.5, 4.1, -9.5), new THREE.Vector3(1.5, 1.5, -6.2), scene);
+  boltLine(new THREE.Vector3(1.5, 1.5, -6.2), creatures[7].o.position.clone().add(new THREE.Vector3(0, 1.4, 0)), scene);
+  // ember shell arcing
+  for (let i = 0; i < 7; i++) sprite(TEX.orange, 1.4 - i * 0.15, -6 + i * 0.25, 4.5 - i * 0.35, 7 - i * 0.6, scene, 1 - i * 0.12);
+  mesh(new THREE.SphereGeometry(0.3, 10, 8), M.ember, -6, 4.5, 7, scene);
+  // explosion where an ember shell landed
+  const ex = creatures[6].a.p;
+  sprite(TEX.orange, 5, ex.x - 0.5, 1.2, ex.z + 0.8, scene, 0.95);
+  for (let i = 0; i < 14; i++) sprite(TEX.orange, R(0.3, 0.8), ex.x + R(-2, 2), R(0.5, 3), ex.z + R(-1.5, 2), scene, 0.8);
+  // ballista bolt toward the bat
+  arrow(11.5, 4.0, -5.0, scene, 0.6, 0.6).scale.setScalar(1.6);
+  // hero meteor charging marker
+  const heal = sprite(glowTex('rgba(240,255,240,1)', 'rgba(110,255,140,0.5)'), 1.2, 12.5, 2.5, 11.5, scene, 0.8);
+
+  renderer.render(scene, camera);
+
+  // ---------------- HUD ----------------
+  labelAt(new THREE.Vector3(3, 6.6, 13.5), camera, `<div class="chip" style="padding:3px 10px;font-size:15px;border-color:#5ff0ff">${CRYSTAL(16)} Rift Anchor 17/20</div>`);
+  creatures.forEach((c, i) => {
+    const hp = [100, 80, 92, 55, 70, 40, 30, 85][i] || 70;
+    const tag = i === 3 ? '<div style="font-size:12px;color:#bff3ff">FROZEN</div>' : i === 5 ? '<div style="font-size:12px;color:#9cff9c">SNARED</div>' : i === 2 || i === 7 ? '<div style="font-size:12px;color:#d9a8ff">SHIELD</div>' : '';
+    labelAt(c.a.p.clone().add(new THREE.Vector3(0, 2.6, 0)), camera, `${tag}<div class="bar"><i style="width:${hp}%"></i></div>`);
+  });
+  [b1, b2].forEach((b) => labelAt(b.position.clone().add(new THREE.Vector3(0, 1, 0)), camera, `<div style="font-size:12px;color:#d9a8ff">FLYING</div><div class="bar"><i style="width:75%"></i></div>`));
+  labelAt(new THREE.Vector3(-17, 0.2, 7.3), camera, '', '');
+  labelAt(new THREE.Vector3(-12.5, 3.5, -9), camera, `<div class="chip" style="padding:3px 10px;font-size:14px;border-color:#7ef3ff">Kael, Rift Warden</div>`);
+  labelAt(new THREE.Vector3(-10, 5.4, 1), camera, `<div class="chip" style="padding:3px 10px;font-size:14px;border-color:#ffd76a">Archer Tower · Lv 2</div>`);
+  labelAt(new THREE.Vector3(-1, 3.6, 7.8), camera, `<div style="font-size:30px;color:#ffd76a;font-weight:700">-24</div>`);
+  labelAt(new THREE.Vector3(-31, 8.5, -15.5), camera, `<div class="chip" style="padding:4px 12px;font-size:15px;border-color:#c04dff;color:#f0c8ff">The Rift · next wave in 0:18</div>`);
+
+  // Top bar
+  addUI(`<div class="hud" style="left:14px;top:12px;display:flex;gap:10px;align-items:center">
+    <div class="chip" style="font-size:26px">${CRYSTAL(30)} <span class="cyan">340</span></div>
+    <div class="chip" style="font-size:17px">Wave <span class="gold" style="font-size:22px">3</span> / 6</div>
+    <div class="chip" style="font-size:15px;flex-direction:column;align-items:flex-start;gap:0;line-height:1.2"><span class="gold">Thornwood · Level 3</span><span>The Hollow Trail</span></div>
+  </div>`);
+  addUI(`<div class="hud" style="left:560px;top:12px;display:flex;gap:8px">
+    <div class="btn">II Pause</div><div class="btn">▶▶ x2</div>
+  </div>`);
+
+  // Hero powers (bottom left above build bar)
+  addUI(`<div class="hud" style="left:14px;bottom:150px;display:flex;gap:10px">
+    ${[['Meteor', '#ff8a2a', 100, '☄'], ['Time Freeze', '#7ef3ff', 60, '❄'], ['Rally', '#ffd76a', 30, '⚑']].map(([n, c, v, g]) => `
+    <div style="width:84px;text-align:center">
+      <div style="width:70px;height:70px;margin:0 auto;border-radius:50%;background:conic-gradient(${c} ${v}%, #1b1f3a 0);padding:5px;box-shadow:0 0 ${v === 100 ? 22 : 0}px ${c}">
+        <div style="width:100%;height:100%;border-radius:50%;background:#10142a;display:flex;align-items:center;justify-content:center;font-size:30px;color:${c}">${g}</div></div>
+      <div style="font-size:13px;font-weight:700;margin-top:4px;text-shadow:0 2px 0 #000">${n}${v === 100 ? '<br><span class="gold">READY</span>' : ''}</div>
+    </div>`).join('')}
+  </div>`);
+
+  // Rune Forge panel
+  addUI(`<div class="hud" style="right:12px;top:12px;width:350px;bottom:142px;background:linear-gradient(#17153a,#0e1026);border:3px solid #c04dff;border-radius:16px;box-shadow:0 0 28px rgba(192,77,255,.45),0 6px 0 #05060f;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:24px;font-weight:700;color:#f0c8ff;letter-spacing:.5px">RUNE FORGE</div>
+      <div class="chip" style="padding:4px 10px;font-size:16px;border-color:#ffd76a">🔥 <span class="gold">x4 streak</span></div>
+    </div>
+    <div style="display:flex;gap:6px">${[1, 1, 1, 1, 0, 0, 0, 0].map(on => `<div style="flex:1;height:10px;border-radius:5px;background:${on ? '#ffd76a' : '#2a2a55'}"></div>`).join('')}</div>
+    <div style="font-size:13px;color:#c9c3ff;margin-top:-4px">4 more for a Mega Forge: +100 crystals</div>
+    <div style="position:relative;background:#2b1550;border:3px solid #ffd76a;border-radius:14px;padding:12px 0 16px;text-align:center">
+      <div style="position:absolute;left:12px;top:10px;font-size:14px;font-weight:700;color:#ffd76a">RUNE · x2</div>
+      <div class="spk" style="position:absolute;right:10px;top:10px">${SPK}</div>
+      <div style="font-size:84px;font-weight:700;color:#ffe9a8;line-height:1.15;text-shadow:0 0 18px rgba(255,215,106,.5)">zot</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:15px;color:#e6e9ff"><div class="spk" style="width:32px;height:32px">${SPK}</div>Which sound matches this rune?</div>
+    <div style="display:flex;gap:10px;justify-content:space-between">
+      ${[0, 1, 0].map((sel, i) => `<div style="flex:1;height:86px;border-radius:12px;background:${sel ? '#ffc94a' : '#1d2550'};border:3px solid ${sel ? '#fff' : '#7d89d8'};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+        <svg width="40" height="40" viewBox="0 0 24 24" style="fill:${sel ? '#1a1300' : '#ffe9a8'}"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" stroke="${sel ? '#1a1300' : '#ffe9a8'}" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <div style="font-weight:700;color:${sel ? '#1a1300' : '#fff'}">${i + 1}</div></div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="btn" style="flex:1;text-align:center;font-size:24px;background:linear-gradient(#7a2ac0,#4b1a85);border-color:#f0c8ff;padding:12px">FORGE ${CRYSTAL(22)} +20</div>
+    </div>
+    <div style="margin-top:auto;background:#0b0d20;border-radius:10px;padding:8px 10px;font-size:14px;color:#c9c3ff;line-height:1.5">
+      <div><span class="gold">map</span> &nbsp;first try &nbsp;<span class="cyan">+10</span></div>
+      <div><span class="gold">hut</span> &nbsp;first try &nbsp;<span class="cyan">+10</span></div>
+      <div><span class="gold">vep</span> &nbsp;rune, first try &nbsp;<span class="cyan">+20</span></div>
+      <div><span class="gold">dig</span> &nbsp;second try &nbsp;<span class="cyan">+5</span></div>
+    </div>
+  </div>`);
+  // floating reward
+  addUI(`<div class="hud" style="left:205px;top:66px;font-size:30px;font-weight:700;color:#7ef3ff;text-shadow:0 0 12px #2fb8ff,0 3px 0 #000;display:flex;align-items:center;gap:6px">+20 ${CRYSTAL(30)}</div>`);
+
+  // Build bar
+  const icons = [
+    ['Archer Tower', 60, (s) => archerTower(0, 0, s), [5, 5, 7], [0, 1.9, 0]],
+    ['Spike Pit', 40, (s) => spikePit(0, 0, s), [3, 3.4, 3], [0, 0.2, 0]],
+    ['Frost Totem', 80, (s) => { const g = frostTotem(0, 0, s); g.children.slice(-2).forEach(c => c.visible = false); }, [4, 4, 5], [0, 1.7, 0]],
+    ['Stone Golem', 100, (s) => golem(0, 0, s), [4, 3.5, -5], [0, 1.5, 0]],
+    ['Ember Cannon', 120, (s) => emberCannon(0, 0, s), [3.5, 3.5, 4], [0, 0.9, 0]],
+    ['Lightning Spire', 150, (s) => lightningSpire(0, 0, s), [5, 4, 6], [0, 2.2, 0]],
+    ['Vine Snare', 70, (s) => vineSnare(0, 0, s), [3, 3, 3.5], [0, 0.9, 0]],
+    ['Ballista', 110, (s) => ballista(0, 0, s), [3.5, 3, 3.5], [0, 0.7, 0]],
+    ['Healing Shrine', 90, (s) => healShrine(0, 0, s), [3.5, 3, 4], [0, 1.0, 0]],
+    ['Barricade', 30, (s) => barricade(0, 0, s), [2.5, 2, 3], [0, 0.8, 0]]
+  ].map(([n, cost, f, cp, lk]) => ({ n, cost, url: iconOf(f, new THREE.Vector3(...cp), new THREE.Vector3(...lk)) }));
+  addUI(`<div class="hud" style="left:0;right:0;bottom:0;height:136px;background:linear-gradient(#141833,#0a0c1c);border-top:3px solid #4b4f9c;display:flex;align-items:center;gap:8px;padding:0 12px">
+    <div style="display:flex;flex-direction:column;gap:6px;margin-right:4px">
+      ${['Defenders', 'Traps', 'Upgrades'].map((t, i) => `<div class="btn" style="padding:4px 10px;font-size:14px;${i === 0 ? 'background:#ffc94a;color:#1a1300;border-color:#fff' : ''}">${t}</div>`).join('')}
+    </div>
+    ${icons.map((ic, i) => {
+      const afford = ic.cost <= 340; const locked = i >= 8;
+      return `<div style="width:108px;height:118px;border-radius:12px;background:${locked ? '#11142a' : '#1c2250'};border:2px solid ${i === 0 ? '#ffd76a' : '#4b4f9c'};display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;opacity:${locked ? 0.55 : 1}">
+        <img src="${ic.url}" style="width:70px;height:70px;${locked ? 'filter:grayscale(1) brightness(.6)' : ''}">
+        <div style="font-size:12px;font-weight:700;text-align:center;line-height:1.1">${ic.n}</div>
+        <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:3px;color:${afford ? '#7ef3ff' : '#ff8a8a'}">${locked ? '🔒 Level 4' : CRYSTAL(13) + ic.cost}</div>
+      </div>`;
+    }).join('')}
+  </div>`);
+}
+
+// ===========================================================================
+// VIEW 2: WORLD MAP
+// ===========================================================================
+function worldMap() {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1124);
+  scene.fog = new THREE.Fog(0x0d1124, 90, 160);
+  const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 400);
+  camera.position.set(2, 92, 66);
+  camera.lookAt(0, 0, 4);
+  scene.add(new THREE.HemisphereLight(0xc8d8ff, 0x2a2140, 0.6));
+  const sun = new THREE.DirectionalLight(0xffe2b8, 0.95);
+  sun.position.set(-30, 60, 30); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 60, bottom: -60, near: 1, far: 200 });
+  scene.add(sun);
+
+  // Regions: Thornwood (forest, open), Dunes of the Dead Sun (sand, locked), Frostfang Pass (snow, locked).
+  const region = (x, z) => (z < -12 ? 'ice' : x > 14 ? 'sand' : 'forest');
+  terrain(170, 130, 130, (x, z) => {
+    const coast = Math.hypot(x / 1.25, z) - 58 + noise(x, z) * 4;
+    let h = noise(x * 0.8, z * 0.8) * 0.35 + 1;
+    if (region(x, z) === 'ice') h += 1.2 + Math.max(0, -z - 24) * 0.12 + Math.abs(noise(x * 2, z * 2)) * 1.2;
+    if (region(x, z) === 'sand') h = 0.7 + Math.sin(x * 0.5) * 0.5 + Math.cos(z * 0.4 + x * 0.2) * 0.4;
+    if (coast > 0) h = -2 - coast * 0.1;
+    return h;
+  }, (x, z, y, col) => {
+    const r = region(x, z);
+    if (y < -0.5) col.setHex(0x23507a);
+    else if (y < 0.2) col.setHex(0xc9b58a);
+    else if (r === 'forest') col.setHex([0x4f9a3f, 0x55a345, 0x4a9038][Math.floor(rnd() * 3)]);
+    else if (r === 'sand') col.setHex([0xd9b36c, 0xcfa75e, 0xe0bd78][Math.floor(rnd() * 3)]);
+    else col.setHex(y > 5 ? 0xf2f6ff : [0xc8d6e8, 0xb5c5da][Math.floor(rnd() * 2)]);
+    if (r !== 'forest') col.lerp(new THREE.Color(0x1a1d33), 0.5); // locked lands sit in shadow
+  }, scene);
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x1f4f80, roughness: 0.2, metalness: 0.3 }));
+  sea.rotation.x = -Math.PI / 2; sea.position.y = -0.9; scene.add(sea);
+
+  // Decor
+  for (let i = 0; i < 260; i++) {
+    const x = R(-60, 60), z = R(-45, 45);
+    if (Math.hypot(x / 1.25, z) > 52) continue;
+    const r = region(x, z);
+    if (r === 'forest' && rnd() < 0.9) { if (Math.abs(z - 20) < 3 && x < 10) continue; tree(x, z, scene, R(1.1, 1.6), x < -30 && z < 0); }
+    else if (r === 'ice' && rnd() < 0.5) { const t = tree(x, z, scene, R(1.0, 1.4)); t.traverse(o => { if (o.material === M.leaf1 || o.material === M.leaf2 || o.material === M.leaf3) o.material = mat(0x2d4a4a); }); t.position.y = 1.5; }
+    else if (r === 'sand' && rnd() < 0.3) rock(x, z, scene, R(0.4, 1.2), 0.5);
+  }
+  // Fog over locked lands
+  for (let i = 0; i < 26; i++) {
+    const x = R(14, 60), z = R(-10, 40);
+    if (region(x, z) === 'sand') sprite(glowTex('rgba(60,60,90,0.9)', 'rgba(30,30,60,0.5)'), R(14, 22), x, 4, z, scene, 0.5);
+  }
+  for (let i = 0; i < 22; i++) sprite(glowTex('rgba(70,70,110,0.9)', 'rgba(30,30,60,0.5)'), R(14, 22), R(-50, 50), 6, R(-45, -14), scene, 0.45);
+  // a distant rift on each locked land
+  riftGate(36, 8, scene).scale.setScalar(0.6);
+  riftGate(-6, -34, scene).scale.setScalar(0.7);
+
+  // Level stones along a trail through Thornwood
+  const lv = [[-38, 24], [-26, 30], [-14, 22], [-20, 9], [-6, 4], [8, 12]];
+  const trail = new THREE.CatmullRomCurve3(lv.map(p => new THREE.Vector3(p[0], 0.4, p[1])).concat([new THREE.Vector3(18, 0.4, 16), new THREE.Vector3(30, 0.4, 18)]));
+  trail.getSpacedPoints(90).forEach((p, i) => { if (i % 2) return; const done = i < 42; mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.15, 6), done ? M.gold : M.stoneDark, p.x, p.y + noise(p.x, p.z) * 0.2 + 0.6, p.z, scene); });
+  lv.forEach((p, i) => {
+    const state = i < 2 ? 'done' : i === 2 ? 'open' : 'locked';
+    const g = group(p[0], 1.3, p[1], scene); g.scale.setScalar(1.35);
+    mesh(new THREE.CylinderGeometry(2.0, 2.4, 0.8, 8), M.stone, 0, 0, 0, g);
+    const top = state === 'done' ? M.gold : state === 'open' ? M.anchor : M.stoneDark;
+    mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.3, 8), top, 0, 0.5, 0, g);
+    if (state === 'open') { sprite(TEX.cyan, 9, 0, 1.5, 0, g, 0.9); const l = new THREE.PointLight(0x5ff0ff, 2.5, 14); l.position.y = 3; g.add(l);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(2.8, 3.2, 40), new THREE.MeshBasicMaterial({ color: 0x7ef3ff, transparent: true, opacity: 0.8 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.1; g.add(ring); }
+    if (state === 'done') sprite(TEX.yellow, 5, 0, 1.2, 0, g, 0.6);
+    if (state === 'locked') { for (let k = 0; k < 2; k++) { const ch = mesh(new THREE.TorusGeometry(1.5, 0.12, 4, 12), mat(0x555a66, { metalness: 0.6 }), 0, 0.9, 0, g); ch.rotation.set(Math.PI / 2 + (k ? 0.5 : -0.5), 0, 0); } }
+  });
+  // the boss stage at the end of Thornwood
+  const boss = group(30, 1.3, 18, scene);
+  mesh(new THREE.CylinderGeometry(2.8, 3.2, 1, 8), M.stoneDark, 0, 0, 0, boss);
+  thornback(0, 0, boss, 2.4, 0.6).position.y = 0.5;
+  sprite(TEX.purple, 10, 0, 3, 0, boss, 0.7);
+  hero(-11, 21, scene).scale.setScalar(2.2);
+
+  renderer.render(scene, camera);
+
+  // Labels on level stones
+  const names = ['Thornwood Edge', 'Bramble Crossing', 'The Hollow Trail', 'Wisp Hollow', 'Old Watch Ruins', 'The Rot Bridge'];
+  lv.forEach((p, i) => {
+    const state = i < 2 ? 'done' : i === 2 ? 'open' : 'locked';
+    const stars = state === 'done' ? (i === 0 ? '★★★' : '★★<span style="color:#555">★</span>') : '';
+    labelAt(new THREE.Vector3(p[0], 4.2, p[1]), camera, `<div style="font-size:30px;color:${state === 'locked' ? '#8890a8' : '#fff'}">${state === 'locked' ? '🔒' : i + 1}</div>
+      <div class="chip" style="padding:3px 10px;font-size:14px;${state === 'open' ? 'border-color:#7ef3ff' : state === 'locked' ? 'opacity:.75' : 'border-color:#ffd76a'}">${names[i]}</div>
+      <div style="font-size:18px;color:#ffd76a">${stars}</div>`);
+  });
+  labelAt(new THREE.Vector3(30, 7, 18), camera, `<div class="chip" style="padding:4px 12px;font-size:15px;border-color:#c04dff;color:#f0c8ff">🔒 BOSS · The Thorn King</div>`);
+  labelAt(new THREE.Vector3(38, 6, 6), camera, `<div class="chip" style="padding:5px 12px;font-size:16px;opacity:.85">🔒 World 2 · Dunes of the Dead Sun</div>`);
+  labelAt(new THREE.Vector3(-34, 6, -22), camera, `<div class="chip" style="padding:5px 12px;font-size:16px;opacity:.85">🔒 World 3 · Frostfang Pass</div>`);
+
+  addUI(`<div class="hud" style="left:14px;top:12px;display:flex;gap:10px;align-items:center">
+    <div class="chip" style="font-size:22px;flex-direction:column;align-items:flex-start;gap:0;line-height:1.2"><span class="gold" style="font-size:15px">WORLD 1</span>Escape the Thornwood</div>
+    <div class="chip" style="font-size:20px">★ <span class="gold">5</span> / 18</div>
+    <div class="chip" style="font-size:20px">${CRYSTAL(24)} <span class="cyan">1,240</span> <span style="font-size:13px;color:#aab">upgrade bank</span></div>
+  </div>`);
+  addUI(`<div class="hud" style="right:16px;top:16px;width:370px;background:linear-gradient(#17153a,#0e1026);border:3px solid #7ef3ff;border-radius:16px;box-shadow:0 0 24px rgba(126,243,255,.35),0 6px 0 #05060f;padding:16px 18px;line-height:1.45">
+    <div style="font-size:14px;color:#7ef3ff;font-weight:700">LEVEL 3 · NOW OPEN</div>
+    <div style="font-size:28px;font-weight:700;margin-bottom:8px">The Hollow Trail</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:15px">
+      <span style="color:#aab">Waves</span><span>6</span>
+      <span style="color:#aab">New enemy</span><span style="color:#d9a8ff">Shield Brutes · only lightning breaks the shield</span>
+      <span style="color:#aab">Words</span><span>short a, e, i, o + runes</span>
+      <span style="color:#aab">Win reward</span><span class="gold">Ballista unlocked · 3 stars = Golem skin</span>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <div class="btn" style="flex:1;text-align:center;font-size:24px;padding:12px;background:linear-gradient(#1f9ab0,#126a80);border-color:#bff8ff">PLAY</div>
+      <div class="spk" style="width:54px;height:54px">${SPK}</div>
+    </div>
+  </div>`);
+  addUI(`<div class="hud" style="left:14px;bottom:14px;display:flex;gap:10px">
+    <div class="btn">⚒ Armory</div><div class="btn">🛡 Hero</div><div class="btn">⚙ Settings</div>
+  </div>`);
+}
+
+if (VIEW === 'map') worldMap(); else battle();
+window.MOCKUP_READY = true;
+</script>
+</body>
+</html>

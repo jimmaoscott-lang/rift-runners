@@ -4,6 +4,28 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 4: November 21, 2026 (redesign: Hold the Rift)
+
+**What happened**
+- Mr. Scott playtested the M2 battle. Length and voice were fine, but the gameplay was not fun: turn-based questions with no action. His students would quit in 2 minutes.
+- Claude studied his games (Huddle Up and Studio '68 in `classroom-games`, The Exiled Crown / Hold the Keep in `castlebuildermapsanditems`). What they share: every answer pays out right away, answers power an action layer, and students build something of their own.
+- New gameplay: **Hold the Rift**, a 3D tower defense. Reading in the Rune Forge makes crystals; crystals build defenders; defenders fight rift creatures in real time. Big world map with every level visible and locked until the one before is beaten. Levels get harder in both creatures and reading. DESIGN.md sections 3 to 7 rewritten; milestones renumbered.
+- Engine changes to three.js (same as The Exiled Crown) for low-poly 3D. Phaser retires.
+- Mockups: `mockups/hold-the-rift.html` (`?view=battle` and `?view=map`) with screenshots `mockups/hold-the-rift-battle.png` and `mockups/hold-the-rift-map.png`. All models are original, built from shapes in code.
+
+**Carries over from M1 and M2:** word bank, voices, decodability checker, heart words, Spanish lines, settings choices, progress record, the "pick the matching sound" reading check (now the Forge).
+
+**To review (Mr. Scott)**
+- Look at the two mockup pictures. Mark anything about the look, the defender list or the map to change.
+
+**Next up**
+- M3: Hold the Rift core. Thornwood map, trail, waves of Thornbacks and Wisps, Rune Forge in tap mode, Archer Tower, Spike Pit, Stone Golem, Frost Totem, crystals, win and lose. Title screen and settings move over to the new engine.
+
+**Open questions**
+- None blocking. World names in DESIGN.md 4.1A are now in use; change any time.
+
+---
+
 ## Session 3: November 21, 2026 (M2 first battle, tap mode)
 
 **Built**

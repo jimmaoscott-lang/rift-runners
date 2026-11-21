@@ -1,7 +1,7 @@
 # Game Design Document
 
 **Title:** Rift Runners (chosen November 21, 2026). Tagline: "The worlds are breaking. Run."
-**Status:** Draft 1, November 2026
+**Status:** Draft 2, November 21, 2026 (gameplay redesigned as Hold the Rift)
 **Owner:** Mr. Scott
 
 ---
@@ -32,18 +32,21 @@ Students should experience it as a game they want to beat. The reading instructi
 
 ---
 
-## 3. Game style
+## 3. Game style (redesigned Nov 21: Hold the Rift)
 
-A combination of proven styles from the 1980s to now:
+**Why the redesign:** Mr. Scott played the M2 turn-based battle and called it: no action, students would quit in 2 minutes. His students stay with games where every answer pays out right away and the answers power an action layer (Huddle Up, Studio '68, The Exiled Crown / Hold the Keep). Rift Runners now follows that pattern.
 
-| Inspiration | What we take from it | Why it helps reading |
-|---|---|---|
-| The Legend of Zelda / Metroidvania games | An overworld with areas you can see but cannot reach until you earn a new ability | Each new reading skill becomes an ability that opens new areas |
-| Pokémon | Turn-based battles and a team of collectable creatures that level up and evolve | Turn-based play gives time to decode; collecting drives long-term play |
-| Guitar Hero / rhythm games | Boss fights where text scrolls to a beat and the player reads in rhythm | Trains phrasing and speed, the core of fluency; high-score replays are repeated reading |
-| Super Mario Bros. 3 | A world map with visible levels and worlds 1 through 8 | Clear, visible progress |
+**Core idea:** a 3D tower defense. Rift creatures pour out of a glowing tear in the world and march down a trail toward your camp's Rift Anchor crystal. Reading words in the **Rune Forge** makes crystals. Crystals build and upgrade defenders. The defenders fight in real time.
 
-**Art:** 16-bit pixel art (SNES era look). Reads as retro-cool to teens, small file sizes, easy to keep consistent.
+| Inspiration | What we take from it |
+|---|---|
+| Hold the Keep / The Exiled Crown | Answers become resources; resources become an army; low-poly 3D world; missions that build on each other |
+| Kingdom Rush and other tower defense games | Paths, waves, placing and upgrading defenders, hero powers, stars per level |
+| Studio '68 | Spend earnings on unlocks you choose; a reward you can see and play with |
+| Huddle Up | A good read makes the action stronger; streaks matter |
+| Super Mario Bros. 3 | A big world map with every level visible, each one locked until the one before it is beaten |
+
+**Look:** low-poly 3D built with three.js (the same engine as The Exiled Crown, already proven on school Chromebooks), with a darker magic palette: glowing rift light, spell effects, particles. All models are original, built from simple shapes in code. Mockups: `mockups/hold-the-rift.html` (`?view=battle`, `?view=map`) and the screenshots beside it.
 
 ---
 
@@ -51,29 +54,25 @@ A combination of proven styles from the 1980s to now:
 
 ### 4.1 World map
 
-8 worlds. Each world teaches one stage of the skill sequence (section 5). Each world contains:
-
-- 4 to 6 overworld areas with battles
-- 1 skill shrine where the new pattern is taught (short, interactive, skippable on replay)
-- 1 ability gate that opens when the world's pattern is mastered
-- 1 rhythm boss at the end
-
-Theme ideas (to decide): forest, desert, ice, ocean, volcano, sky city, ruins, final fortress.
+- One big 3D map per world. Every level of the world sits on it as a stone on a trail, all visible from the start.
+- Beaten levels turn gold and show 1 to 3 stars. The next level glows. Later levels are chained and locked until the one before is beaten. The next world sits under fog in the distance with its own rift.
+- Each world: 5 levels plus a boss level (6 total). 8 worlds, 48 levels.
+- Level card on the map: name, waves, new enemy, which word patterns, and the reward for winning. Every line has a speaker.
 
 ### 4.1A Naming rule
 
-No name the student sees may point at reading or at a reading problem. The game, worlds, levels, abilities and rewards are named for the adventure, like a movie title (example: "Escape from Witch Mountain"). Words like read, word, letter, spell, phonics, level or fluency stay out of names. Reading is the power inside the game, never what the game is called.
+No name the student sees may point at reading or at a reading problem. The game, worlds, levels, abilities and rewards are named for the adventure, like a movie title (example: "Escape from Witch Mountain"). Words like read, word, letter, spell, phonics, level or fluency stay out of names. Reading is the power inside the game, never what the game is called. ("Level" appears only as a small label, like "Level 3", never as a name.)
 
-World name ideas to approve: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead Sun" (desert), World 3 "Frostfang Pass" (ice), World 4 "The Drowned Coast" (ocean), World 5 "Ashfall" (volcano), World 6 "Skyport Zero" (sky city), World 7 "The Sunken Vault" (ruins), World 8 "The Rift Core" (final fortress).
+World names: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead Sun" (desert), World 3 "Frostfang Pass" (ice), World 4 "The Drowned Coast" (ocean), World 5 "Ashfall" (volcano), World 6 "Skyport Zero" (sky city), World 7 "The Sunken Vault" (ruins), World 8 "The Rift Core" (final fortress). World 1 level names: Thornwood Edge, Bramble Crossing, The Hollow Trail, Wisp Hollow, Old Watch Ruins, boss: The Thorn King.
 
-### 4.2 Core loop
+### 4.2 Core loop (one level, about 8 to 12 minutes)
 
-1. Explore an area of the overworld
-2. Run into wild creatures and trainers, which start battles
-3. Win battles by reading words, which earns XP and new creatures
-4. Master the world's pattern, which unlocks a new ability and opens the gate
-5. Beat the rhythm boss, which opens the next world
-6. Replay any battle or boss for higher ranks and rare rewards
+1. **Build phase:** start crystals plus the Forge. Place the first defenders. Press Start Wave when ready (no timer).
+2. **Waves:** creatures march. Defenders fight on their own. The student keeps forging crystals, builds more, upgrades, and fires hero powers.
+3. **Between waves:** a short breather. Forge, build, upgrade.
+4. **Win** by surviving every wave. Stars: 3 = Anchor untouched, 2 = Anchor above half, 1 = survived.
+5. **Rewards:** the next level unlocks, often a new defender or upgrade, skins for 3 stars, crystals carried to the upgrade bank.
+6. **Level Clear screen** with growth (section 12A).
 
 ---
 
@@ -92,67 +91,104 @@ A structured literacy sequence built for older readers. Each world adds to every
 | 7 | Prefixes, suffixes and roots (un-, re-, pre-, -tion, -ment, -ful; port, struct, ject) | unlock, rebuild, motion, transport, construction | Teleport |
 | 8 | Fluent reading of full passages; prosody and expression | Mixed text using all patterns | Final form |
 
-**Heart words:** each world allows a small list of high-frequency irregular words (for example: the, was, said, of, to, you, they, were). Heart words are taught directly and stored in `game/data/heart-words.json`.
+**World 1 level ramp (decided by Claude, Nov 21):** Level 1 short a and i only (two vowels far apart in sound). Level 2 adds short o (a/o is a hard pair for Spanish speakers). Level 3 adds short e (i/e is the hardest pair). Level 4 adds short u. Level 5 mixes all five with more runes. Boss: short phrases and a short passage made only of World 1 words and heart words. Every later world follows the same shape: introduce the new pattern in small steps, then mix it with everything before.
 
 **World 1 word rules (built in M2):** three letters, consonant + short vowel + consonant. No final r, w or y (they change the vowel), no c or g before e or i (soft sounds), and final blends like "bend" wait for World 2. Words live in `game/data/world1.json`.
+
+**Heart words:** each world allows a small list of high-frequency irregular words (for example: the, was, said, of, to, you, they, were). Heart words are taught directly and stored in `game/data/heart-words.json`.
 
 **Decodability checker:** `tools/check_decodable.py` checks every word and passage against the patterns taught so far plus allowed heart words, and flags anything that does not fit. All new content must pass it.
 
 ### 5.1 Mastery
 
-- A pattern is mastered when the student reads pattern words with about 90% accuracy across at least two separate play sessions. (Exact threshold to be tuned with Mr. Scott.)
+- A pattern is mastered when the student reads pattern words with about 90% accuracy across at least two separate play sessions.
 - Missed words come back more often (spaced review). Mastered words still appear occasionally so skills stay sharp.
 - Earlier patterns keep appearing in later worlds as review.
 
 ### 5.2 Placement
 
-The opening mission doubles as a placement check. It quickly samples each world's pattern with real words and nonsense words, then unlocks the worlds the student has already mastered. Students who already decode well skip ahead. The student sees it as a tutorial mission, never a test.
+The opening mission doubles as a placement check. It quickly samples each world's pattern with real words and runes, then opens the worlds the student has already mastered. The student sees it as a tutorial mission, never a test.
 
 ---
 
-## 6. Battle system
+## 6. The Rune Forge (where the reading happens)
 
-Turn-based, one-on-one, Pokémon style.
+Always on screen in a level, on the right side.
 
-### 6.1 Player turn
+1. A word appears, big, in Lexend. Gold-edged **runes** are made-up words and pay double.
+2. **Tap mode:** three speaker buttons each say a word: the real one and two with a different vowel (sit, set, sat). The student picks the one that matches the written word and presses Forge. **Speak mode (later):** read the word aloud into the mic for a bonus.
+3. **Every forge pays right away:** crystals fly from the Forge into the crystal counter with a sound.
+   - Real word, first try: +10. Rune, first try: +20.
+   - Hearing the word first (speaker on the word) or second try: about half.
+   - After the answer is shown: a small amount, so the student is never stuck.
+4. **Streak meter:** first-try reads in a row fill 8 pips. A full meter is a **Mega Forge**: +100 crystals and a burst of light over the battlefield.
+5. **Hero charge:** forging also charges the hero's powers.
+6. **Misses:** no lost crystals. Letter tiles with the vowel in gold, "Let's break it up," then try again. The word comes back sooner next time.
+7. **Recent forges list:** the last few words with what each one earned, so students see the reward and the words again.
 
-1. Choose a move. Each move shows a word, and harder words do more damage.
-2. Read the word:
-   - **Speak mode:** read it aloud into the mic
-   - **Tap mode (built in M2):** the word is on screen. Three speaker buttons each say a different word: the real one and two with a different vowel (sit, set, sat). The student listens, picks the one that matches what is written, and casts. This checks decoding, because the student has to read the written word to know which sound fits. Later worlds can add "tap the sounds in order."
-3. Correct reading lands the attack. Clean, quick reading adds a combo bonus (optional, never required to win).
-4. A miss does not hurt the player. The word is read aloud, broken into letter tiles with the vowel in gold, and the student tries again. After a second miss the right answer glows and the student taps it to attack. The word comes back more often in later battles.
-5. Any word can be heard at any time with its speaker button. Hearing a move's word before casting counts as help: the hit still lands, with less damage, and the record notes the help.
+**No timers on reading, even in battle.** The battle never waits on a timer to read a word, and Pause is always one tap away; the Forge stays open while paused. Students with extended time (and anyone who turns on Focus in Settings) get automatic slow motion while a word is up.
 
-**Damage (M2 numbers, easy to tune):** Thornback has 140 health, about 8 words. Real word 15, rune 25, plus a small bonus for each first-try hit in a row. With help or on a second try, about half. After the answer is shown, about a third. The student always wins; the only question is how fast.
+**Guessing (same rule as Mr. Scott's other games):** 3 wrong in a row that are each very fast, or 3 wrong in a row on the same button position. The Forge cools down for 5 seconds the first time and 10 seconds after that ("The forge is overheating. Read each one."). Correct answers are never flagged.
 
-### 6.2 Battle word types
-
-- **Real words** from the current and earlier patterns
-- **Nonsense words** (for example, "blim" or "strake"), shown as "Rune" moves with gold edges and more power, to check true decoding instead of memorized words
-- **Word building moves** where the student builds a word from tiles to power a special attack
-- **Sentence moves** (later worlds) where a short sentence powers a big attack
-
-### 6.3 Creatures
-
-- Students collect creatures by winning battles
-- Each creature has a type tied to a pattern family (example: a "Vowel Team" type)
-- Creatures level up as the student reads words of their type, and evolve when the student masters that pattern
-- Target: about 30 to 40 creatures total, each with 2 or 3 evolution stages (art budget to confirm)
-- All creatures are original designs. No copies or look-alikes of existing game characters.
+**Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
 
 ---
 
-## 7. Rhythm bosses (fluency)
+## 6A. Defenders
 
-- A short passage scrolls karaoke style to a beat, with the current phrase highlighted
-- The student reads along aloud (speak mode) or taps on the beat as each phrase lights up (tap mode)
-- Scoring rewards accuracy first, then smooth phrasing and pace
-- Difficulty levels change the tempo. The student can always pick a slower tempo.
-- Bosses can be replayed for higher ranks. Each replay is a repeated reading of the same passage.
-- The game records words correct per minute (WCPM) on boss passages and shows the student their personal best rising over time.
+Placed on build spots beside the trail (towers) or on the trail itself (blockers and traps). Each has 3 upgrade tiers; tier 3 picks one of two specialties.
+
+| Defender | Role | Unlocks |
+|---|---|---|
+| Archer Tower | Steady single-target damage, hits fliers | Start |
+| Spike Pit | Trap on the trail, damages everything that walks over | Start |
+| Stone Golem | Blocks the trail and holds creatures in place | Level 1 win |
+| Frost Totem | Slows everything in its ring; tier 3 can freeze | Level 2 win |
+| Ember Cannon | Splash damage on groups | Level 2 win |
+| Lightning Spire | Chains between creatures; breaks shields | Level 3 win |
+| Vine Snare | Roots creatures in place for a few seconds | Level 3 win |
+| Ballista | Long range, extra damage to fliers and big creatures | Level 4 win |
+| Healing Shrine | Repairs golems and barricades; slowly heals the Anchor | Level 4 win |
+| Barricade | Cheap wall that blocks or reroutes on open maps | Level 5 win |
+| Rift Mine (World 2+) | One-time blast on the trail | World 2 |
+| Hawk Nest (World 2+) | Hawks hunt fliers anywhere on the map | World 2 |
+
+**Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
+
+**Between levels:** the **Armory** spends banked crystals on permanent upgrades (stronger arrows, cheaper golems) and skins.
 
 ---
+
+## 6B. Rift creatures
+
+| Creature | Trait | First seen |
+|---|---|---|
+| Thornback | Tough, slow | World 1, Level 1 |
+| Rift Wisp | Fast and fragile, comes in packs | Level 1 |
+| Bramble Swarm | Many tiny creatures at once | Level 2 |
+| Shield Brute | Shield blocks most damage until lightning or a cannon breaks it | Level 3 |
+| Rift Bat | Flies over traps and blockers | Level 4 |
+| Splitter | Splits in two when defeated | Level 5 |
+| The Thorn King | World 1 boss: summons thorns, roots defenders | Boss |
+
+Every later world adds its own creatures with new tricks (burrowers, healers, invisible stalkers, armored sky ships).
+
+## 6C. How levels get harder
+
+- **Creatures:** more waves, more creatures per wave, a new creature type every level, mixed types that need different defenders, stronger bosses.
+- **Reading:** new patterns step by step (section 5), more runes, and later worlds use longer words and short phrases in the Forge.
+- **Economy:** defenders cost more in later worlds, so steady forging matters.
+- **Stars and replays:** 3 stars needs a clean defense. Replaying a level is extra reading practice.
+- A level stays winnable for a student who reads steadily, even slowly. Speed of play is never required: Pause is always available.
+
+---
+
+## 7. Boss levels and the Rift Seal (fluency)
+
+- The last level of each world is a boss: a big creature with special attacks, plus regular waves.
+- To win, the boss must be beaten **and the rift sealed**. The **Rift Seal** is a short passage that scrolls karaoke style to a beat. The student reads along aloud (speak mode) or taps on the beat as each phrase lights up (tap mode). A good seal also blasts the boss.
+- The student can always pick a slower tempo. Replays for higher ranks are repeated readings of the same passage.
+- The game records words correct per minute (WCPM) on Rift Seal passages and shows the student their personal best rising over time.
 
 ## 8. Emergent bilingual (EB) supports
 
@@ -280,11 +316,11 @@ If a number drops (common when a new world brings harder words), the screen show
 
 ## 13. Technology
 
-- **Engine:** Phaser 3, plain JavaScript, static files
+- **Engine:** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and is retired with the redesign.
 - **Hosting:** GitHub Pages from this repo
 - **Target:** Chrome on school Chromebooks, at 1366 x 768 and smaller
 - **Content as data:** word banks, passages, creatures and world layouts in JSON under `game/data/`
-- **Maps:** tile maps (Tiled editor JSON format) for overworld areas
+- **Maps:** level layouts (trail points, build spots, waves) in JSON under `game/data/`
 - **Performance:** must run smoothly on low-end Chromebooks; keep assets small
 - **Portable to Google Apps Script:** the district may block github.io. Every build must also produce a single self-contained HTML file (code, art and audio packed inside) that can run as a Google Apps Script web app on a district Google account. Rules that keep this possible:
   - No server code and no build tools the game depends on at runtime
@@ -300,12 +336,26 @@ If a number drops (common when a new world brings harder words), the screen show
 
 Each milestone is a playable, testable step.
 
-**December 2 demo target:** one complete World 1 level for the district meeting, covering M1, M2, M3 and a small version of M4 plus the Level Clear screen: title screen and settings (Spanish toggle, text size, font), one overworld area, a short vowel skill shrine, battles in tap and speak mode with read-aloud on every word, Spanish supports, and a Level Clear growth screen. Creatures, rhythm bosses, placement and teacher reports come after the meeting. The demo must run both as the website and as the Apps Script version.
+**December 2 demo target (updated Nov 21 for the redesign):** M3 plus a first slice of M4: one playable Thornwood level of Hold the Rift with the Rune Forge in tap mode, Spanish supports and read-aloud, and the World 1 map showing the locked levels. Speak mode only if time allows. Runs as the website, with the offline file as backup.
 
-**Build note:** every feature records the metrics in section 12.2 from the first battle onward (M2), saved on the device. Then the reports in M9 will have real history to show. The Level Clear growth screen (section 12A.2) arrives with M4 and gains the fluency line at M6.
+**Build note:** every feature records the metrics in section 12.2 from the first forge onward, saved on the device, so the reports in M10 have real history to show. The Level Clear growth screen (section 12A.2) arrives with M4 and gains the fluency line at M7.
 
 | # | Milestone | Playable result |
 |---|---|---|
+| M0 | Project docs | CLAUDE.md, this design doc, session log (done) |
+| M1 | Game skeleton | Title screen, Lexend font, settings menu (done) |
+| M2 | First reading check | Turn-based tap battle with World 1 words (done, replaced by the redesign; its words, voices, checker and record carry over) |
+| M3 | Hold the Rift core | 3D Thornwood map, trail, waves, Rune Forge, 4 defenders, 2 creatures, one playable level |
+| M4 | World map and Level 1 to 3 | World 1 map with locked levels, stars, Level Clear growth screen |
+| M5 | Speak mode | Forge words read aloud for a bonus |
+| M6 | Full arsenal | All World 1 defenders, upgrades, hero powers, Armory |
+| M7 | Boss and Rift Seal | Thorn King, Rift Seal fluency passage with WCPM |
+| M8 | Placement mission | Opening mission that places students |
+| M9 | Worlds 2 to 8 | Content, maps, creatures and defenders for the rest |
+| M10 | Teacher reports | Google Sheet + Apps Script reports, class overview, on-device teacher screen |
+| M11 | Polish | Story, music, balance and classroom testing |
+
+---|---|---|
 | M0 | Project docs | CLAUDE.md, this design doc, session log |
 | M1 | Game skeleton | Title screen running on GitHub Pages; Lexend font; settings menu (done Nov 21) |
 | M2 | First battle (tap mode) | One battle using World 1 words, read-aloud on every word (done Nov 21) |
