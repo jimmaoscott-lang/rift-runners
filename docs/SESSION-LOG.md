@@ -34,6 +34,10 @@ Newest entry at the top. Each session adds one entry.
 
 **Fix after the session (Mr. Scott, Nov 21):** Pause now stops the music; Resume brings back the calm or battle music. Changing the music volume in Settings while paused no longer restarts it. v0.9.2.
 
+**Added after the session (Mr. Scott, Nov 21):** Teacher settings has a **Clear progress on this device** button (tap twice). It clears levels, stars, rift locks and reading history and turns Test mode off. Settings and the teacher PIN stay. v0.9.3.
+
+**Mr. Scott's test (Nov 21):** beat Level 1 in 3 waves with only Archer Towers. Likely causes: rift locks already full from earlier reading on the device (locks read the whole history), and an adult reading every word right plays as the strong reader, who wins in 3 waves by design. Retest from cleared progress, missing about 1 word in 5 on purpose to play like a typical student.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.

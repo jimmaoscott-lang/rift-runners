@@ -377,7 +377,10 @@
     "hud.card": "card",
     "hud.nextComing": "Next wave coming!",
     "hud.nextAfter": "Next wave comes right after this one",
-    "hud.nextAfterShort": "comes next"
+    "hud.nextAfterShort": "comes next",
+    "teacher.clear": "Clear progress on this device",
+    "teacher.clearSure": "Tap again to clear all progress",
+    "teacher.cleared": "Progress cleared. Test mode is off."
   },
   "es": {
     "title.name": "Rift Runners",
@@ -756,6 +759,9 @@
     "hud.card": "tarjeta",
     "hud.nextComing": "¡Viene la próxima oleada!",
     "hud.nextAfter": "La próxima oleada viene justo después de esta",
-    "hud.nextAfterShort": "viene después"
+    "hud.nextAfterShort": "viene después",
+    "teacher.clear": "Borrar el progreso en este aparato",
+    "teacher.clearSure": "Toca otra vez para borrar todo el progreso",
+    "teacher.cleared": "Progreso borrado. El modo de prueba está apagado."
   }
 }

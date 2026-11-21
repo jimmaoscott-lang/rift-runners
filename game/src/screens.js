@@ -255,6 +255,20 @@ window.RF = window.RF || {};
     const bottom = D.el('div', null, null, p);
     bottom.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin-top:6px';
     D.button('teacher.changePin', function () { st.pinHash = null; RF.saveSettings(); S.teacher(onBack); }, '', bottom);
+    // Start over on this device: clears levels, stars, locks and reading history, and turns Test mode off.
+    // Settings and the teacher PIN stay. Asks twice so it cannot happen by accident.
+    const sure = S.clearArmed;
+    S.clearArmed = false;
+    const clr = D.button(sure ? 'teacher.clearSure' : 'teacher.clear', function () {
+      if (!sure) { S.clearArmed = true; RF.sfx('soft'); S.teacherPanel(onBack); RF.speak('teacher.clearSure'); return; }
+      RF.store.set('riftrunners.metrics.v1', 'null');
+      RF.metrics.load(); RF.metrics.touch(); RF.metrics.save();
+      st.testAll = false; RF.saveSettings();
+      RF.sfx('back');
+      S.teacherPanel(onBack);
+      RF.speak('teacher.cleared');
+    }, '', bottom);
+    if (sure) clr.btn.style.cssText += ';border-color:#ff8a8a;color:#ffc8c8';
     D.button('settings.back', function () { RF.sfx('back'); onBack(); }, 'go', bottom).btn.dataset.first = '1';
     D.nav(box, onBack);
   };
