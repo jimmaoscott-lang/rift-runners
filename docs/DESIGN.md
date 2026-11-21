@@ -268,12 +268,20 @@ If a number drops (common when a new world brings harder words), the screen show
 - **Content as data:** word banks, passages, creatures and world layouts in JSON under `game/data/`
 - **Maps:** tile maps (Tiled editor JSON format) for overworld areas
 - **Performance:** must run smoothly on low-end Chromebooks; keep assets small
+- **Portable to Google Apps Script:** the district may block github.io. Every build must also produce a single self-contained HTML file (code, art and audio packed inside) that can run as a Google Apps Script web app on a district Google account. Rules that keep this possible:
+  - No server code and no build tools the game depends on at runtime
+  - No loading files from other websites while playing (fonts and libraries are stored in the repo)
+  - Small assets: pixel art, and short mono audio at a low bitrate
+  - A GitHub Action builds both versions: the website and `dist/apps-script/index.html`
+  - Speak mode must be tested inside Apps Script early, because the microphone may be blocked inside Google's frame. Tap mode always works as the fallback.
 
 ---
 
 ## 14. Milestones
 
 Each milestone is a playable, testable step.
+
+**December 2 demo target:** one complete World 1 level for the district meeting, covering M1, M2, M3 and a small version of M4 plus the Level Clear screen: title screen and settings (Spanish toggle, text size, font), one overworld area, a short vowel skill shrine, battles in tap and speak mode with read-aloud on every word, Spanish supports, and a Level Clear growth screen. Creatures, rhythm bosses, placement and teacher reports come after the meeting. The demo must run both as the website and as the Apps Script version.
 
 **Build note:** every feature records the metrics in section 12.2 from the first battle onward (M2), saved on the device. Then the reports in M9 will have real history to show. The Level Clear growth screen (section 12A.2) arrives with M4 and gains the fluency line at M6.
 
