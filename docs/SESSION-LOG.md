@@ -27,6 +27,8 @@ Newest entry at the top. Each session adds one entry.
 5. Go to https://github.com/jimmaoscott-lang/rift-runners/actions, click **Speech checker** on the left, then **Run workflow**, then the green **Run workflow** button. Wait for the green check (about 1 minute).
 6. Open https://rift-runners-speech.jimmaoscott.workers.dev/health. It should say `"ok":true`. If the page does not load or says false, tell Claude what it shows.
 
+**Setup done (Nov 21, 2:34 pm):** token added, the checker is online at rift-runners-speech.jimmaoscott.workers.dev with the Azure key. Notes for next time: the token needs Workers Scripts Edit and Account Settings Read on his account (editing a token in Cloudflare's new screen clears its permission boxes), and the Cloudflare account ID is now in `worker/wrangler.toml`.
+
 **To test (Mr. Scott)**
 1. After setup, open https://jimmaoscott-lang.github.io/rift-runners/ on a Chromebook. Settings, Microphone test: the bottom line should say "Pronunciation check: Azure on."
 2. Teacher, Test mode On. Play Level 3. Press Say it on pin, pen, ten or win, plus a few others.
