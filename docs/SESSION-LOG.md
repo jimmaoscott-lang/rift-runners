@@ -22,7 +22,10 @@ Newest entry at the top. Each session adds one entry.
 - Students get frequent, specific, growth-based encouragement and a simple growth graph on a Level Clear screen after every level. See DESIGN.md section 12A.
 - Metrics are recorded from the first battle onward.
 
+- Voice: Azure AI Speech (free F0 tier, East US) on Mr. Scott's Azure account. Key and region are GitHub Secrets `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`. Voice job: `.github/workflows/voice-samples.yml` running `tools/voice_samples.py`. First samples made in `assets/audio/samples/`. The free tier rate-limits fast requests (HTTP 429), so the script now waits and retries.
+
 **To review (Mr. Scott)**
+- Listen to the voice samples and pick one English and one Spanish voice. Record the choice in DESIGN.md section 10.
 - Read `docs/DESIGN.md` and mark anything to change, especially the skill sequence in section 5 and the open questions in section 15.
 
 **Next up**

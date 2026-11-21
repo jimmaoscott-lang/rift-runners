@@ -4,6 +4,7 @@ Runs inside a GitHub Action. Reads the key and region from environment
 variables (stored as GitHub Secrets). Writes MP3 files to assets/audio/samples/.
 """
 import json
+import time
 import os
 import sys
 import urllib.request
@@ -72,10 +73,20 @@ def main():
             "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
             "User-Agent": "reading-fluency-voice-samples",
         })
-        try:
-            audio = request(f"{base}/v1", data=ssml.encode("utf-8"), headers=headers)
-        except urllib.error.HTTPError as err:
-            print(f"Failed: {voice} {label}: {err.code}")
+        audio = None
+        for attempt in range(4):
+            try:
+                audio = request(f"{base}/v1", data=ssml.encode("utf-8"), headers=headers)
+                break
+            except urllib.error.HTTPError as err:
+                if err.code == 429:
+                    time.sleep(5 * (attempt + 1))  # free tier rate limit: wait and retry
+                    continue
+                print(f"Failed: {voice} {label}: {err.code}")
+                break
+        time.sleep(0.5)
+        if audio is None:
+            print(f"Gave up: {voice} {label}")
             continue
         name = f"{voice.replace('Neural', '')}_{label}.mp3"
         with open(os.path.join(OUT, name), "wb") as f:
