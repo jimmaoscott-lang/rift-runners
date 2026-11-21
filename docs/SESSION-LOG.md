@@ -27,10 +27,12 @@ Newest entry at the top. Each session adds one entry.
 4. Read the summary screen as a student would. Tell me what to add or cut.
 
 **Next up**
-- Mr. Scott's choice between phone layout, cross-device saving and M4 (World 1 map). See Open questions.
+- M4: World 1 map (like the map mockup) with every level shown, locks and stars, the Level Clear growth screen, Levels 2 and 3 (Bramble Swarm, Shield Brute, short o and short e), and the defender unlock order.
+
+**Decided after the session (Mr. Scott)**
+- Phone layout waits until the full game is set up. Added as milestone M12 in DESIGN.md and on the progress page.
 
 **Open questions**
-- Phone play: build a sideways (landscape) phone layout with bigger buttons and a "turn your phone" screen when held upright? About one session.
 - Moving between phone and Chromebook: (A) sync through a Google Sheet on his district account with a student code and PIN, the same path the teacher reports need (M10); or (B) a save code the student types on the other device, which carries levels and locks but not full history. Recommended: A.
 - Are students allowed to play on phones at school, at home, or both?
 

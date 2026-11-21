@@ -381,13 +381,14 @@ Each milestone is a playable, testable step.
 | M9 | Worlds 2 to 8 | Content, maps, creatures and defenders for the rest |
 | M10 | Teacher reports | Google Sheet + Apps Script reports, class overview, on-device teacher screen |
 | M11 | Polish | Story, music, balance and classroom testing |
+| M12 | Phone layout | Sideways (landscape) phone layout with bigger buttons and tap targets, a "turn your phone" screen when held upright. Built after the full game is set up (Mr. Scott, Session 6) |
 
 
 ---
 
 ## 15. Open questions
 
-0. **Phones and moving between devices (raised Session 6).** The game runs on a phone but the layout is built for a Chromebook screen, so it is too small to play. Progress is saved only in the browser on each device. See the Session 6 log for the options.
+0. **Moving between devices (raised Session 6).** Progress is saved only in the browser on each device. Options: (A) sync through a Google Sheet on Mr. Scott's district account with a student code and PIN, shared with teacher reports (M10), recommended; (B) a save code typed on the other device. Waiting on Mr. Scott's choice. Phone play itself is decided: M12, after the full game is set up.
 
 1. ~~Final game title~~ Decided: Rift Runners
 2. Story and setting: who is the player, and what are they fighting? Starting idea from the title: rifts are tearing the worlds apart and the player runs through each world to seal its rift.

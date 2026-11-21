@@ -121,6 +121,15 @@
         4
       ],
       "done": false
+    },
+    {
+      "id": "M12",
+      "name": "Phone layout (after the full game is set up)",
+      "sessions": [
+        1,
+        2
+      ],
+      "done": false
     }
   ]
 }
