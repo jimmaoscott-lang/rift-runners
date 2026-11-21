@@ -184,6 +184,8 @@ Always on screen in a level, on the right side.
 
 **Keyboard (built in M3):** 1, 2, 3 pick a sound; Enter or F forges; H hears the word; S starts the next wave; P or Esc pauses; after picking a defender, arrow keys move between glowing spots and Enter builds.
 
+**Waves from reading (decided by Mr. Scott, Nov 21, to build in Session 15):** a wave comes every 10 finished words (World 1) or 10 finished cards (World 8); finished items, not tries, and items finished during a wave count toward the next. Start wave stays as an early call. This stops stockpiling between waves while keeping the game untimed. Final level starts at about 400 crystals. See SESSION-LOG Session 14 for the balance targets.
+
 **Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
 
 **Level 1 balance (tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. With waves until mastery (Session 6), accurate readers win in 4 to 9 waves and inaccurate ones lose later with progress saved. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.

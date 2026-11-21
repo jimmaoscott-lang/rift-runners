@@ -29,8 +29,20 @@ Newest entry at the top. Each session adds one entry.
 5. Answer the Seal questions, win, and look at the Reading aloud box on the results screen.
 6. Tell me: does the line move on at the right time when you finish a sentence (not too early, not too slow)? Was any word you read right marked gold? In Test mode the small orange line under the score says which checker was used; send it if a score looks wrong.
 
+**Mr. Scott's test (Nov 21):** the waves are too easy. Cause: a new wave only comes when the student presses Start wave, so students forge or answer as long as they like first and stockpile crystals.
+
+**Decided (Mr. Scott, Nov 21): waves come from reading, on every level.**
+- A wave comes every 10 finished words (World 1) or 10 finished cards (World 8). Count finished items, not tries, so guessing does not bring waves faster. Items finished during a wave count toward the next one, so a fast reader can stack waves.
+- Start wave stays as a choice to call the next wave early.
+- Still untimed: waves come from reading, never from a clock.
+- Final level starts with about 400 crystals instead of 900. World 1 starting crystals stay (100 and 120).
+- Retune every level's waves with the simulated player: a typical reader (about 80% first try) barely holds, a struggling reader (about 50%) loses around wave 4 or 5 with progress saved, a strong reader wins.
+- Expected income between waves: World 1 about 95 (struggling) to 160 (strong speaking) crystals; final level about 225 to 450.
+- Open option for Claude to judge in the balance runs: lower what helped World 1 words pay so first-try accuracy matters more.
+
 **Next up**
-- M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
+- **Waves from reading** (the decision above), all levels. Show a "next wave in N" counter in the top bar where Start wave is. Update DESIGN.md 6 and 7, then test with the simulated player and in headless Chrome. Start the chat with Opus.
+- Then M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade).
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 
 **Open questions**
