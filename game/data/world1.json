@@ -406,7 +406,7 @@
       ]
     },
     {
-      "w": "pid",
+      "w": "pid", "noSpeak": true,
       "options": [
         "pad",
         "pod"

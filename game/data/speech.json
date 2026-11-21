@@ -5,7 +5,7 @@
   "checkTimeoutMs": 4000,
   "maxListenMs": 5000,
   "endSilenceMs": 700,
-  "spokenRunes": false,
+  "spokenRunes": true,
   "score": {
     "vowelMin": 60,
     "vowelClearMiss": 80,

@@ -36,7 +36,7 @@ Newest entry at the top. Each session adds one entry.
 4. Tell me: any right read called wrong, or wrong read called right? Send the readout line for those. Also: does the answer feel fast enough?
 5. At school (after Thanksgiving): run the microphone test on a student Chromebook to see if the district network lets the checker through.
 
-**Mr. Scott's test (Nov 21):** Azure is on. Every real word he read right was accepted, including pin, pen, ten and win, and every wrong vowel was caught. The rune "pid" never passed: Azure guessed it as "peed" with extra sounds. Fix (v0.6.1): runes are tap only again, in Test mode too.
+**Mr. Scott's test (Nov 21):** Azure is on. Every real word he read right was accepted, including pin, pen, ten and win, and every wrong vowel was caught. Every rune he tried also passed except "pid," which Azure reads as the abbreviation P-I-D. Fix (v0.6.2): spoken runes are on for everyone while Azure is up (they pay the rune amount), and "pid" is marked tap only. New runes should avoid common abbreviations.
 
 **Next up**
 - Watch Test mode readouts during classroom use; tune `game/data/speech.json` if a right read fails.
