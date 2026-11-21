@@ -171,8 +171,13 @@ Turn-based, one-on-one, Pokémon style.
 ## 10. Speech and audio
 
 - **Speech recognition:** browser Web Speech API in Chrome to start. It sends audio to Google's servers, so district approval is needed before classroom use (see Open Questions). Possible later option: an on-device speech model so no audio leaves the Chromebook.
-- **Read-aloud:** browser text-to-speech for words and sentences, with an English and a Spanish voice.
-- **Phoneme sounds:** text-to-speech is poor at single sounds (like /b/ or short /i/). Single sounds need recorded audio clips (source to decide).
+- **Read-aloud voice: pre-made audio files.** Every word, sentence, passage and menu line is turned into an audio file ahead of time with a high-quality neural voice (Azure AI Speech, free tier), and the game plays those files. The Chromebook's built-in voice is used only as a last-resort backup if a file is missing.
+  - Why pre-made: better sound, instant playback, works offline, no API key inside the game, and no ongoing cost. All game text is known ahead of time, so live voice generation is unnecessary.
+  - **How files get made:** a GitHub Action (an automatic job that runs on GitHub's servers) reads the content JSON files, sends any new text to Azure, and saves the audio into `assets/audio/`. The Azure key is stored as an encrypted GitHub Secret, so it never appears in the public repo. New content gets voiced automatically when it is pushed.
+  - Voices: one English voice and one Spanish (Mexico) voice, chosen by Mr. Scott from samples. Keep the same voices for the whole game.
+  - Free tier is 0.5 million characters per month, far more than the game's full text. Free tier usage is throttled rather than billed when the limit is reached.
+  - Backup option with no account: an open-source voice (Kokoro or Piper) run by the same GitHub Action.
+- **Phoneme sounds:** single sounds (like /b/ or short /i/) are generated with Azure's pronunciation tags and checked by ear. Any that sound wrong get recorded clips instead.
 - Music and sound effects: chiptune style, CC0 or original.
 
 ---
@@ -287,7 +292,7 @@ Each milestone is a playable, testable step.
 1. Final game title
 2. Story and setting: who is the player, and what are they fighting?
 3. District approval for speech recognition in Chrome on student Chromebooks
-4. Source of recorded phoneme audio (Mr. Scott records them, or a CC0 set)
+4. Azure Speech account setup and voice choice (English and Spanish); confirm Azure terms allow the generated audio in a public classroom game; source for any phoneme clips that need recording
 5. Art source: CC0 pixel art packs (for example Kenney or OpenGameArt), AI-generated art, or a mix
 6. District approval to send student-code progress data to a teacher-owned Google Sheet
 7. Mastery threshold and how many words per battle
