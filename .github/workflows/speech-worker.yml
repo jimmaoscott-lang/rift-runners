@@ -25,13 +25,26 @@ jobs:
           else
             echo "ready=yes" >> "$GITHUB_OUTPUT"
           fi
+      # First put the checker online (a new one has to exist before it can hold a secret),
+      # then add the Azure key to it.
       - name: Put the speech checker on Cloudflare
         if: steps.check.outputs.ready == 'yes'
         uses: cloudflare/wrangler-action@v3
         with:
+          wranglerVersion: "4.50.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
+          command: deploy
+      - name: Give the checker the Azure key
+        if: steps.check.outputs.ready == 'yes'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: "4.50.0"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy
           secrets: |
             AZURE_SPEECH_KEY
             AZURE_SPEECH_REGION
