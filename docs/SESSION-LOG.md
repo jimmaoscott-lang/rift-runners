@@ -33,7 +33,7 @@ Newest entry at the top. Each session adds one entry.
 **Next up**
 - Goal: World 1 demo level ready for the district meeting on December 2 (see DESIGN.md section 14).
 - M1: game skeleton. Title screen, Lexend font, settings menu (language, text size, font toggle, volume). Publish as the website AND as the single-file Apps Script version, and test the microphone inside Apps Script early.
-- Mr. Scott: turn on GitHub Pages (Settings, Pages, Source: GitHub Actions). Check whether github.io sites load on a student Chromebook at school.
+- GitHub Pages is ON with Source set to GitHub Actions (done 11/21). M1 must add the deploy workflow. Mr. Scott: check whether github.io sites load on a student Chromebook at school.
 
 **Open questions**
 - See DESIGN.md section 15.
