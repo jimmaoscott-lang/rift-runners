@@ -295,7 +295,9 @@
     "teacher.testAll": "Test mode",
     "teacher.testHint": "Test mode opens every level and defender so you can try any level. Turn it off before students play.",
     "teacher.changePin": "Change PIN",
-    "map.testMode": "Test mode: all levels open"
+    "map.testMode": "Test mode: all levels open",
+    "forge.checkAgain": "The checker missed that one. Press the mic and say it again.",
+    "forge.checkSwitch": "Speak mode cannot check this word right now. Use the sound choices."
   },
   "es": {
     "title.name": "Rift Runners",
@@ -592,6 +594,8 @@
     "teacher.testAll": "Modo de prueba",
     "teacher.testHint": "El modo de prueba abre todos los niveles y defensores para probar cualquier nivel. Apágalo antes de que jueguen los estudiantes.",
     "teacher.changePin": "Cambiar PIN",
-    "map.testMode": "Modo de prueba: todos los niveles abiertos"
+    "map.testMode": "Modo de prueba: todos los niveles abiertos",
+    "forge.checkAgain": "El verificador no lo captó. Presiona el micrófono y dilo otra vez.",
+    "forge.checkSwitch": "El modo de voz no puede revisar esta palabra ahora. Usa las opciones de sonido."
   }
 }

@@ -79,19 +79,18 @@ window.RF = window.RF || {};
     // Speak first (DESIGN.md 6, item 2): a real word hides its tap choices until the student has
     // made this many voice tries. Off when the mic cannot work, so tap mode always works.
     function speakFirst() { return Math.max(0, Math.min(3, +RF.settings.speakFirst || 0)); }
-    // Speak mode skips some words (DESIGN.md 6, Speak mode word rule): short i or short e before
-    // m or n (pin, pen, ten, win), since Gulf Coast speech says them alike and Chrome returns no
-    // word for them, plus any word marked "noSpeak" in the word list. Those stay tap only, like runes.
-    function speakable(w) { return !w.noSpeak && !/[ie][mn]/.test(w.w); }
-    function micOn() { return F.cur && F.cur.kind === 'real' && speakable(F.cur) && RF.mic && RF.mic.usable(); }
-    function choicesHidden() { return micOn() && !F.revealed && F.speakTries < speakFirst(); }
+    // Which words can be spoken depends on the checker that is up (DESIGN.md 6, Speak mode word
+    // rule): with the Azure check every real word can (and runes when turned on); with Chrome only,
+    // short i or short e before m or n (pin, pen, ten, win) and runes stay tap only. See speech.js.
+    function micOn() { return F.cur && RF.mic && RF.mic.usable() && RF.mic.canCheck(F.cur); }
+    function choicesHidden() { return F.cur.kind === 'real' && micOn() && !F.revealed && F.speakTries < speakFirst(); }
     function renderMode() {
       const hide = choicesHidden();
       optsRow.style.display = hide ? 'none' : '';
       forgeBtn.style.display = hide ? 'none' : '';
       micBtn.style.display = micOn() ? '' : 'none';
       D.clear(prompt);
-      const id = F.cur.kind === 'rune' ? 'forge.whichRune' : hide ? 'forge.sayIt' : micOn() ? 'forge.whichOrSay' : 'forge.which';
+      const id = hide ? 'forge.sayIt' : micOn() ? 'forge.whichOrSay' : F.cur.kind === 'rune' ? 'forge.whichRune' : 'forge.which';
       D.line(id, '', prompt);
       if (hide && F.speakTries > 0) {
         const left = speakFirst() - F.speakTries;
@@ -148,7 +147,7 @@ window.RF = window.RF || {};
       F.cur = w;
       F.recentWords = [w.w].concat(F.recentWords).slice(0, 5);
       F.choices = shuffle([{ w: w.w, ok: true }, { w: w.options[0], ok: false }, { w: w.options[1], ok: false }]);
-      F.sel = -1; F.tries = 0; F.speakTries = 0; F.help = false; F.revealed = false;
+      F.sel = -1; F.tries = 0; F.speakTries = 0; F.matchNote = null; F.help = false; F.revealed = false;
       if (RF.mic) RF.mic.stop();
       F.shownAt = F.lastAction = performance.now();
       wordBox.classList.toggle('rune', w.kind === 'rune');
@@ -183,15 +182,22 @@ window.RF = window.RF || {};
       if (RF.audio) RF.audio.duck(2); // keep game sound out of the mic
       renderMic(true);
       RF.sfx('tap');
-      RF.mic.listen(w.w, function (res) {
+      RF.mic.listen(w, function (res) {
         if (RF.audio) RF.audio.duck(0);
         if (F.cur !== w || !root.parentNode) return;
         renderMic(false);
-        if (res.outcome === 'match') return F.success(performance.now(), 'speak');
+        if (res.outcome === 'match') { F.engine = res.engine; if (RF.unlocks.testMode()) F.matchNote = testHeard(res.heard, res.engine + ' / ' + res.diag); return F.success(performance.now(), 'speak'); }
         if (res.outcome === 'down') {
           // The mic cannot work here: show the choices now and say why. Not counted as a try.
           renderMode();
           say(RF.mic.reason || 'mic.blocked', true);
+          return;
+        }
+        // The checker stumbled (not the student): say it again, or use the choices for this word.
+        // Neither one counts as a try.
+        if (res.outcome === 'again' || res.outcome === 'switch') {
+          renderMode();
+          say(res.outcome === 'again' ? 'forge.checkAgain' : 'forge.checkSwitch', true, RF.unlocks.testMode() ? testHeard(res.heard, res.engine + ' / ' + res.diag) : null);
           return;
         }
         // Any real try counts, even if no word was caught (DESIGN.md 6, item 2).
@@ -200,7 +206,7 @@ window.RF = window.RF || {};
         F.lastAction = performance.now();
         RF.sfx('soft');
         // Test mode only: show what Chrome heard, so misses can be reported and fixed.
-        const heardNote = RF.unlocks.testMode() ? testHeard(res.heard, res.diag) : null;
+        const heardNote = RF.unlocks.testMode() ? testHeard(res.heard, res.engine + ' / ' + res.diag) : null;
         if (F.tries === 1) {
           showTiles();
           say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true, heardNote);
@@ -272,7 +278,7 @@ window.RF = window.RF || {};
       if (F.streak >= cfg.megaPips) { mega = true; amount += cfg.mega; F.streak = 0; }
       RF.metrics.attempt({
         battle: L.id, w: w.w, kind: w.kind, pattern: 'cvc-' + w.w[1], mode: mode,
-        tries: F.tries + 1, help: F.help, revealed: F.revealed, ms: Math.round(now - F.shownAt)
+        tries: F.tries + 1, help: F.help, revealed: F.revealed, ms: Math.round(now - F.shownAt), check: mode === 'speak' ? F.engine : undefined
       });
       F.stats.forged++;
       if (first) F.stats.firstTry++;
@@ -313,7 +319,10 @@ window.RF = window.RF || {};
       else if (F.streak === 5) { id = 'battle.streak5'; speakIt = true; }
       else if (w.kind === 'rune') id = 'battle.runeHit';
       else id = 'forge.good' + (1 + Math.floor(Math.random() * 4));
-      say(id, speakIt && !extra, extra);
+      // Test mode: show what the checker heard on a match too.
+      const note = extra || F.matchNote;
+      F.matchNote = null;
+      say(id, speakIt && !extra, note);
       if (extra && !mega) RF.speakSeq([{ word: w.w }, { es: w.es }]);
       if (mega && opts.onMega) opts.onMega();
       renderStreak();

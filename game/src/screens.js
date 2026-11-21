@@ -271,7 +271,7 @@ window.RF = window.RF || {};
     const meter = D.el('div', null, '<i style="display:block;height:100%;width:0;background:#9cf2c0"></i>', p);
     meter.style.cssText = 'width:600px;max-width:100%;height:26px;background:#05070f;border:3px solid #7d89d8;border-radius:6px;overflow:hidden';
     const diag = D.el('div', null, '', p);
-    diag.style.cssText = 'font-size:14px;color:#c8cdf0;min-height:18px';
+    diag.style.cssText = 'font-size:14px;color:#c8cdf0;min-height:18px;white-space:pre-line;text-align:center';
     const row = D.el('div', null, null, p);
     row.style.cssText = 'display:flex;gap:14px';
     const st = { rec: null, stream: null, ctx: null, raf: 0, peak: 0, meterOn: false, words: '' };
@@ -338,7 +338,7 @@ window.RF = window.RF || {};
       rec.onerror = function (ev) { seen.error = ev.error; };
       rec.onend = function () {
         const yn = function (v) { return v ? 'yes' : 'no'; };
-        diag.textContent = 'Mic on: ' + yn(seen.audio) + '   Sound: ' + yn(seen.sound) + '   Speech: ' + yn(seen.speech) + '   Level: ' + Math.round(st.peak * 1000) + '   Error: ' + (seen.error || 'none') + '   ' + RF.VERSION;
+        diag.textContent = 'Mic on: ' + yn(seen.audio) + '   Sound: ' + yn(seen.sound) + '   Speech: ' + yn(seen.speech) + '   Level: ' + Math.round(st.peak * 1000) + '   Error: ' + (seen.error || 'none') + '   ' + RF.VERSION + '\nPronunciation check: ' + (RF.mic && RF.mic.az.state === 'ok' ? 'Azure on' : 'off, using Chrome (' + (RF.mic ? RF.mic.az.why : '') + ')');
         if (done) return;
         done = true;
         if (st.words) { if (RF.mic) RF.mic.retry(); return finish('mic.ok'); }

@@ -20,18 +20,21 @@ window.RF = window.RF || {};
     const q = new URLSearchParams(location.search);
     RF.lowPower = q.has('low') ? true : q.has('high') ? false : guessLowPower();
 
-    const [strings, ui, words, world1, units, levels] = await Promise.all([
+    const [strings, ui, words, world1, units, levels, speech] = await Promise.all([
       RF.loadJSON('data/strings.json'),
       RF.loadJSON('../assets/audio/ui/manifest.json').catch(function () { return { en: {}, es: {} }; }),
       RF.loadJSON('../assets/audio/words/manifest.json').catch(function () { return { en: {}, es: {} }; }),
       RF.loadJSON('data/world1.json'),
       RF.loadJSON('data/units.json'),
-      RF.loadJSON('data/levels-w1.json')
+      RF.loadJSON('data/levels-w1.json'),
+      RF.loadJSON('data/speech.json').catch(function () { return {}; })
     ]);
     RF.strings = strings;
     RF.voiceManifest = ui;
     RF.wordManifest = words;
-    RF.data = { world1: world1, units: units, levels: levels };
+    RF.data = { world1: world1, units: units, levels: levels, speech: speech };
+    // Speak mode: see if the Azure pronunciation check is online (falls back to Chrome if not).
+    if (RF.mic) RF.mic.initAzure();
 
     const renderer = new THREE.WebGLRenderer({ antialias: !RF.lowPower, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(RF.lowPower ? 1 : 1.5, window.devicePixelRatio || 1));

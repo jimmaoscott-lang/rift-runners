@@ -1,0 +1,16 @@
+{
+  "_note": "Speak mode checker settings (DESIGN.md section 6 and 10). checkUrl is the Cloudflare Worker that holds the Azure key. If it cannot be reached, the game uses Chrome's recognizer. Score numbers are 0 to 100 from Azure Pronunciation Assessment; tune them from Test mode readouts.",
+  "checkUrl": "https://rift-runners-speech.jimmaoscott.workers.dev",
+  "healthTimeoutMs": 3500,
+  "checkTimeoutMs": 4000,
+  "maxListenMs": 5000,
+  "endSilenceMs": 700,
+  "spokenRunes": false,
+  "score": {
+    "vowelMin": 60,
+    "vowelClearMiss": 80,
+    "consonantAvgMin": 40,
+    "consonantEachMin": 15,
+    "wordMin": 45
+  }
+}

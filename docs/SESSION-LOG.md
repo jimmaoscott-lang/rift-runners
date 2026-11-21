@@ -4,6 +4,48 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 11: November 21, 2026 (M5b Azure pronunciation check)
+
+**Built**
+- Speech checker: a small Cloudflare Worker (`worker/speech-worker.js`) that holds the Azure key and asks Azure Pronunciation Assessment how each sound of the word was said. It stores nothing. GitHub puts it online and copies the Azure key from the GitHub Secret, so the key never touches the repo or the game. It goes live once Mr. Scott adds one GitHub Secret (steps below).
+- Speak mode uses Azure first. The game records only while the student talks (stops 0.7 seconds after the voice stops), sends about 1 second of sound, and scores the vowel strictly and the consonants gently (DESIGN.md 6, Azure scoring). Chrome's recognizer listens at the same time, so if Azure is blocked, busy, out of free hours or slow, Chrome's answer is used and the student never repeats the word.
+- With Azure up, pin, pen, ten, win and the other short i or e before m or n words get the Say it button again. Runes get it in Test mode only, for trying.
+- Test mode readout on every spoken word (match or miss): which checker answered, the vowel's score, what it sounded most like, and the other sounds' scores. These numbers tune the scoring.
+- Microphone test in Settings now says whether the pronunciation check is on.
+- Checker trouble never counts against a student: "The checker missed that one" (say it again) or "Speak mode cannot check this word right now" (use the choices).
+- Version v0.6.0.
+
+**Tested (by Claude, headless Chrome with a fake mic and a stand-in for Azure running the real Worker code)**
+- Right read of pin: match. Pin said as "pen": match (Gulf Coast rule). Pin read as "pan" and sit read as "sat": miss, with letter tiles. Accented pin (vowel closer to "peen", weak consonants): match. Silence: "caught no word." Busy (free hours out): switches to Chrome, pin goes back to tap only. Slow answer and checker offline: falls back, then Azure turns off for the visit. Stopping mid-listen leaves the mic closed. No console errors. Decodability check passes.
+- Not testable here: the real Azure service, a real voice, and the school network.
+
+**Setup (Mr. Scott, one time, about 5 minutes)**
+1. Go to dash.cloudflare.com and sign in (the account that has sped-lessons).
+2. Click your profile icon (top right), then **My Profile**, then **API Tokens**, then **Create Token**.
+3. Next to **Edit Cloudflare Workers**, click **Use template**. Under **Account Resources**, pick your account. Under **Zone Resources**, pick **All zones**. Scroll down, click **Continue to summary**, then **Create Token**. Copy the token (it shows only once).
+4. Go to https://github.com/jimmaoscott-lang/rift-runners/settings/secrets/actions and click **New repository secret**. Name: `CLOUDFLARE_API_TOKEN`. Paste the token. Click **Add secret**.
+5. Go to https://github.com/jimmaoscott-lang/rift-runners/actions, click **Speech checker** on the left, then **Run workflow**, then the green **Run workflow** button. Wait for the green check (about 1 minute).
+6. Open https://rift-runners-speech.jimmaoscott.workers.dev/health. It should say `"ok":true`. If the page does not load or says false, tell Claude what it shows.
+
+**To test (Mr. Scott)**
+1. After setup, open https://jimmaoscott-lang.github.io/rift-runners/ on a Chromebook. Settings, Microphone test: the bottom line should say "Pronunciation check: Azure on."
+2. Teacher, Test mode On. Play Level 3. Press Say it on pin, pen, ten or win, plus a few others.
+3. Read some right, some with the wrong vowel (say "pan" for pin), and say nothing once. Each spoken word shows a readout in orange.
+4. Tell me: any right read called wrong, or wrong read called right? Send the readout line for those. Also: does the answer feel fast enough?
+5. At school (after Thanksgiving): run the microphone test on a student Chromebook to see if the district network lets the checker through.
+
+**Next up**
+- Tune the scoring from Mr. Scott's readouts if needed (Opus, short).
+- Then M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
+
+**Open questions**
+- If the Worker address is not `rift-runners-speech.jimmaoscott.workers.dev` (Cloudflare picks the middle part per account), the health check in step 6 fails and the game quietly stays on Chrome. Tell Claude the address the Actions run printed and it is a one-line fix.
+- Spoken runes: try a few in Test mode. If Azure judges made-up words fairly, turn them on for everyone.
+- Free hours: 5 a month covers about 15,000 spoken words. If a full class plays every day, it may run out late in the month (the game falls back to Chrome on its own). Standard S0 with a spending cap is the fix if that happens.
+- Still open: forgotten teacher PIN reset (M10), progress between phone and Chromebook (DESIGN.md 15, item 0).
+
+---
+
 ## Session 10: November 21, 2026 (M5 speak mode, teacher PIN, test mode)
 
 **Built**

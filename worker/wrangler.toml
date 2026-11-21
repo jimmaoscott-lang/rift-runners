@@ -1,0 +1,6 @@
+# Rift Runners speech checker. GitHub deploys this to Cloudflare (see .github/workflows/speech-worker.yml).
+# The Azure key is a Cloudflare secret (AZURE_SPEECH_KEY), copied from the GitHub Secret. It is never in this repo.
+name = "rift-runners-speech"
+main = "speech-worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
