@@ -46,7 +46,7 @@ def synthesize(voice, locale, text):
             "Ocp-Apim-Subscription-Key": KEY,
             "Content-Type": "application/ssml+xml",
             "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
-            "User-Agent": "reading-fluency-voice-lines",
+            "User-Agent": "rift-runners-voice-lines",
         },
     )
     for attempt in range(5):

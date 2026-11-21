@@ -26,10 +26,10 @@ Newest entry at the top. Each session adds one entry.
 - Mic test in the offline file reports "blocked" in the test browser and falls back cleanly. Real result needs a real Chromebook.
 
 **To test (Mr. Scott)**
-1. Play link: https://jimmaoscott-lang.github.io/reading-fluency/ (live a few minutes after the push).
+1. Play link: https://jimmaoscott-lang.github.io/rift-runners/ (live a few minutes after the push).
 2. Pick a language, tap the speakers, open Settings and try each option.
 3. Settings > Test microphone. Press Start, say "sun." Note what it says.
-4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/reading-fluency/ and open it from your laptop with Wi-Fi off. The file is named rift-runners-offline.html. Keep it for the December 2 backup. Download a fresh copy after each session.
+4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/rift-runners/ and open it from your laptop with Wi-Fi off. The file is named rift-runners-offline.html. Keep it for the December 2 backup. Download a fresh copy after each session.
 5. At school (after Thanksgiving): try the play link on a student Chromebook.
 
 **Mic test fix (same session)**
@@ -49,7 +49,7 @@ Newest entry at the top. Each session adds one entry.
 
 **Open questions**
 - Approve or change the world names in DESIGN.md section 4.1A.
-- The web address still says "reading-fluency" because it comes from the repo name. Renaming the repo to rift-runners would change it. If renamed, update the links in README, CLAUDE.md and this log.
+- Repo renamed to rift-runners (done 11/21). Play link is now https://jimmaoscott-lang.github.io/rift-runners/
 
 ---
 

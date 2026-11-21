@@ -6,6 +6,6 @@ Students play a retro adventure game where reading is their power. Across 8 worl
 - Progress: [docs/SESSION-LOG.md](docs/SESSION-LOG.md)
 - Project directions: [CLAUDE.md](CLAUDE.md)
 
-Play: https://jimmaoscott-lang.github.io/reading-fluency/
+Play: https://jimmaoscott-lang.github.io/rift-runners/
 
 Status: M1 game skeleton (title screen and settings). World 1 comes next.

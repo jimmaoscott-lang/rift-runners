@@ -71,7 +71,7 @@ def main():
         headers.update({
             "Content-Type": "application/ssml+xml",
             "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
-            "User-Agent": "reading-fluency-voice-samples",
+            "User-Agent": "rift-runners-voice-samples",
         })
         audio = None
         for attempt in range(4):
