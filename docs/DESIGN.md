@@ -174,7 +174,12 @@ Turn-based, one-on-one, Pokémon style.
 - **Read-aloud voice: pre-made audio files.** Every word, sentence, passage and menu line is turned into an audio file ahead of time with a high-quality neural voice (Azure AI Speech, free tier), and the game plays those files. The Chromebook's built-in voice is used only as a last-resort backup if a file is missing.
   - Why pre-made: better sound, instant playback, works offline, no API key inside the game, and no ongoing cost. All game text is known ahead of time, so live voice generation is unnecessary.
   - **How files get made:** a GitHub Action (an automatic job that runs on GitHub's servers) reads the content JSON files, sends any new text to Azure, and saves the audio into `assets/audio/`. The Azure key is stored as an encrypted GitHub Secret, so it never appears in the public repo. New content gets voiced automatically when it is pushed.
-  - Voices: one English voice and one Spanish (Mexico) voice, chosen by Mr. Scott from samples. Keep the same voices for the whole game.
+  - **Voice variety, with consistency where it teaches:**
+    - **Story and characters:** each character (narrator, guide, shopkeepers, rivals, bosses) has its own Azure voice, and game lines vary voice by character. Encouragement lines rotate among several voices so they stay fresh.
+    - **Word help and single sounds:** one steady "reading guide" voice, so students hear sounds and words the same way every time while they are learning them. In settings, the student can pick their guide from 3 or 4 approved voices.
+    - **Spanish:** the same approach with the Spanish voices.
+    - Character-to-voice assignments live in `game/data/voices.json`, so voices can be swapped without changing code.
+    - Candidate voices from the first samples: English Andrew, Brian, Guy, Davis, Ava, Emma, Jenny, Aria; Spanish Dalia, Jorge, Alonso (Paloma to retry). Mr. Scott approves the final cast.
   - Free tier is 0.5 million characters per month, far more than the game's full text. Free tier usage is throttled rather than billed when the limit is reached.
   - Backup option with no account: an open-source voice (Kokoro or Piper) run by the same GitHub Action.
 - **Phoneme sounds:** single sounds (like /b/ or short /i/) are generated with Azure's pronunciation tags and checked by ear. Any that sound wrong get recorded clips instead.
