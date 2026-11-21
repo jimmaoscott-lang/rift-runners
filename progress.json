@@ -1,7 +1,7 @@
 {
   "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
   "updated": "2026-11-21",
-  "sessionsSoFar": 13,
+  "sessionsSoFar": 14,
   "milestones": [
     {
       "id": "M0",
@@ -104,15 +104,15 @@
         1,
         1
       ],
-      "done": false,
+      "done": true,
       "demo": true
     },
     {
       "id": "M7",
-      "name": "Thorn King boss and Rift Seal fluency",
+      "name": "Thorn King boss and Rift Seal (read aloud and WCPM built in Session 14)",
       "sessions": [
-        2,
-        3
+        1,
+        2
       ],
       "done": false
     },

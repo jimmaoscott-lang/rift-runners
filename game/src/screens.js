@@ -458,6 +458,58 @@ window.RF = window.RF || {};
     sc.style.cssText += ';font-size:14px;padding:3px 10px;border-color:' + (st.sealDone ? '#ffd76a' : '#7d89d8') + ';color:' + (st.sealDone ? '#ffd76a' : '#fff');
     if (st.sealDone) D.el('div', null, D.esc(RF.t('res.sealFirst')) + ': <b class="cyan">' + (st.sealFirstTry || 0) + '</b> ' + D.esc(RF.t('res.of')) + ' ' + qn, sr).style.cssText = 'font-size:calc(14px * var(--ts));color:#c9c3ff';
     if (!r.win || !k.done) D.line('res.carry', '', sec).querySelector('.txt').style.cssText = 'color:#9cf2c0;font-size:calc(14px * var(--ts))';
+    S.fluencyResults(r, p);
+  };
+
+  // Reading aloud (Session 14): words correct per minute on the Rift Seal with the personal best
+  // and a small line of every Seal read so far, plus how the cards read aloud went.
+  S.fluencyResults = function (r, p) {
+    const st = r.stats;
+    const sec = D.el('div', null, null, p);
+    sec.style.cssText = 'background:#0b0d20;border:2px solid #ffd76a;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px';
+    D.line('res.aloud', '', sec).querySelector('.txt').style.cssText = 'font-weight:700;color:#ffd76a;font-size:calc(17px * var(--ts))';
+    const sr = st.sealRead;
+    if (sr) {
+      const last = sr.best;
+      const row = D.el('div', null, null, sec);
+      row.style.cssText = 'display:flex;align-items:center;gap:14px;flex-wrap:wrap';
+      const parts = [{ id: 'res.wcpmSeal' }, D.num(last.wcpm), { id: 'res.wordsRight' }, D.num(last.correct), { id: 'res.of' }, D.num(last.total)];
+      row.appendChild(D.speaker(function () { RF.speakSeq(parts); }, true));
+      D.el('div', null, String(last.wcpm), row).style.cssText = 'font-size:44px;line-height:1;color:#ffd76a;font-weight:700';
+      const lab = D.el('div', null, null, row);
+      lab.style.cssText = 'display:flex;flex-direction:column;gap:2px';
+      D.el('div', 'read', D.esc(RF.t('res.wcpmSeal')), lab).style.cssText = 'font-size:calc(16px * var(--ts));font-weight:700;color:#e6e9ff';
+      D.el('div', null, D.esc(RF.t('res.wordsRight')) + ': <b class="cyan">' + last.correct + '</b> ' + D.esc(RF.t('res.of')) + ' ' + last.total, lab).style.cssText = 'font-size:calc(14px * var(--ts));color:#c9c3ff';
+      if (sr.tries > 1 && sr.first) {
+        const up = last.wcpm - sr.first.wcpm;
+        D.lineParts([{ id: 'res.firstRead' }, D.num(sr.first.wcpm), { id: 'res.bestRead' }, D.num(last.wcpm)], '', sec,
+          D.esc(RF.t('res.firstRead')) + ': ' + sr.first.wcpm + ' &nbsp; &rarr; &nbsp; ' + D.esc(RF.t('res.bestRead')) + ': <b class="gold">' + last.wcpm + '</b>' + (up > 0 ? ' <span style="color:#7dff9c">&#9650; ' + up + '</span>' : ''))
+          .querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#e6e9ff';
+      }
+      // Every Seal read on this device, oldest first (last 10), tallest bar = personal best.
+      const all = RF.metrics.fluencyAll('seal').slice(-10);
+      if (all.length > 1) {
+        const max = Math.max.apply(null, all.map(function (f) { return f.wcpm; }).concat([1]));
+        const g = D.el('div', null, null, sec);
+        g.title = RF.t('res.sealLine');
+        g.style.cssText = 'display:flex;align-items:flex-end;gap:6px;height:74px;padding:4px 2px 0;border-bottom:2px solid #4b4f9c';
+        all.forEach(function (f) {
+          const col = D.el('div', null, null, g);
+          col.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:30px';
+          D.el('div', null, String(f.wcpm), col).style.cssText = 'font-size:12px;color:' + (f.wcpm === max ? '#ffd76a' : '#aab6ff');
+          D.el('div', null, null, col).style.cssText = 'width:22px;border-radius:4px 4px 0 0;height:' + Math.max(4, Math.round(f.wcpm / max * 52)) + 'px;background:' + (f.wcpm === max ? '#ffd76a' : '#7ef3ff');
+        });
+        D.line('res.sealLine', '', sec).querySelector('.txt').style.cssText = 'font-size:calc(13px * var(--ts));color:#aab6ff';
+      }
+    }
+    if (st.aloud) {
+      const pct = st.aloudWords ? Math.round(st.aloudRight / st.aloudWords * 100) : 0;
+      const wcpm = st.aloudMs ? Math.round(st.aloudRight / (st.aloudMs / 60000)) : 0;
+      const parts = [{ id: 'res.cardsAloud' }, D.num(st.aloud), { id: 'res.wordsRight' }, { text: pct + '%' }, { id: 'res.wcpmCards' }, D.num(wcpm)];
+      D.lineParts(parts, '', sec, D.esc(RF.t('res.cardsAloud')) + ': <b class="cyan">' + st.aloud + '</b> &nbsp; ' + D.esc(RF.t('res.wordsRight')) + ': <b class="cyan">' + pct + '%</b> &nbsp; ' + D.esc(RF.t('res.wcpmCards')) + ': <b class="gold">' + wcpm + '</b>')
+        .querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#e6e9ff';
+    }
+    if (!sr && !st.aloud) D.line(RF.mic && RF.mic.canReadAloud && RF.mic.canReadAloud() ? 'res.noAloud' : 'res.noMic', '', sec).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#c9c3ff';
   };
 
   // ---------- End of level: what happened, and the mastery summary (win or lose) ----------
@@ -467,7 +519,8 @@ window.RF = window.RF || {};
     p.style.cssText += ';max-height:96%;overflow-y:auto;gap:12px;padding:18px 22px';
     const top = D.el('div', null, null, p);
     top.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap';
-    const head = D.line(r.win ? 'res.win' : 'res.lose', '', top);
+    const winId = r.L.story ? 'res.winFinal' : 'res.win';
+    const head = D.line(r.win ? winId : 'res.lose', '', top);
     head.querySelector('.txt').style.cssText = 'font-size:calc(30px * var(--ts));font-weight:700;color:' + (r.win ? '#ffd76a' : '#ffb0b0');
     if (r.win) {
       D.el('div', null, [1, 2, 3].map(function (i) { return '<span style="color:' + (i <= r.stars ? '#ffd76a' : '#3a3f6e') + ';text-shadow:0 0 ' + (i <= r.stars ? 14 : 0) + 'px #ffb000">&#9733;</span>'; }).join(''), top).style.cssText = 'font-size:48px;letter-spacing:6px;line-height:1';
@@ -535,10 +588,11 @@ window.RF = window.RF || {};
 
     // Words to practice (tap to hear).
     const pr = D.el('div', null, null, p);
-    pr.style.cssText += ';display:' + (r.L.story ? 'none' : 'flex') + ';gap:8px;align-items:center;flex-wrap:wrap';
+    const practice = r.L.story ? (st.aloudMissed || []) : st.practice;
+    pr.style.cssText += ';display:' + (r.L.story && !practice.length ? 'none' : 'flex') + ';gap:8px;align-items:center;flex-wrap:wrap';
     D.line('res.practice', '', pr).querySelector('.txt').style.cssText = 'font-weight:700;color:#aab6ff;font-size:calc(15px * var(--ts))';
-    if (st.practice.length) {
-      st.practice.slice(0, 10).forEach(function (w) {
+    if (practice.length) {
+      practice.slice(0, 10).forEach(function (w) {
         const b = D.el('button', 'btn read', D.esc(w), pr);
         b.style.cssText += ';font-family:var(--rf);font-size:calc(20px * var(--ts));padding:4px 12px;color:#ffd76a';
         b.addEventListener('click', function () { RF.speakWord(w); });
@@ -576,7 +630,7 @@ window.RF = window.RF || {};
       D.button('res.tryAgain', again, 'big go', row).btn.dataset.first = '1';
       D.button('res.toMap', function () { RF.sfx('back'); RF.map.show(stoneIdx); }, '', row);
     }
-    RF.speak(r.win ? 'res.win' : 'res.lose');
+    RF.speak(r.win ? winId : 'res.lose');
     D.nav(box);
   };
 })(window.RF);

@@ -6,6 +6,10 @@
 //   GET  /health            -> { ok: true } when the Azure key works
 //   POST /check?ref=word     body: 16 kHz mono 16-bit WAV, under 6 seconds
 //                            -> { ok, status, heard, word: { accuracy, error, phonemes: [{ p, score, best: [{ p, score }] }] } }
+//   POST /passage?ref=text   body: 16 kHz mono 16-bit WAV, under 30 seconds (one sentence read aloud,
+//                            World 8 story cards and the Rift Seal, Session 14)
+//                            -> { ok, status, heard, words: [{ w, accuracy, error }] } in reading order,
+//                               error is None, Mispronunciation or Omission (insertions are left out)
 
 const ALLOWED = [
   /^https:\/\/jimmaoscott-lang\.github\.io$/,
@@ -14,6 +18,7 @@ const ALLOWED = [
   /^null$/ // offline all-in-one file opened from the laptop
 ];
 const MAX_BYTES = 200 * 1024; // about 6 seconds of 16 kHz audio
+const MAX_PASSAGE_BYTES = 960 * 1024; // about 30 seconds, Azure's limit for this kind of check
 
 function cors(origin) {
   const ok = origin && ALLOWED.some(function (re) { return re.test(origin); });
@@ -55,6 +60,31 @@ function trim(az) {
     };
   }
   return out;
+}
+
+// Word-by-word result for a sentence read aloud.
+function trimPassage(az) {
+  const out = { ok: true, status: az.RecognitionStatus || 'Unknown', heard: az.DisplayText || '', words: [] };
+  const best = (az.NBest || [])[0];
+  if (!best) return out;
+  out.heard = best.Lexical || best.Display || out.heard;
+  out.score = { accuracy: pa(best).AccuracyScore, fluency: pa(best).FluencyScore, completeness: pa(best).CompletenessScore };
+  out.words = (best.Words || []).filter(function (w) { return pa(w).ErrorType !== 'Insertion'; }).map(function (w) {
+    return { w: w.Word, accuracy: pa(w).AccuracyScore, error: pa(w).ErrorType || 'None' };
+  });
+  return out;
+}
+function azureCall(region, key, settings, audio) {
+  return fetch('https://' + region + '.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=detailed', {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key': key,
+      'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000',
+      'Accept': 'application/json',
+      'Pronunciation-Assessment': btoa(JSON.stringify(settings))
+    },
+    body: audio
+  });
 }
 
 export default {
@@ -99,6 +129,21 @@ export default {
       // 429 = free hours used up or too many at once. The game falls back to Chrome.
       if (!az.ok) return reply({ ok: false, error: 'azure-' + az.status }, az.status === 429 ? 429 : 502, origin);
       return reply(trim(await az.json()), 200, origin);
+    }
+    if (url.pathname === '/passage' && request.method === 'POST') {
+      const ref = String(url.searchParams.get('ref') || '').replace(/\s+/g, ' ').trim();
+      if (!ref || ref.length > 400 || !/^[A-Za-z0-9 '.,!?;:"\-]+$/.test(ref)) return reply({ ok: false, error: 'bad-text' }, 400, origin);
+      const audio = await request.arrayBuffer();
+      if (audio.byteLength < 1000 || audio.byteLength > MAX_PASSAGE_BYTES) return reply({ ok: false, error: 'bad-audio' }, 400, origin);
+      const az = await azureCall(region, key, {
+        ReferenceText: ref,
+        GradingSystem: 'HundredMark',
+        Granularity: 'Word',
+        Dimension: 'Comprehensive',
+        EnableMiscue: true
+      }, audio);
+      if (!az.ok) return reply({ ok: false, error: 'azure-' + az.status }, az.status === 429 ? 429 : 502, origin);
+      return reply(trimPassage(await az.json()), 200, origin);
     }
     return reply({ ok: false, error: 'not-found' }, 404, origin);
   }

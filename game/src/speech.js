@@ -389,4 +389,289 @@ window.RF = window.RF || {};
       finish({ matched: false, heard: '', outcome: MIC.chrome === 'ok' && chromeCan(word) ? 'again' : 'switch', diag: 'mic ' + name });
     });
   }
+
+  // ---- Read aloud: story cards and the Rift Seal (World 8, Session 14, DESIGN.md 7) ----
+  // The student reads a passage out loud, one sentence at a time, with one mic stream for the whole
+  // passage. Chrome's recognizer follows along to light up words and to tell when a sentence is done.
+  // Each sentence's recording goes to the Azure checker, which marks every word right or missed.
+  // If Azure cannot be used, Chrome's words are the score. Nothing is saved but right or missed.
+  //
+  // Scoring rules (decided by Claude, standard oral reading fluency practice):
+  //  - A word is right when Azure says it was read (None), or read with an accent (Mispronunciation
+  //    with a word score at or above passage.wordMin). Repeats and extra words never count against
+  //    the student. A word Azure calls skipped still counts if Chrome clearly heard it there.
+  //  - Reading time runs from the first voice to the last voice, pauses included (the usual way WCPM
+  //    is timed). Words correct per minute = right words / minutes.
+  MIC.canReadAloud = function () { return MIC.state === 'ok' && (azOK() || MIC.chrome === 'ok'); };
+
+  function refTokens(sentence) {
+    return sentence.split(/\s+/).map(function (t) { return t.toLowerCase().replace(/[^a-z0-9']/g, '').replace(/^'+|'+$/g, ''); }).filter(Boolean);
+  }
+  MIC.refTokens = refTokens;
+  // Spoken-form matches Chrome might write for a word.
+  const NUM = { one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10', first: '1st', last: 'last' };
+  function sameWord(ref, heard) {
+    if (ref === heard) return true;
+    if (NUM[ref] === heard) return true;
+    if (ref.replace(/'/g, '') === heard.replace(/'/g, '')) return true;
+    // Plural or tense endings swallowed by an accent (worlds/world, poured/pour) still count:
+    // the story is past the decoding stage, and dropping a final s or d is a common EB pattern.
+    if (ref.length > 3 && (ref === heard + 's' || ref === heard + 'es' || ref === heard + 'd' || ref === heard + 'ed')) return true;
+    return false;
+  }
+  // Greedy follow-along: walk the heard words in order and match each to the next reference word
+  // within a few words ahead (skipped words stay unmatched). Returns { hit: [bool], at: next index }.
+  function follow(ref, heard, start) {
+    const hit = ref.map(function () { return false; });
+    let p = start || 0, hEnd = 0;
+    heard.forEach(function (h, hi) {
+      for (let k = p; k < Math.min(ref.length, p + 4); k++) {
+        if (sameWord(ref[k], h)) { hit[k] = true; p = k + 1; hEnd = hi + 1; return; }
+      }
+    });
+    return { hit: hit, at: p, hEnd: hEnd };
+  }
+  MIC.follow = follow;
+
+  function wordOK(aw) {
+    const pc = cfg().passage || {};
+    if (!aw) return false;
+    if (aw.error === 'None') return true;
+    if (aw.error === 'Mispronunciation') return (aw.accuracy || 0) >= (pc.wordMin != null ? pc.wordMin : 35);
+    return false;
+  }
+  // Line Azure's word list up with the sentence's reference words.
+  function azureMarks(ref, words) {
+    const ws = (words || []).map(function (w) { return { t: String(w.w || '').toLowerCase().replace(/[^a-z0-9']/g, ''), w: w }; });
+    if (ws.length === ref.length) return ref.map(function (r, i) { return { ok: wordOK(ws[i].w), skipped: ws[i].w.error === 'Omission', acc: ws[i].w.accuracy }; });
+    const out = ref.map(function () { return { ok: false, skipped: true }; });
+    let p = 0;
+    ref.forEach(function (r, i) {
+      for (let k = p; k < Math.min(ws.length, p + 3); k++) {
+        if (ws[k].t === r) { out[i] = { ok: wordOK(ws[k].w), skipped: ws[k].w.error === 'Omission', acc: ws[k].w.accuracy }; p = k + 1; return; }
+      }
+    });
+    return out;
+  }
+
+  // sentences: array of strings. opts:
+  //   onWord(si, wi)      Chrome heard reference word wi of sentence si (light it up)
+  //   onSentence(si)      reading moved to sentence si
+  //   onListening()       the mic is open
+  //   onDone(result)      { ok, engine, sentences: [[{ w, ok }]], correct, total, ms, wcpm, diag }
+  //                       ok false means the mic could not be used (result.why)
+  // Returns { next(), stop() }: next() ends the current sentence (the student's Next button).
+  MIC.readPassage = function (sentences, opts) {
+    MIC.stop();
+    const c = cfg(), pc = c.passage || {};
+    const refs = sentences.map(refTokens);
+    const useAz = azOK();
+    const useChrome = !!Rec && MIC.chrome === 'ok';
+    if (!useAz && !useChrome) { setTimeout(function () { opts.onDone({ ok: false, why: 'down' }); }, 0); return { next: function () {}, stop: function () {} }; }
+    MIC.busy = true;
+    let done = false, stream = null, ctx = null, proc = null, rate = 16000, chunkMs = 128;
+    const chunks = [];
+    let si = 0, segStart = 0, segVoice = -1, segLastLoud = -1, firstVoice = -1, lastVoice = -1, quietAt = 0;
+    let floor = 0, seen = 0, segChunks = 0;
+    const pending = [];            // Azure checks in flight
+    const azRes = refs.map(function () { return null; });   // per sentence: marks from Azure, or null
+    const azParts = refs.map(function () { return []; });   // per sentence: one marks list per clip
+    let azWhy = '';
+    // Chrome follow-along runs over the whole passage at once, so words Chrome reports late (after
+    // the line has moved on) still land on the right sentence. Each heard word remembers which line
+    // was lit when it arrived; it can match that line or the one before it, never further back.
+    const starts = []; let flatN = 0;
+    refs.forEach(function (r) { starts.push(flatN); flatN += r.length; });
+    const flatRef = [].concat.apply([], refs);
+    const finals = [];   // { t, s }
+    let interim = [];    // { t, s }
+    const flatHit = flatRef.map(function () { return false; });
+    let rec = null, recWanted = useChrome, chromeErr = null;
+    function where(k) { let s2 = 0; while (s2 + 1 < starts.length && starts[s2 + 1] <= k) s2++; return [s2, k - starts[s2]]; }
+    function recountChrome() {
+      let p = 0;
+      finals.concat(interim).forEach(function (h) {
+        const floor = starts[Math.max(0, h.s - 1)];
+        if (p < floor) p = floor;
+        for (let k = p; k < Math.min(flatN, p + 4); k++) {
+          if (sameWord(flatRef[k], h.t)) {
+            if (!flatHit[k]) { flatHit[k] = true; const w = where(k); if (opts.onWord) opts.onWord(w[0], w[1]); }
+            p = k + 1; return;
+          }
+        }
+      });
+    }
+    function chromeAt() {
+      // Furthest word Chrome has matched in the lit sentence, plus one.
+      let at = 0;
+      for (let k = starts[si]; k < starts[si] + refs[si].length; k++) if (flatHit[k]) at = k - starts[si] + 1;
+      return at;
+    }
+    function hitAt(s2, wi) { return flatHit[starts[s2] + wi]; }
+    function startChrome() {
+      if (!recWanted || done) return;
+      try {
+        rec = new Rec();
+        rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+        rec.onresult = function (ev) {
+          interim = [];
+          for (let i = ev.resultIndex || 0; i < ev.results.length; i++) {
+            const r = ev.results[i];
+            const toks = norm(r[0] && r[0].transcript).map(function (t) { return { t: t, s: Math.min(si, refs.length - 1) }; });
+            if (r.isFinal) Array.prototype.push.apply(finals, toks); else interim = interim.concat(toks);
+          }
+          recountChrome();
+        };
+        rec.onerror = function (ev) { chromeErr = ev.error; if (chromeDown(ev.error)) { recWanted = false; MIC.chrome = 'down'; } };
+        rec.onend = function () { rec = null; if (interim.length) { Array.prototype.push.apply(finals, interim); interim = []; } if (!done && recWanted) setTimeout(startChrome, 50); };
+        rec.start();
+      } catch (e) { rec = null; }
+    }
+    function stopChrome() { recWanted = false; if (rec) { rec.onend = null; try { rec.abort(); } catch (e) { /* ignore */ } rec = null; } }
+
+    function stopAudio() {
+      if (proc) { proc.onaudioprocess = null; try { proc.disconnect(); } catch (e) { /* ignore */ } }
+      if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+      if (ctx) ctx.close().catch(function () {});
+      stream = ctx = proc = null;
+    }
+
+    function sendClip(sIdx, a, b) {
+      if (!useAz || AZ.state !== 'ok') return;
+      if (b - a < 2) return;
+      const samples = to16k(chunks.slice(a, b), rate);
+      const wav = encodeWav(samples, 16000);
+      const ctl = new AbortController();
+      const t = setTimeout(function () { ctl.abort(); }, pc.checkTimeoutMs || 9000);
+      const pr = fetch(AZ.url + '/passage?ref=' + encodeURIComponent(sentences[sIdx].replace(/\s+/g, ' ').replace(/[^A-Za-z0-9 '.,!?;:"\-]/g, '').trim()), { method: 'POST', body: wav, headers: { 'Content-Type': 'audio/wav' }, signal: ctl.signal, cache: 'no-store' })
+        .then(function (r) {
+          clearTimeout(t);
+          if (r.status === 429) { azFailed('busy'); azWhy = 'busy'; return; }
+          // 404: the checker online is older than this game (no passage check yet). Chrome scores it,
+          // and word checks stay on Azure.
+          if (r.status === 404) { azWhy = 'no passage check on the server yet'; return; }
+          if (!r.ok) { azFailed('checker error ' + r.status); azWhy = 'error ' + r.status; return; }
+          return r.json().then(function (j) {
+            if (!j.ok) { azWhy = 'checker error'; return; }
+            AZ.failures = 0;
+            azParts[sIdx].push(azureMarks(refs[sIdx], j.words));
+          });
+        })
+        .catch(function (e) { clearTimeout(t); azWhy = e && e.name === 'AbortError' ? 'slow answer' : 'blocked or offline'; azFailed(azWhy); });
+      pending.push(pr);
+    }
+
+    // End the current sentence: send its recording and move on (or finish after the last one).
+    function endSentence() {
+      if (done) return;
+      const endChunk = chunks.length;
+      const a = segVoice >= 0 ? Math.max(segStart, segVoice - 3) : segStart;
+      if (segVoice >= 0) sendClip(si, a, Math.min(endChunk, segLastLoud + 4));
+      si++;
+      segStart = endChunk; segVoice = -1; segLastLoud = -1; segChunks = 0;
+      if (si >= refs.length) return finish();
+      if (opts.onSentence) opts.onSentence(si);
+    }
+
+    function finish() {
+      if (done) return; done = true;
+      if (current === me) current = null;
+      stopAudio();
+      if (opts.onChecking) opts.onChecking();
+      // Chrome reports words a moment after they are said: give it a short grace before closing.
+      const grace = new Promise(function (res) { setTimeout(function () { if (rec) { try { rec.stop(); } catch (e) { /* ignore */ } } setTimeout(function () { stopChrome(); if (interim.length) { Array.prototype.push.apply(finals, interim); interim = []; } recountChrome(); res(); }, 700); }, useChrome ? 600 : 0); });
+      pending.push(grace);
+      const settle = Promise.all(pending.map(function (p) { return p.catch(function () {}); }));
+      const cap = new Promise(function (res) { setTimeout(res, (pc.checkTimeoutMs || 9000) + 500); });
+      Promise.race([settle, cap]).then(function () {
+        MIC.busy = false;
+        let correct = 0, total = 0, usedAz = 0;
+        const out = refs.map(function (ref, s) {
+          const parts = azParts[s];
+          return ref.map(function (w, wi) {
+            total++;
+            let ok;
+            if (parts.length) {
+              usedAz++;
+              // A long sentence may come in more than one clip: a word read right in any clip counts.
+              ok = parts.some(function (m) { return m[wi] && m[wi].ok; });
+              const skipped = parts.every(function (m) { return !m[wi] || m[wi].skipped; });
+              if (!ok && skipped && hitAt(s, wi)) ok = true;
+            } else ok = hitAt(s, wi);
+            if (ok) correct++;
+            return { w: w, ok: !!ok };
+          });
+        });
+        const ms = firstVoice >= 0 ? Math.max(1000, (lastVoice - firstVoice + 1) * chunkMs) : 0;
+        const engine = usedAz === total ? 'azure' : usedAz ? 'azure+chrome' : 'chrome';
+        opts.onDone({
+          ok: true, engine: engine, sentences: out, correct: correct, total: total, ms: Math.round(ms),
+          wcpm: ms ? Math.round(correct / (ms / 60000)) : 0,
+          diag: engine + (azWhy ? ', azure ' + azWhy : '') + (chromeErr ? ', chrome ' + chromeErr : '') + ', ' + Math.round(ms / 100) / 10 + ' s'
+        });
+      });
+    }
+
+    const me = {
+      stop: function () { if (done) return; done = true; MIC.busy = false; stopAudio(); stopChrome(); },
+      next: function () { endSentence(); }
+    };
+    current = me;
+    if (RF.audio) RF.audio.duck(2);
+
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } }).then(function (s) {
+      if (done) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
+      stream = s;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      try { ctx = new AC({ sampleRate: 16000 }); } catch (e) { ctx = new AC(); }
+      rate = ctx.sampleRate;
+      const src = ctx.createMediaStreamSource(stream);
+      const size = rate > 20000 ? 4096 : 2048;
+      chunkMs = size / rate * 1000;
+      proc = ctx.createScriptProcessor(size, 1, 1);
+      const mute = ctx.createGain(); mute.gain.value = 0;
+      src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+      const endQuiet = Math.ceil((pc.endQuietMs || 350) / chunkMs);     // after the last word is heard
+      const stuckQuiet = Math.ceil((useChrome ? (pc.stuckQuietMs || 5000) : (pc.lineQuietMs || 1800)) / chunkMs); // no Chrome: quiet ends the line
+      const clipMax = Math.floor((pc.clipMaxMs || 28000) / chunkMs);
+      const lineMax = Math.floor((pc.lineMaxMs || 60000) / chunkMs);
+      proc.onaudioprocess = function (ev) {
+        if (done) return;
+        const d = new Float32Array(ev.inputBuffer.getChannelData(0));
+        chunks.push(d);
+        let sum = 0; for (let i = 0; i < d.length; i++) sum += d[i] * d[i];
+        const rms = Math.sqrt(sum / d.length);
+        seen++;
+        if (seen <= 3) floor = seen === 1 ? rms : Math.min(floor, rms);
+        const thr = Math.max(0.012, Math.min(floor, 0.05) * 2.5);
+        const i = chunks.length - 1;
+        segChunks++;
+        if (rms > thr) {
+          if (segVoice < 0) segVoice = i;
+          segLastLoud = i;
+          if (firstVoice < 0) firstVoice = i;
+          lastVoice = i;
+        }
+        if (segVoice < 0) { if (segChunks > lineMax) endSentence(); return; }
+        const quiet = i - segLastLoud;
+        const reachedEnd = useChrome && chromeAt() >= refs[si].length - (refs[si].length > 5 ? 1 : 0);
+        if ((reachedEnd && quiet >= endQuiet) || quiet >= stuckQuiet || segChunks > lineMax) { endSentence(); return; }
+        // A very long sentence: send what is recorded so far and keep listening to the same sentence.
+        if (i - Math.max(segStart, segVoice - 3) >= clipMax && quiet >= 2) {
+          sendClip(si, Math.max(segStart, segVoice - 3), i + 1);
+          segStart = i + 1; segVoice = -1;
+        }
+      };
+      startChrome();
+      if (opts.onListening) opts.onListening();
+    }).catch(function (e) {
+      if (done) return;
+      done = true; MIC.busy = false; stopChrome();
+      if (current === me) current = null;
+      const name = e && e.name;
+      if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'NotFoundError') MIC.markDown('mic.blocked');
+      opts.onDone({ ok: false, why: 'mic ' + name });
+    });
+    return me;
+  };
 })(window.RF);

@@ -121,7 +121,13 @@ window.RF = window.RF || {};
       onPay: function (amount, fromEl) { B.pay(amount, fromEl); },
       onRead: function () { B.refreshLocks(false); },
       onMega: function () { B.megaBlast(); },
-      onSeal: function () { B.sealComplete(); }
+      onSeal: function () { B.sealComplete(); },
+      // Reading the Rift Seal aloud: the battle holds still so the reading is fair (DESIGN.md 7).
+      onHold: function (on) {
+        if (!!B.readHold === !!on) return;
+        B.readHold = !!on;
+        if (on) B.toast('read.hold', false);
+      }
     });
 
     // Build bar
@@ -775,7 +781,7 @@ window.RF = window.RF || {};
   B.update = function (realDt) {
     const world = B.world;
     animatePads();
-    let dt = B.paused || B.phase === 'done' ? 0 : realDt * B.speed * (RF.settings.focus ? 0.5 : 1);
+    let dt = B.paused || B.readHold || B.phase === 'done' ? 0 : realDt * B.speed * (RF.settings.focus ? 0.5 : 1);
     // Effects run on real time so menus still feel alive.
     for (let i = B.fx.length - 1; i >= 0; i--) {
       const e = B.fx[i];
@@ -1142,6 +1148,7 @@ window.RF = window.RF || {};
   window.addEventListener('keydown', function (ev) {
     if (!B.active || B.phase === 'done' || document.querySelector('#ui .screen')) return;
     if (B.paused && B.pausePanel.style.display !== 'none' && (ev.key === 'Escape' || ev.key.indexOf('Arrow') === 0)) return;
+    if (ev.key === 'Escape' && B.forge && (B.forge.reading || B.forge.checking) && B.forge.key(ev)) { ev.preventDefault(); return; }
     if (ev.key === 'Escape') {
       if (B.buildSel) B.selectBuild(null);
       else if (B.popup.style.display !== 'none') B.closePopup();
@@ -1178,7 +1185,7 @@ window.RF = window.RF || {};
       id: B.L.id, result: win ? 'win' : 'lose', stars: stars, waves: B.wave, anchor: Math.max(0, B.anchor),
       words: fs.forged, firstTry: fs.firstTry, misses: fs.misses, help: fs.help, forgeCrystals: fs.crystals,
       patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst,
-      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0 } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
+      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0, aloud: fs.aloud || 0, aloudWords: fs.aloudWords || 0, aloudRight: fs.aloudRight || 0, aloudMs: fs.aloudMs || 0, sealRead: fs.sealRead ? { tries: fs.sealRead.tries, firstWcpm: fs.sealRead.first.wcpm, bestWcpm: fs.sealRead.best.wcpm } : null } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
       ms: Date.now() - B.started
     });
     RF.audio.music(null);

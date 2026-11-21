@@ -12,5 +12,19 @@
     "consonantAvgMin": 40,
     "consonantEachMin": 15,
     "wordMin": 45
+  },
+  "passage": {
+    "_note": "Read aloud for World 8 story cards and the Rift Seal (Session 14). wordMin: Azure word score that still counts an accented read as right. endQuietMs: pause after the last word that ends a sentence. stuckQuietMs: a long pause that moves on (the student can also press Next). clipMaxMs: Azure takes about 30 seconds per check. lineQuietMs: with no Chrome follow-along, this pause ends a sentence.",
+    "wordMin": 35,
+    "endQuietMs": 350,
+    "stuckQuietMs": 5000,
+    "clipMaxMs": 28000,
+    "lineMaxMs": 60000,
+    "checkTimeoutMs": 9000,
+    "bonusFull": 15,
+    "bonusPart": 8,
+    "fullPct": 90,
+    "partPct": 75,
+    "lineQuietMs": 1800
   }
 }

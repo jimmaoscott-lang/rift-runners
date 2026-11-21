@@ -364,7 +364,7 @@ window.RF = window.RF || {};
       return false;
     };
     F.state = function () { return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats }; };
-    F.destroy = function () { if (RF.mic) RF.mic.stop(); if (root.parentNode) root.parentNode.removeChild(root); };
+    F.destroy = function () { if (RF.mic) RF.mic.stop(); if (RF.audio) RF.audio.duck(0); if (opts.onHold) opts.onHold(false); if (root.parentNode) root.parentNode.removeChild(root); };
 
     // ---- Story mode (World 8, DESIGN.md section 7 "Final level preview") ----
     // A story card to read (every word can be tapped), then a question with three answers.
@@ -376,14 +376,17 @@ window.RF = window.RF || {};
       const cards = W8.cards || [];
       const seal = W8.seal;
       const R = opts.restore;
-      F.stats = (R && R.stats && R.stats.byType) ? R.stats : { forged: 0, firstTry: 0, crystals: 0, help: 0, misses: 0, runes: 0, runeFirst: 0, byPat: {}, practice: [], cards: 0, cardsFirst: 0, cardsHelp: 0, byType: {}, sealDone: false, sealFirstTry: 0, sealMisses: 0 };
+      F.stats = (R && R.stats && R.stats.byType) ? R.stats : { forged: 0, firstTry: 0, crystals: 0, help: 0, misses: 0, runes: 0, runeFirst: 0, byPat: {}, practice: [], cards: 0, cardsFirst: 0, cardsHelp: 0, byType: {}, sealDone: false, sealFirstTry: 0, sealMisses: 0, aloud: 0, aloudWords: 0, aloudRight: 0, aloudMs: 0, aloudCrystals: 0, sealRead: null, aloudMissed: [] };
+      if (F.stats.aloud == null) Object.assign(F.stats, { aloud: 0, aloudWords: 0, aloudRight: 0, aloudMs: 0, aloudCrystals: 0, sealRead: null, aloudMissed: [] });
       F.idx = 0; F.view = 'card'; F.sealPending = false; F.sealQ = 0; F.sealHelp = false; F.sealFirst = 0;
       F.tries = 0; F.sealTries = 0; F.help = false; F.out = {}; F.glow = false;
-      if (R && R.story) { F.idx = R.story.idx; F.view = R.story.view; F.sealPending = R.story.sealPending; F.sealQ = R.story.sealQ; F.sealHelp = R.story.sealHelp; F.sealFirst = R.story.sealFirst; }
+      F.read = null; F.reading = null; F.sealReads = [];
+      if (R && R.story) { F.idx = R.story.idx; F.view = R.story.view; F.sealPending = R.story.sealPending; F.sealQ = R.story.sealQ; F.sealHelp = R.story.sealHelp; F.sealFirst = R.story.sealFirst; F.read = R.story.read || null; F.sealReads = R.story.sealReads || []; }
       F.showEs = RF.lang() === 'es';
       F.busy = false;
       [wordBox, prompt, micBtn, optsRow, forgeBtn, recent].forEach(function (e) { e.style.display = 'none'; });
       const sbox = D.el('div', null, null, root);
+      F.sbox = sbox;
       sbox.style.cssText = 'display:flex;flex-direction:column;gap:8px';
       root.insertBefore(sbox, msg);
       let payEl = null;
@@ -393,7 +396,7 @@ window.RF = window.RF || {};
         return { lead: m[1], core: m[2], trail: m[3] };
       }
       // Fill host with the text, each word a tappable span (punctuation stripped for the lookup).
-      function words(text, host, onHear) {
+      function words(text, host, onHear, collect) {
         text.split(/(\s+)/).forEach(function (tok) {
           if (!tok) return;
           if (/^\s+$/.test(tok)) { host.appendChild(document.createTextNode(' ')); return; }
@@ -401,6 +404,7 @@ window.RF = window.RF || {};
           if (!p.core) { host.appendChild(document.createTextNode(tok)); return; }
           if (p.lead) host.appendChild(document.createTextNode(p.lead));
           const sp = D.el('span', 'sw', D.esc(p.core), host);
+          if (collect) collect.push(sp);
           sp.addEventListener('click', function (ev) {
             ev.stopPropagation();
             RF.speakWord(p.core.toLowerCase());
@@ -448,7 +452,13 @@ window.RF = window.RF || {};
         esBtn.addEventListener('click', function () { F.showEs = !F.showEs; RF.metrics.support('glossary'); RF.sfx('tap'); draw(); });
         const t2 = D.el('div', 'txt2', null, sc);
         t2.title = RF.t('story.tapWords');
-        words(text, t2, markHelp);
+        F.sentSpans = splitSentences(text).map(function (sen, k) {
+          const box = D.el('span', 'sen', null, t2);
+          if (k) t2.insertBefore(document.createTextNode(' '), box);
+          const arr = []; words(sen, box, markHelp, arr); return arr;
+        });
+        F.readBox = D.el('div', 'aloud', null, sc);
+        drawRead();
         const esBox = D.el('div', 'es' + (F.showEs ? ' show' : ''), null, sc);
         if (es) {
           spk(esBox, function () { esSpeak(es); });
@@ -471,7 +481,7 @@ window.RF = window.RF || {};
           spk(row, function () { markHelp(); RF.speakWord(ch); }).title = RF.t('story.hearAnswer');
           const b = D.el('button', 'sopt' + (F.out[i] ? ' out' : '') + (F.glow && i === q.a ? ' glow' : ''), D.esc(ch), row);
           b.dataset.i = String(i);
-          if (F.out[i]) b.disabled = true;
+          if (F.out[i] || F.reading) b.disabled = true;
           if (F.showEs && q.choicesEs && q.choicesEs[i]) {
             const e2 = D.el('div', null, D.esc(q.choicesEs[i]), b);
             e2.style.cssText = 'font-size:calc(14px * var(--ts));color:#9cf2c0;font-weight:400;margin-top:2px';
@@ -479,6 +489,139 @@ window.RF = window.RF || {};
           b.addEventListener('click', function () { F.answer(i, b); });
           return b;
         });
+        markSpans();
+        lightLine();
+      }
+
+      // ---- Read aloud (Session 14, DESIGN.md 7) ----
+      // Optional: the student reads the card or the Seal out loud, one sentence at a time. Every word
+      // is marked read right or missed (missed words turn gold and can be tapped to hear). A card read
+      // aloud pays a bonus by accuracy; time never lowers a reward. The Seal read aloud gives words
+      // correct per minute, and the rift holds still while it is read. The Seal can be read again.
+      function splitSentences(text) {
+        const m = String(text).match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [text];
+        return m.map(function (x) { return x.trim(); }).filter(Boolean);
+      }
+      const PC = function () { return (RF.data.speech && RF.data.speech.passage) || {}; };
+      function canAloud() { return RF.mic && RF.mic.canReadAloud && RF.mic.canReadAloud(); }
+      function markSpans() {
+        // Show the last result on the words: right words plain, missed words gold and underlined.
+        if (!F.read || !F.sentSpans) return;
+        F.read.sentences.forEach(function (sen, si) {
+          sen.forEach(function (w, wi) { const sp = F.sentSpans[si] && F.sentSpans[si][wi]; if (sp) sp.classList.add(w.ok ? 'rok' : 'rmiss'); });
+        });
+      }
+      function drawRead() {
+        const box = F.readBox; if (!box) return;
+        D.clear(box);
+        const seal_ = isSeal();
+        if (F.reading) {
+          const row = D.el('div', 'arow', null, box);
+          const lis = D.el('div', 'alis', D.MIC + '<span>' + D.esc(RF.t('read.listening')) + '</span>', row);
+          lis.title = RF.t('read.listening');
+          const nx = D.el('button', 'btn anext', D.esc(RF.t(F.readLine >= F.sentSpans.length - 1 ? 'read.done' : 'read.next')), row);
+          nx.addEventListener('click', function () { if (F.reading) F.reading.next(); });
+          const stop = D.el('button', 'btn astop', '&#10005;', row);
+          stop.title = RF.t('read.stop');
+          stop.addEventListener('click', function () { cancelRead(); });
+          return;
+        }
+        if (F.checking) { D.line('read.checking', '', box); return; }
+        if (F.read) {
+          const r = F.read;
+          const row = D.el('div', 'arow', null, box);
+          const parts = [D.num(r.correct), { id: 'res.of' }, D.num(r.total), { id: 'read.wordsRight' }];
+          if (seal_) parts.push({ id: 'read.wcpm' }, D.num(r.wcpm));
+          const html = '<b class="cyan">' + r.correct + '</b> ' + D.esc(RF.t('res.of')) + ' ' + r.total + ' ' + D.esc(RF.t('read.wordsRight')) +
+            (seal_ ? ' &nbsp; <b class="gold" style="font-size:calc(22px * var(--ts))">' + r.wcpm + '</b> ' + D.esc(RF.t('read.wcpm')) : '') +
+            (!seal_ && r.bonus ? ' &nbsp; ' + D.CRYSTAL(16) + ' <span class="cyan">+' + r.bonus + '</span>' : '');
+          D.lineParts(parts, '', row, html).querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#e6e9ff';
+          if (seal_ && r.best) D.line('read.best', '', box).querySelector('.txt').style.cssText = 'color:#ffd76a;font-weight:700;font-size:calc(15px * var(--ts))';
+          else if (seal_ && r.bestWcpm) D.lineParts([{ id: 'read.bestWas' }, D.num(r.bestWcpm)], '', box, D.esc(RF.t('read.bestWas')) + ': <b class="gold">' + r.bestWcpm + '</b>').querySelector('.txt').style.cssText = 'color:#c9c3ff;font-size:calc(14px * var(--ts))';
+          if (r.correct < r.total) D.line('read.tapGold', '', box).querySelector('.txt').style.cssText = 'color:#ffd76a;font-size:calc(13px * var(--ts))';
+          if (RF.unlocks.testMode() && r.diag) D.el('div', null, D.esc(r.diag), box).style.cssText = 'font-size:12px;color:#ffb060';
+          if (seal_ && canAloud()) {
+            const again = D.el('button', 'btn abtn', D.MIC + '<span>' + D.esc(RF.t('read.again')) + '</span>', box);
+            again.addEventListener('click', function () { startRead(); });
+          }
+          return;
+        }
+        if (!canAloud()) return;
+        const b = D.el('button', 'btn abtn', D.MIC + '<span>' + D.esc(RF.t(seal_ ? 'read.sealBtn' : 'read.btn')) + '</span>' +
+          (seal_ ? '' : ' ' + D.CRYSTAL(18) + ' +' + (PC().bonusFull || 15)), box);
+        b.addEventListener('click', function () { startRead(); });
+      }
+      function cancelRead() {
+        if (!F.reading && !F.checking) return;
+        const r = F.reading; F.reading = null; F.checking = false;
+        if (r) r.stop();
+        if (RF.audio) RF.audio.duck(0);
+        if (isSeal() && opts.onHold) opts.onHold(false);
+        draw();
+      }
+      function startRead() {
+        if (F.reading || F.checking) return;
+        const seal_ = isSeal();
+        const text = seal_ ? seal.text : curCard().text;
+        const sents = splitSentences(text);
+        F.read = null;
+        F.readLine = 0;
+        RF.stopSpeaking && RF.stopSpeaking();
+        RF.sfx('tap');
+        if (seal_ && opts.onHold) opts.onHold(true);
+        F.reading = RF.mic.readPassage(sents, {
+          onListening: function () {},
+          onSentence: function (si) { F.readLine = si; lightLine(); drawRead(); },
+          onWord: function (si, wi) { const sp = F.sentSpans[si] && F.sentSpans[si][wi]; if (sp) sp.classList.add('heard'); },
+          onChecking: function () { if (!F.reading) return; F.reading = null; F.checking = true; lightLine(); drawRead(); },
+          onDone: function (res) { readDone(res, seal_); }
+        });
+        draw();
+        lightLine();
+        say(seal_ ? 'read.sealGo' : 'read.go', false);
+      }
+      function lightLine() {
+        if (!F.sentSpans) return;
+        const lines = F.sbox ? F.sbox.querySelectorAll('.sen') : [];
+        lines.forEach(function (el, k) { el.classList.toggle('cur', !!F.reading && k === F.readLine); el.classList.toggle('dim', !!F.reading && k !== F.readLine); });
+      }
+      function readDone(res, seal_) {
+        if (!F.reading && !F.checking) return; // cancelled
+        F.reading = null; F.checking = false;
+        if (RF.audio) RF.audio.duck(0);
+        if (!res.ok) {
+          F.checking = false;
+          if (seal_ && opts.onHold) opts.onHold(false);
+          draw();
+          say('read.micDown', true);
+          return;
+        }
+        const st = F.stats, pc = PC();
+        const pct = res.total ? res.correct / res.total * 100 : 0;
+        const missed = [];
+        res.sentences.forEach(function (sen) { sen.forEach(function (w) { if (!w.ok && missed.indexOf(w.w) < 0) missed.push(w.w); }); });
+        st.aloudMissed = (st.aloudMissed || []).concat(missed.filter(function (w) { return st.aloudMissed.indexOf(w) < 0; })).slice(0, 30);
+        RF.metrics.support('speakMode');
+        if (seal_) {
+          const prevBest = RF.metrics.fluencyBest('seal');
+          RF.metrics.fluency({ battle: L.id, passage: 'seal', correct: res.correct, total: res.total, ms: res.ms, wcpm: res.wcpm, engine: res.engine });
+          F.read = Object.assign({}, res, { best: res.wcpm > prevBest && res.correct > 0, bestWcpm: Math.max(prevBest, res.wcpm) });
+          F.sealReads.push({ wcpm: res.wcpm, correct: res.correct, total: res.total, ms: res.ms });
+          const best = F.sealReads.reduce(function (a, b) { return !a || b.wcpm > a.wcpm ? b : a; }, null);
+          st.sealRead = { tries: F.sealReads.length, first: F.sealReads[0], best: best, last: res, allBest: F.read.bestWcpm };
+          if (opts.onHold) opts.onHold(false);
+          draw(); markSpans();
+          if (pct >= (pc.fullPct || 90) && F.sealReads.length === 1 && opts.onMega) opts.onMega();
+          say(F.read.best ? 'read.best' : pct >= (pc.fullPct || 90) ? 'read.great' : 'read.sealAfter', true);
+          return;
+        }
+        const bonus = pct >= (pc.fullPct || 90) ? (pc.bonusFull || 15) : pct >= (pc.partPct || 75) ? (pc.bonusPart || 8) : 0;
+        st.aloud++; st.aloudWords += res.total; st.aloudRight += res.correct; st.aloudMs += res.ms; st.aloudCrystals += bonus;
+        RF.metrics.fluency({ battle: L.id, passage: curCard().id, correct: res.correct, total: res.total, ms: res.ms, wcpm: res.wcpm, engine: res.engine });
+        F.read = Object.assign({}, res, { bonus: bonus });
+        draw(); markSpans();
+        if (bonus) { st.crystals += bonus; opts.onPay(bonus, F.readBox); RF.sfx('hit'); }
+        say(bonus === (pc.bonusFull || 15) ? 'read.great' : bonus ? 'read.good' : 'read.try', false);
       }
 
       function resetQ() { F.tries = 0; F.sealTries = 0; F.out = {}; F.glow = false; F.shownAt = performance.now(); }
@@ -486,13 +629,14 @@ window.RF = window.RF || {};
         F.view = 'card';
         F.cur = curCard();
         F.help = false;
+        F.read = null;
         resetQ();
         draw();
       }
       function showSeal(fresh) {
         F.view = 'seal';
         F.sealPending = false;
-        if (fresh) { F.sealQ = 0; F.sealHelp = false; F.sealFirst = 0; }
+        if (fresh) { F.sealQ = 0; F.sealHelp = false; F.sealFirst = 0; F.read = null; }
         resetQ();
         draw();
         if (fresh) say('seal.start', true);
@@ -512,7 +656,7 @@ window.RF = window.RF || {};
 
       F.answer = function (i, btn) {
         const q = curQ();
-        if (F.out[i]) return;
+        if (F.out[i] || F.reading) return;
         if (i === q.a) return isSeal() ? sealRight() : cardRight(btn);
         // Missed: no lost crystals. Mark it, shake it, keep the card.
         if (isSeal()) { F.sealTries++; F.stats.sealMisses++; } else { F.tries++; F.stats.misses++; }
@@ -579,19 +723,22 @@ window.RF = window.RF || {};
           if (b && !b.disabled) F.answer(+ev.key - 1, b);
           return true;
         }
+        if ((ev.key === 'r' || ev.key === 'R' || ev.key === 'm' || ev.key === 'M') && !F.reading && canAloud() && (!F.read || isSeal())) { startRead(); return true; }
+        if ((ev.key === 'n' || ev.key === 'N' || ev.key === 'Enter') && F.reading) { F.reading.next(); return true; }
+        if (ev.key === 'Escape' && F.reading) { cancelRead(); return true; }
         if (ev.key === 'h' || ev.key === 'H') { markHelp(); RF.speakWord(isSeal() ? seal.text : curCard().text); return true; }
         return false;
       };
       F.state = function () {
         return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats,
-          story: { idx: F.idx, view: F.view, sealPending: F.sealPending, sealQ: F.sealQ, sealHelp: F.sealHelp, sealFirst: F.sealFirst } };
+          story: { idx: F.idx, view: F.view, sealPending: F.sealPending, sealQ: F.sealQ, sealHelp: F.sealHelp, sealFirst: F.sealFirst, read: F.read, sealReads: F.sealReads } };
       };
 
       if (R) { F.streak = R.streak; F.recent = R.recent; F.overheats = R.overheats; }
       renderStreak();
       if (R && R.story && R.story.view === 'seal' && !F.stats.sealDone && seal) { showSeal(false); }
       else F.next();
-      say('story.start', false);
+      say(canAloud() ? 'story.startSpeak' : 'story.start', false);
     }
     if (L.story) { storyMode(); return; }
 

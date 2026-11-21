@@ -93,6 +93,20 @@
     .forge .scard .sw:hover, .forge .scard .sw.on { background: #ffc94a; color: #1a1300; }
     .forge .scard .es { font-family: var(--rf); font-size: calc(17px * var(--ts)); line-height: 1.4; color: #9cf2c0; border-top: 2px dashed #4b4f9c; padding-top: 6px; display: none; }
     .forge .scard .es.show { display: block; }
+    .forge .scard .sen { transition: opacity .2s; border-radius: 6px; }
+    .forge .scard .sen.cur { background: rgba(126, 243, 255, .12); box-shadow: 0 0 0 3px rgba(126, 243, 255, .35); }
+    .forge .scard .sen.dim { opacity: .45; }
+    .forge .scard .sw.heard { color: #9cf2c0; }
+    .forge .scard .sw.rmiss { color: #ffd76a; text-decoration: underline 3px #ffd76a; text-underline-offset: 4px; }
+    .forge .scard .aloud { display: flex; flex-direction: column; gap: 6px; }
+    .forge .scard .aloud:empty { display: none; }
+    .forge .scard .arow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .forge .scard .abtn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #1f6b4a; border-color: #7dff9c; font-size: calc(17px * var(--ts)); padding: 8px 14px; }
+    .forge .scard .alis { flex: 1; display: flex; align-items: center; gap: 8px; font-family: var(--rf); font-size: calc(16px * var(--ts)); color: #7dff9c; animation: apulse 1.2s infinite; }
+    .forge .scard .anext { font-size: calc(16px * var(--ts)); padding: 6px 14px; background: #2a3a8a; }
+    .forge .scard .astop { font-size: 16px; padding: 6px 10px; }
+    @keyframes apulse { 50% { opacity: .55; } }
+    body.reduced .forge .scard .alis { animation: none; }
     .forge .sq { display: flex; align-items: flex-start; gap: 8px; flex: none; }
     .forge .sq .qt { font-family: var(--rf); font-size: calc(20px * var(--ts)); font-weight: 700; line-height: 1.3; color: #ffe9a8; text-align: left; }
     .forge .sa { display: flex; align-items: stretch; gap: 6px; flex: none; }

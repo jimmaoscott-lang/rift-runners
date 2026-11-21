@@ -4,6 +4,41 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 14: November 21, 2026 (Final level preview, Part B: read aloud with words correct per minute)
+
+**Built**
+- **Read it aloud** on every World 8 story card and on the Rift Seal (shows when a microphone works; tap mode is unchanged). The student reads one sentence at a time: the lit line is outlined, words turn green as they are heard, and the line moves on by itself (or with **Next line**). X or Esc stops without a score.
+- Scoring word by word: each sentence goes to the speech checker, which now has a `/passage` check (Azure Pronunciation Assessment with miscue detection). Accent never counts as a miss, repeats and extra words never count against the student, and Chrome's follow-along fills in if Azure is blocked or busy. Missed words turn gold and can be tapped to hear.
+- Cards read aloud pay bonus crystals by accuracy (+15 at 90%, +8 at 75%). Time never lowers a reward.
+- Rift Seal read aloud: the battle holds still while it is read, then shows words right, **words correct per minute** and the personal best. **Read it again** for a better score (best is kept). A clean first read fires a Mega blast.
+- Results screen: a **Reading aloud** box with the Seal WCPM, first read vs best read, a bar line of every Seal read on this device, and card reading accuracy and WCPM. Missed words go to Words to practice. The final level's win title is now **The rift is sealed!**
+- Every read aloud is saved on the device (words right, time, WCPM; never audio) for the teacher report WCPM line in M10.
+- 33 new English and Spanish lines (voiced about 10 minutes after the push). Version v0.9.0.
+
+**Tested (by Claude, headless Chrome with a recorded test sound as the mic, a stand-in for Azure, and a stand-in for Chrome's recognizer)**
+- Card read with Azure: 12 of 13 right (the word set up as a misread turned gold), +15 bonus. Card with Chrome only: 13 of 13, +15.
+- Seal with both checkers: all 8 lines advanced, 62 of 63 right, WCPM shown, personal best shown, battle held during the read and released after. A word Azure called skipped but Chrome heard counted as right. Stop mid-read released the hold; Read it again worked.
+- Answered both Seal questions and won: results showed "The rift is sealed!", the WCPM box and the bar line. World 1 levels still forge words normally. No game errors. Decodability check passes.
+- Not testable here: the real Azure service, a real student voice, and the school network.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.9.0).
+2. Settings, Teacher, Test mode On. Back to the map, press **Final level preview**.
+3. On a card, press **Read it aloud** and read it. Try one card reading it right and one skipping a word or two. Look for gold words and the crystal bonus.
+4. Build defenders and answer cards until the Seal opens. Press **Read the Seal aloud** and read the whole passage. Check the words correct per minute number. Press **Read it again** and read it faster.
+5. Answer the Seal questions, win, and look at the Reading aloud box on the results screen.
+6. Tell me: does the line move on at the right time when you finish a sentence (not too early, not too slow)? Was any word you read right marked gold? In Test mode the small orange line under the score says which checker was used; send it if a score looks wrong.
+
+**Next up**
+- M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+
+**Open questions**
+- Spanish lines for read aloud were written by Claude and need a Spanish speaker's check (same as World 8).
+- WCPM is shown to students as a personal best only. No grade-level norms are shown to students; norms can go in teacher reports (M10) if you want them.
+
+---
+
 ## Session 13: November 21, 2026 (Final level preview, Part A)
 
 Mr. Scott asked to skip ahead and build the game's last level so the December 2 meeting can see where students start and where they finish. M6 parts 2 to 4 wait until after this.

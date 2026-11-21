@@ -19,7 +19,8 @@ window.RF = window.RF || {};
       totals: { wordsRead: 0, firstTry: 0 },
       cards: {},      // story card id -> { seen, firstTry, misses, last } (World 8 story mode)
       cardLog: [],    // one per answered story card: { id, type, first, t }, newest last
-      seal: { done: 0, firstTry: 0, last: null }
+      seal: { done: 0, firstTry: 0, last: null },
+      fluency: []     // one per passage read aloud: { t, battle, passage, correct, total, ms, wcpm, engine }
     };
   }
 
@@ -106,6 +107,24 @@ window.RF = window.RF || {};
     data.seal.firstTry += rec.firstTry || 0;
     data.seal.last = new Date().toISOString();
     M.save();
+  };
+
+  // Read aloud (World 8 cards and the Rift Seal, Session 14). passage is a card id or 'seal'.
+  // The fluency line in teacher reports (M10) reads these. Words correct per minute only, no audio.
+  M.fluency = function (rec) {
+    M.touch();
+    data.fluency = data.fluency || [];
+    data.fluency.push(Object.assign({ t: new Date().toISOString() }, rec));
+    if (data.fluency.length > 1000) data.fluency.splice(0, data.fluency.length - 1000);
+    M.save();
+  };
+  // Highest words correct per minute ever on this passage (0 if never read aloud).
+  M.fluencyBest = function (passage) {
+    return (data.fluency || []).reduce(function (b, f) { return f.passage === passage ? Math.max(b, f.wcpm || 0) : b; }, 0);
+  };
+  // Every read of this passage, oldest first.
+  M.fluencyAll = function (passage) {
+    return (data.fluency || []).filter(function (f) { return f.passage === passage; });
   };
 
   // rec: { id, words, firstTry, misses, help, ms }
