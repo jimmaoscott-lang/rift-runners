@@ -8,4 +8,6 @@ Students play a retro adventure game where reading is their power. Across 8 worl
 - Progress: [docs/SESSION-LOG.md](docs/SESSION-LOG.md)
 - Project directions: [CLAUDE.md](CLAUDE.md)
 
-Status: design stage.
+Play: https://jimmaoscott-lang.github.io/reading-fluency/
+
+Status: M1 game skeleton (title screen and settings). World 1 comes next.

@@ -163,6 +163,9 @@ Turn-based, one-on-one, Pokémon style.
 - No time limits on learning content; speed only matters in optional score modes
 - Hints are unlimited and never cost the player progress
 - Reduced motion option and volume controls
+- Full keyboard play: arrow keys and Tab move, Enter or Space picks, Left and Right change a setting, Esc goes back
+- Read-aloud in menus: every line and button has its own speaker button. Picking an option in Settings also reads it aloud. Tapping single words inside a line arrives with the battle words in M2.
+- Settings save on the device right away: language, text size (Normal, Large, Extra large), font (Lexend or OpenDyslexic), volume, motion (Full or Reduced). Motion starts at Reduced if the Chromebook's own reduced motion setting is on.
 - Short sessions with a natural stopping point every few minutes
 - Works with keyboard, mouse or touch
 
@@ -173,6 +176,7 @@ Turn-based, one-on-one, Pokémon style.
 - **Speech recognition:** browser Web Speech API in Chrome to start. It sends audio to Google's servers, so district approval is needed before classroom use (see Open Questions). Possible later option: an on-device speech model so no audio leaves the Chromebook.
 - **Read-aloud voice: pre-made audio files.** Every word, sentence, passage and menu line is turned into an audio file ahead of time with a high-quality neural voice (Azure AI Speech, free tier), and the game plays those files. The Chromebook's built-in voice is used only as a last-resort backup if a file is missing.
   - Why pre-made: better sound, instant playback, works offline, no API key inside the game, and no ongoing cost. All game text is known ahead of time, so live voice generation is unnecessary.
+  - **Menu and story lines** live in `game/data/strings.json` (English and Spanish). On every push, `tools/voice_lines.py` voices any new or changed line with the narrator voice and lists the files in `assets/audio/ui/manifest.json`. A line keeps its file until its words or voice change.
   - **How files get made:** a GitHub Action (an automatic job that runs on GitHub's servers) reads the content JSON files, sends any new text to Azure, and saves the audio into `assets/audio/`. The Azure key is stored as an encrypted GitHub Secret, so it never appears in the public repo. New content gets voiced automatically when it is pushed.
   - **Voice variety, with consistency where it teaches:**
     - **Story and characters:** each character (narrator, guide, shopkeepers, rivals, bosses) has its own Azure voice, and game lines vary voice by character. Encouragement lines rotate among several voices so they stay fresh.
@@ -272,7 +276,7 @@ If a number drops (common when a new world brings harder words), the screen show
   - No server code and no build tools the game depends on at runtime
   - No loading files from other websites while playing (fonts and libraries are stored in the repo)
   - Small assets: pixel art, and short mono audio at a low bitrate
-  - A GitHub Action builds both versions: the website and `dist/apps-script/index.html`
+  - A GitHub Action (`.github/workflows/deploy.yml`) builds both versions on every push: the website and the all-in-one file. The all-in-one file is published at `dist/wordbound-offline.html` on the website (download it for the offline backup) and as `dist/apps-script/index.html` with a small `Code.gs` for Apps Script. The builder is `tools/build_single.py`.
   - Speak mode must be tested inside Apps Script early, because the microphone may be blocked inside Google's frame. Tap mode always works as the fallback.
 
 ---

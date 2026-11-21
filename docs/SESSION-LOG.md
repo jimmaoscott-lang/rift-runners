@@ -4,6 +4,46 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 2: November 21, 2026 (M1 game skeleton)
+
+**Built**
+- The game runs: `game/index.html` with Phaser 3.90 stored in the repo (`game/lib/`), so nothing loads from other websites.
+- First launch screen: pick English or Español (each prompt and button has a speaker).
+- Title screen: WORDBOUND logo, tagline, Play and Settings, scrolling pixel mountains and stars. Play shows a "World 1 opens in the next update" message for now.
+- Settings: language, text size (3 sizes), font (Lexend or OpenDyslexic), volume, motion (full or reduced), microphone test. Every row has a speaker. Saves on the device.
+- Microphone test screen: tells you plainly whether speak mode can work in that version of the game (website, offline file, Apps Script).
+- Keyboard play on every screen (arrows, Tab, Enter, Esc).
+- All menu text lives in `game/data/strings.json`. Read-aloud plays pre-made Azure voice files, with the Chromebook voice as backup.
+- `tools/voice_lines.py`: voices every menu line with the narrator voices (Guy, Jorge) on each push.
+- `tools/build_single.py`: builds the all-in-one file (about 1.5 MB, code, fonts and voices packed inside).
+- `.github/workflows/deploy.yml`: on every push to main it voices new lines, builds the all-in-one file and publishes the website.
+- `assets/CREDITS.md` started (Lexend, OpenDyslexic, Phaser).
+
+**Tested (by Claude, headless Chrome)**
+- Website version and offline file both load with no errors.
+- Language pick, title, settings at all 3 text sizes, both fonts, Spanish, message box, mic test screen.
+- Settings survive a reload. Voice files play in both versions.
+- Mic test in the offline file reports "blocked" in the test browser and falls back cleanly. Real result needs a real Chromebook.
+
+**To test (Mr. Scott)**
+1. Play link: https://jimmaoscott-lang.github.io/reading-fluency/ (live a few minutes after the push).
+2. Pick a language, tap the speakers, open Settings and try each option.
+3. Settings > Test microphone. Press Start, say "sun." Note what it says.
+4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/reading-fluency/ and open it from your laptop with Wi-Fi off. Keep this file for the December 2 backup. Download a fresh copy after each session.
+5. At school (after Thanksgiving): try the play link on a student Chromebook.
+
+**Not done yet**
+- The Apps Script version is built but not set up in a Google account. That needs 5 minutes together in a session (copy two files into a new Apps Script project and deploy). Then run the mic test inside it.
+- Spanish menu lines need a quick check by a Spanish speaker.
+
+**Next up**
+- M2: first battle in tap mode with World 1 words, tap any word to hear it, metrics saved on the device from the first battle. Also start `game/data/heart-words.json` and the decodability checker in `tools/`.
+
+**Open questions**
+- Is "Wordbound" the title for the demo, or pick a new name before December 2?
+
+---
+
 ## Session 1: November 21, 2026
 
 **Built**

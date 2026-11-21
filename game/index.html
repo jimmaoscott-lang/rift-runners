@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wordbound</title>
+  <link rel="icon" href="data:,">
+  <style>
+    @font-face { font-family: 'Lexend'; font-weight: 400; font-display: block; src: url('../assets/fonts/lexend-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Lexend'; font-weight: 700; font-display: block; src: url('../assets/fonts/lexend-latin-700-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'OpenDyslexic'; font-weight: 400; font-display: block; src: url('../assets/fonts/opendyslexic-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'OpenDyslexic'; font-weight: 700; font-display: block; src: url('../assets/fonts/opendyslexic-latin-700-normal.woff2') format('woff2'); }
+    html, body { margin: 0; padding: 0; height: 100%; background: #05070f; overflow: hidden; }
+    #game { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <!-- BUILD:SCRIPTS -->
+  <script src="lib/phaser.min.js"></script>
+  <script src="src/core.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/scenes/BootScene.js"></script>
+  <script src="src/scenes/LanguageScene.js"></script>
+  <script src="src/scenes/TitleScene.js"></script>
+  <script src="src/scenes/SettingsScene.js"></script>
+  <script src="src/scenes/MessageScene.js"></script>
+  <script src="src/scenes/MicTestScene.js"></script>
+  <script src="src/main.js"></script>
+  <!-- /BUILD:SCRIPTS -->
+</body>
+</html>
