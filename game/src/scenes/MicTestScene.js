@@ -78,6 +78,11 @@ class MicTestScene extends Phaser.Scene {
     };
     rec.onend = () => {
       console.info('Mic test steps:', JSON.stringify(seen), 'loudest level:', this.peak.toFixed(3));
+      const yn = (v) => (v ? 'yes' : 'no');
+      if (this.diag) {
+        this.diag.setText('Mic on: ' + yn(seen.audio) + '   Sound: ' + yn(seen.sound) + '   Speech: ' + yn(seen.speech) +
+          '   Level: ' + Math.round(this.peak * 1000) + '   Error: ' + (seen.error || 'none') + '   ' + RF.VERSION);
+      }
       if (done) return;
       done = true;
       if (this.heardWords) { this.finish('mic.ok'); return; }
@@ -111,6 +116,7 @@ class MicTestScene extends Phaser.Scene {
       const y = this.heard.y + 70;
       this.add.rectangle(RF.W / 2, y, 604, 34, 0x05070f).setStrokeStyle(3, RF.ui.COLORS.chipEdge);
       this.meterBar = this.add.rectangle(RF.W / 2 - 300, y, 0, 26, 0x9cf2c0).setOrigin(0, 0.5);
+      this.diag = this.add.text(RF.W / 2, y + 40, '', { fontFamily: 'Lexend, sans-serif', fontSize: '20px', color: '#c8cdf0', resolution: 2 }).setOrigin(0.5);
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
     const token = this.meterToken = (this.meterToken || 0) + 1;

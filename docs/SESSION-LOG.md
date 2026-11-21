@@ -35,7 +35,8 @@ Newest entry at the top. Each session adds one entry.
 **Mic test fix (same session)**
 - First real test: the mic test said no words came through.
 - Added a live sound meter and a step-by-step check. The result now tells apart: mic never turned on, mic on but silent (wrong mic or muted), or sound heard with no words caught. Partial words now count too.
-- Waiting on Mr. Scott's retest to see which one it is.
+- His retest showed the old test code: Chrome kept the old scripts from its cache. Each deploy now stamps the scripts with the update number so browsers load fresh code. The mic test also shows a status line (mic on, sound, speech, level, error, version).
+- Waiting on a retest with the status line.
 
 **Not done yet**
 - The Apps Script version is built but not set up in a Google account. That needs 5 minutes together in a session (copy two files into a new Apps Script project and deploy). Then run the mic test inside it.

@@ -53,6 +53,8 @@ jobs:
           mkdir -p _site/assets/audio
           if [ -d assets/audio/ui ]; then cp -r assets/audio/ui _site/assets/audio/ui; fi
           cp -r dist _site/dist
+          # Make browsers load fresh game code after every update.
+          sed -i "s|\.js\"></script>|.js?v=${GITHUB_SHA::8}\"></script>|g" _site/game/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
