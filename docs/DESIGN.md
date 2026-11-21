@@ -109,6 +109,20 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 The opening mission doubles as a placement check. It quickly samples each world's pattern with real words and runes, then opens the worlds the student has already mastered. The student sees it as a tutorial mission, never a test.
 
+### 5.3 Comprehension strand (added Nov 21)
+
+Decoding and fluency are needed for comprehension but do not finish the job (the Simple View of Reading: decoding times language comprehension). So meaning runs alongside the decoding sequence, always using only words the student can already decode plus heart words:
+
+| Worlds | Comprehension work | Where it shows up in the game |
+|---|---|---|
+| 1 to 3 | Word meaning: match a word to a picture or a short meaning; Spanish meanings and cognates | Forge "meaning runes" that pay a bonus |
+| 3 to 5 | Sentence meaning: read a short sentence, pick the picture or action it describes; who did what | Battle orders: "Freeze the big bat" read in the Forge triggers that action on the field |
+| 5 to 7 | Short paragraphs: main idea, sequence, cause and effect, inference | Scout reports between waves warn what is coming; reading them right tells you which defenders to build |
+| 6 to 8 | Longer story passages with questions on why and how | Rift Seal passages carry the story; 2 or 3 questions after the seal give a power bonus |
+| 8 | Mixed connected text near the student's goal level, with vocabulary from roots and affixes | Final world story and boss seals |
+
+The story itself (lore scrolls, character messages, boss taunts) is written in decodable text for each world, so reading pays off in the plot, too. Comprehension accuracy is recorded by question type (main idea, inference, sequence) for teacher reports.
+
 ---
 
 ## 6. The Rune Forge (where the reading happens)
@@ -116,7 +130,8 @@ The opening mission doubles as a placement check. It quickly samples each world'
 Always on screen in a level, on the right side.
 
 1. A word appears, big, in Lexend. Gold-edged **runes** are made-up words and pay double.
-2. **Tap mode:** three speaker buttons each say a word: the real one and two with a different vowel (sit, set, sat). The student picks the one that matches the written word and presses Forge. **Speak mode (later):** read the word aloud into the mic for a bonus.
+2. **Speak mode (the main way to play where the mic works):** the student just reads the word out loud. No choices to pick from, so no guessing, and saying the word is the real skill. It pays the most crystals. **Tap mode (always available):** three speaker buttons each say a word: the real one and two with a different vowel (sit, set, sat). The student picks the one that matches and presses Forge. Tap mode covers noisy rooms, shared headsets, shy students, no district mic approval, and anything the mic cannot check.
+   - **Limit:** Chrome's speech recognizer turns sounds into real words, so it cannot judge made-up runes and may hear "set" as "sit." Runes stay in tap mode until a pronunciation checker (Azure Pronunciation Assessment or an on-device model) is tested in M5.
 3. **Every forge pays right away:** crystals fly from the Forge into the crystal counter with a sound.
    - Real word, first try: +10. Rune, first try: +20.
    - Hearing the word first (speaker on the word) or second try: about half.
