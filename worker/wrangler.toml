@@ -4,3 +4,5 @@ name = "rift-runners-speech"
 main = "speech-worker.js"
 compatibility_date = "2026-11-01"
 workers_dev = true
+# Cloudflare account (an ID only, safe to share; the token and key stay secret)
+account_id = "07144ec088c1349de26b3dc51683ccb8"
