@@ -72,7 +72,7 @@ window.RF = window.RF || {};
     const sky = scene.add.graphics();
     sky.fillGradientStyle(0x0b0e24, 0x0b0e24, 0x3b2a6b, 0x3b2a6b, 1);
     sky.fillRect(0, 0, RF.W, RF.H);
-    const rnd = new Phaser.Math.RandomDataGenerator(['wordbound']);
+    const rnd = new Phaser.Math.RandomDataGenerator(['riftrunners']);
     for (let i = 0; i < 70; i++) {
       const s = scene.add.image(rnd.between(0, RF.W), rnd.between(0, 380), 'star').setAlpha(rnd.realInRange(0.3, 1));
       if (rnd.frac() < 0.5) s.setScale(0.5);

@@ -9,7 +9,7 @@ Newest entry at the top. Each session adds one entry.
 **Built**
 - The game runs: `game/index.html` with Phaser 3.90 stored in the repo (`game/lib/`), so nothing loads from other websites.
 - First launch screen: pick English or Español (each prompt and button has a speaker).
-- Title screen: WORDBOUND logo, tagline, Play and Settings, scrolling pixel mountains and stars. Play shows a "World 1 opens in the next update" message for now.
+- Title screen: game logo, tagline, Play and Settings, scrolling pixel mountains and stars. Play shows a "World 1 opens in the next update" message for now.
 - Settings: language, text size (3 sizes), font (Lexend or OpenDyslexic), volume, motion (full or reduced), microphone test. Every row has a speaker. Saves on the device.
 - Microphone test screen: tells you plainly whether speak mode can work in that version of the game (website, offline file, Apps Script).
 - Keyboard play on every screen (arrows, Tab, Enter, Esc).
@@ -29,7 +29,7 @@ Newest entry at the top. Each session adds one entry.
 1. Play link: https://jimmaoscott-lang.github.io/reading-fluency/ (live a few minutes after the push).
 2. Pick a language, tap the speakers, open Settings and try each option.
 3. Settings > Test microphone. Press Start, say "sun." Note what it says.
-4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/reading-fluency/ and open it from your laptop with Wi-Fi off. Keep this file for the December 2 backup. Download a fresh copy after each session.
+4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/reading-fluency/ and open it from your laptop with Wi-Fi off. The file is named rift-runners-offline.html. Keep it for the December 2 backup. Download a fresh copy after each session.
 5. At school (after Thanksgiving): try the play link on a student Chromebook.
 
 **Not done yet**
@@ -39,8 +39,12 @@ Newest entry at the top. Each session adds one entry.
 **Next up**
 - M2: first battle in tap mode with World 1 words, tap any word to hear it, metrics saved on the device from the first battle. Also start `game/data/heart-words.json` and the decodability checker in `tools/`.
 
+**Decisions made**
+- Game title is **Rift Runners** ("The worlds are breaking. Run."). Mr. Scott wants no name that points at reading or a reading deficit. Names come from the adventure, like "Escape from Witch Mountain." Rule added to DESIGN.md section 4.1A, with world name ideas to approve.
+
 **Open questions**
-- Is "Wordbound" the title for the demo, or pick a new name before December 2?
+- Approve or change the world names in DESIGN.md section 4.1A.
+- The web address still says "reading-fluency" because it comes from the repo name. Renaming the repo to rift-runners would change it. If renamed, update the links in README, CLAUDE.md and this log.
 
 ---
 

@@ -36,7 +36,7 @@ window.RF = window.RF || {};
   };
 
   // ---------- Settings ----------
-  const SETTINGS_KEY = 'wordbound.settings.v1';
+  const SETTINGS_KEY = 'riftrunners.settings.v1';
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, reducedMotion: prefersReduced };
   RF.settings = Object.assign({}, DEFAULTS);

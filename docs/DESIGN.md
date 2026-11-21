@@ -1,6 +1,6 @@
 # Game Design Document
 
-**Working title:** Wordbound (placeholder, rename anytime)
+**Title:** Rift Runners (chosen November 21, 2026). Tagline: "The worlds are breaking. Run."
 **Status:** Draft 1, November 2026
 **Owner:** Mr. Scott
 
@@ -59,6 +59,12 @@ A combination of proven styles from the 1980s to now:
 - 1 rhythm boss at the end
 
 Theme ideas (to decide): forest, desert, ice, ocean, volcano, sky city, ruins, final fortress.
+
+### 4.1A Naming rule
+
+No name the student sees may point at reading or at a reading problem. The game, worlds, levels, abilities and rewards are named for the adventure, like a movie title (example: "Escape from Witch Mountain"). Words like read, word, letter, spell, phonics, level or fluency stay out of names. Reading is the power inside the game, never what the game is called.
+
+World name ideas to approve: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead Sun" (desert), World 3 "Frostfang Pass" (ice), World 4 "The Drowned Coast" (ocean), World 5 "Ashfall" (volcano), World 6 "Skyport Zero" (sky city), World 7 "The Sunken Vault" (ruins), World 8 "The Rift Core" (final fortress).
 
 ### 4.2 Core loop
 
@@ -276,7 +282,7 @@ If a number drops (common when a new world brings harder words), the screen show
   - No server code and no build tools the game depends on at runtime
   - No loading files from other websites while playing (fonts and libraries are stored in the repo)
   - Small assets: pixel art, and short mono audio at a low bitrate
-  - A GitHub Action (`.github/workflows/deploy.yml`) builds both versions on every push: the website and the all-in-one file. The all-in-one file is published at `dist/wordbound-offline.html` on the website (download it for the offline backup) and as `dist/apps-script/index.html` with a small `Code.gs` for Apps Script. The builder is `tools/build_single.py`.
+  - A GitHub Action (`.github/workflows/deploy.yml`) builds both versions on every push: the website and the all-in-one file. The all-in-one file is published at `dist/rift-runners-offline.html` on the website (download it for the offline backup) and as `dist/apps-script/index.html` with a small `Code.gs` for Apps Script. The builder is `tools/build_single.py`.
   - Speak mode must be tested inside Apps Script early, because the microphone may be blocked inside Google's frame. Tap mode always works as the fallback.
 
 ---
@@ -307,8 +313,8 @@ Each milestone is a playable, testable step.
 
 ## 15. Open questions
 
-1. Final game title
-2. Story and setting: who is the player, and what are they fighting?
+1. ~~Final game title~~ Decided: Rift Runners
+2. Story and setting: who is the player, and what are they fighting? Starting idea from the title: rifts are tearing the worlds apart and the player runs through each world to seal its rift.
 3. District approval for speech recognition in Chrome on student Chromebooks
 4. Azure Speech account setup and voice choice (English and Spanish); confirm Azure terms allow the generated audio in a public classroom game; source for any phoneme clips that need recording
 5. Art source: CC0 pixel art packs (for example Kenney or OpenGameArt), AI-generated art, or a mix

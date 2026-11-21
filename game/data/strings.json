@@ -1,8 +1,8 @@
 {
   "_note": "Every line of menu and story text, in English and Spanish. The build voices each line with the narrator voice in voices.json. Spanish lines need a quick check by a Spanish speaker before launch.",
   "en": {
-    "title.name": "Wordbound",
-    "title.tagline": "Read the runes. Break the seal.",
+    "title.name": "Rift Runners",
+    "title.tagline": "The worlds are breaking. Run.",
     "title.play": "Play",
     "title.settings": "Settings",
     "title.comingSoon": "World 1 opens in the next update. Stay ready.",
@@ -38,8 +38,8 @@
     "common.ok": "Got it"
   },
   "es": {
-    "title.name": "Wordbound",
-    "title.tagline": "Lee las runas. Rompe el sello.",
+    "title.name": "Rift Runners",
+    "title.tagline": "Los mundos se están rompiendo. Corre.",
     "title.play": "Jugar",
     "title.settings": "Ajustes",
     "title.comingSoon": "El Mundo 1 se abre en la próxima actualización. Prepárate.",

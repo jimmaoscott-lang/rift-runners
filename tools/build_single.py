@@ -3,7 +3,7 @@
 Packs the game code, Phaser, fonts, text and voice files into ONE html file that runs
 with no other files and no internet (tap mode). Outputs:
 
-- dist/wordbound-offline.html  (open straight from a laptop or flash drive)
+- dist/rift-runners-offline.html  (open straight from a laptop or flash drive)
 - dist/apps-script/index.html  (same file, for a Google Apps Script web app)
 - dist/apps-script/Code.gs     (the small Apps Script that serves it)
 
@@ -71,12 +71,12 @@ def main():
     html = html[:block.start()] + "\n".join(parts) + html[block.end():]
 
     os.makedirs(os.path.join(DIST, "apps-script"), exist_ok=True)
-    for out in [os.path.join(DIST, "wordbound-offline.html"), os.path.join(DIST, "apps-script", "index.html")]:
+    for out in [os.path.join(DIST, "rift-runners-offline.html"), os.path.join(DIST, "apps-script", "index.html")]:
         with open(out, "w", encoding="utf-8") as f:
             f.write(html)
     shutil.copy(os.path.join(ROOT, "tools", "apps-script", "Code.gs"), os.path.join(DIST, "apps-script", "Code.gs"))
     size_kb = len(html.encode("utf-8")) // 1024
-    print(f"Built dist/wordbound-offline.html and dist/apps-script/ ({size_kb} KB, {len(inline['files'])} voice files).")
+    print(f"Built dist/rift-runners-offline.html and dist/apps-script/ ({size_kb} KB, {len(inline['files'])} voice files).")
     return 0
 
 
