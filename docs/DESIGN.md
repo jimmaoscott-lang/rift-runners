@@ -179,6 +179,7 @@ Turn-based, one-on-one, Pokémon style.
 
 ## 10. Speech and audio
 
+- **Speech recognition finding (Nov 21 mic tests):** Chrome's built-in recognizer often catches nothing when a person says one short word like "sun," even loudly and up close. World 1 is all short words, so M3 must be designed around this. Options to compare in M3: (a) Chrome recognizer with very lenient matching on every guess it returns, (b) Azure Pronunciation Assessment, which is built to score a known word or passage read aloud and reports accuracy per sound, using the Azure account we already have (needs a small token service, for example in Apps Script, so the key never goes in the game), (c) an on-device model. Tap mode stays the full alternative either way.
 - **Speech recognition:** browser Web Speech API in Chrome to start. It sends audio to Google's servers, so district approval is needed before classroom use (see Open Questions). Possible later option: an on-device speech model so no audio leaves the Chromebook.
 - **Read-aloud voice: pre-made audio files.** Every word, sentence, passage and menu line is turned into an audio file ahead of time with a high-quality neural voice (Azure AI Speech, free tier), and the game plays those files. The Chromebook's built-in voice is used only as a last-resort backup if a file is missing.
   - Why pre-made: better sound, instant playback, works offline, no API key inside the game, and no ongoing cost. All game text is known ahead of time, so live voice generation is unnecessary.
@@ -315,7 +316,7 @@ Each milestone is a playable, testable step.
 
 1. ~~Final game title~~ Decided: Rift Runners
 2. Story and setting: who is the player, and what are they fighting? Starting idea from the title: rifts are tearing the worlds apart and the player runs through each world to seal its rift.
-3. District approval for speech recognition in Chrome on student Chromebooks
+3. District approval for speech recognition in Chrome on student Chromebooks (and for Azure Pronunciation Assessment if M3 picks it)
 4. Azure Speech account setup and voice choice (English and Spanish); confirm Azure terms allow the generated audio in a public classroom game; source for any phoneme clips that need recording
 5. Art source: CC0 pixel art packs (for example Kenney or OpenGameArt), AI-generated art, or a mix
 6. District approval to send student-code progress data to a teacher-owned Google Sheet

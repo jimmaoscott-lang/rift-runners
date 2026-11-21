@@ -38,6 +38,7 @@ Newest entry at the top. Each session adds one entry.
 - His retest showed the old test code: Chrome kept the old scripts from its cache. Each deploy now stamps the scripts with the update number so browsers load fresh code. The mic test also shows a status line (mic on, sound, speech, level, error, version).
 - Retest result (Chrome on his Windows laptop): Mic on yes, Sound no, Level 0, error no-speech. Chrome opens the mic but gets silence, so the wrong input device is picked or it is muted. The game code is working.
 - Fixed: going Back and reopening the mic test lost the sound meter until a page refresh.
+- Cause of the silence: the laptop mic was muted with its F5 key. After unmuting, Chrome caught "sun" once in many tries (two adults, loud and close). Single short words are hard for Chrome's recognizer. Test now listens up to 7 seconds and the meter no longer changes the mic's audio. See DESIGN.md section 10 for M3 options.
 
 **Not done yet**
 - The Apps Script version is built but not set up in a Google account. That needs 5 minutes together in a session (copy two files into a new Apps Script project and deploy). Then run the mic test inside it.

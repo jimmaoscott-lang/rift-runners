@@ -62,7 +62,8 @@ class MicTestScene extends Phaser.Scene {
     this.rec = rec;
     rec.lang = 'en-US';
     rec.interimResults = true;
-    rec.continuous = false;
+    // Keep listening through short pauses, for up to 7 seconds.
+    rec.continuous = true;
     rec.maxAlternatives = 3;
     // What happened, step by step. Used to explain a miss in plain words.
     const seen = { audio: false, sound: false, speech: false, error: null };
@@ -78,7 +79,7 @@ class MicTestScene extends Phaser.Scene {
       this.heardWords = words;
       this.heard.setText(RF.t('mic.heard') + ' "' + words + '"');
       const isFinal = ev.results[ev.results.length - 1].isFinal;
-      if (isFinal && !done) { done = true; this.finish('mic.ok'); }
+      if (isFinal && !done) { done = true; this.finish('mic.ok'); try { rec.stop(); } catch (e) { /* ignore */ } }
     };
     rec.onerror = (ev) => {
       seen.error = ev.error;
@@ -104,6 +105,10 @@ class MicTestScene extends Phaser.Scene {
     try {
       rec.start();
       this.setStatusSilent('mic.listening');
+      if (this.stopTimer) this.stopTimer.remove();
+      this.stopTimer = this.time.delayedCall(7000, () => {
+        if (this.rec === rec) { try { rec.stop(); } catch (e) { /* ignore */ } }
+      });
     } catch (e) {
       console.warn('Mic test could not start:', e);
       this.finish('mic.blocked');
@@ -137,7 +142,7 @@ class MicTestScene extends Phaser.Scene {
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
     const token = this.meterToken = (this.meterToken || 0) + 1;
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then((stream) => {
       if (token !== this.meterToken || !this.scene.isActive()) {
         // The test already ended before the microphone opened.
         stream.getTracks().forEach((t) => t.stop());
