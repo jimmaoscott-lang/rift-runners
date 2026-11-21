@@ -227,7 +227,10 @@ window.RF = window.RF || {};
 
   // ---------- Keyboard focus (arrows, Tab, Enter, Space) ----------
   // items: [{ target (game object with getBounds), activate, left, right, speak }]
-  ui.focus = function (scene, items, startIndex) {
+  // opts.horizontal: Left and Right also move between items (for a row of choices).
+  // opts.show: start with the focus ring showing.
+  ui.focus = function (scene, items, startIndex, opts) {
+    opts = opts || {};
     let index = startIndex || 0;
     let showing = false;
     const ring = scene.add.graphics().setDepth(1000);
@@ -253,8 +256,12 @@ window.RF = window.RF || {};
           case 'ArrowDown': move(1); break;
           case 'ArrowUp': move(-1); break;
           case 'Tab': ev.preventDefault(); move(ev.shiftKey ? -1 : 1); break;
-          case 'ArrowLeft': if (it && it.left) { showing = true; it.left(); draw(); } break;
-          case 'ArrowRight': if (it && it.right) { showing = true; it.right(); draw(); } break;
+          case 'ArrowLeft':
+            if (it && it.left) { showing = true; it.left(); draw(); } else if (opts.horizontal) move(-1);
+            break;
+          case 'ArrowRight':
+            if (it && it.right) { showing = true; it.right(); draw(); } else if (opts.horizontal) move(1);
+            break;
           case 'Enter': case 'Space': case 'NumpadEnter':
             if (showing && it && it.activate) it.activate(); else { showing = true; draw(); }
             break;
@@ -264,10 +271,16 @@ window.RF = window.RF || {};
       };
       kb.on('keydown', onKey);
       scene.events.once('shutdown', function () { kb.off('keydown', onKey); });
+      ring.removeKey = function () { kb.off('keydown', onKey); };
     }
-    showing = !!(scene.sys.settings.data && scene.sys.settings.data.keyboard);
+    showing = opts.show !== undefined ? !!opts.show : !!(scene.sys.settings.data && scene.sys.settings.data.keyboard);
     draw();
-    return { index: function () { return index; }, showing: function () { return showing; } };
+    return {
+      index: function () { return index; },
+      showing: function () { return showing; },
+      redraw: draw,
+      destroy: function () { if (ring.removeKey) ring.removeKey(); ring.destroy(); }
+    };
   };
 
   // ---------- Fit a container inside a box by shrinking it if needed ----------

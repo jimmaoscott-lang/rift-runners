@@ -19,6 +19,15 @@ class BootScene extends Phaser.Scene {
   async loadAll() {
     RF.loadSettings();
     RF.strings = await RF.loadJSON('data/strings.json');
+    RF.content = { world1: await RF.loadJSON('data/world1.json') };
+    RF.metrics.load();
+    RF.metrics.touch();
+    RF.metrics.save();
+    try {
+      RF.wordManifest = await RF.loadJSON('../assets/audio/words/manifest.json');
+    } catch (e) {
+      RF.wordManifest = { en: {}, es: {} };
+    }
     try {
       RF.voiceManifest = await RF.loadJSON('../assets/audio/ui/manifest.json');
     } catch (e) {

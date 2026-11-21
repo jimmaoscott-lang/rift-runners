@@ -7,5 +7,5 @@ window.RF_GAME = new Phaser.Game({
   backgroundColor: '#0b0e24',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   audio: { noAudio: true },
-  scene: [BootScene, LanguageScene, TitleScene, SettingsScene, MessageScene, MicTestScene]
+  scene: [BootScene, LanguageScene, TitleScene, SettingsScene, MessageScene, MicTestScene, BattleScene]
 });

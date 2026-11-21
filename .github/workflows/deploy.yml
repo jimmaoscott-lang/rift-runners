@@ -1,6 +1,6 @@
 name: Build and deploy
 
-# Runs on every push to main. Voices any new game lines with Azure, builds the
+# Runs on every push to main. Checks new words, voices any new game lines with Azure, builds the
 # all-in-one offline / Apps Script file, and publishes the website on GitHub Pages.
 on:
   push:
@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Check that all words fit the skills taught so far
+        run: python tools/check_decodable.py
       - name: Voice new game lines with Azure
         env:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
@@ -33,7 +35,7 @@ jobs:
         run: |
           git config user.name "voice-bot"
           git config user.email "github-actions@users.noreply.github.com"
-          git add assets/audio/ui || true
+          git add assets/audio/ui assets/audio/words || true
           if git diff --cached --quiet; then
             echo "No new voice files."
           else
@@ -52,6 +54,7 @@ jobs:
           cp -r assets/fonts _site/assets/fonts
           mkdir -p _site/assets/audio
           if [ -d assets/audio/ui ]; then cp -r assets/audio/ui _site/assets/audio/ui; fi
+          if [ -d assets/audio/words ]; then cp -r assets/audio/words _site/assets/audio/words; fi
           cp -r dist _site/dist
           # Make browsers load fresh game code after every update.
           sed -i "s|\.js\"></script>|.js?v=${GITHUB_SHA::8}\"></script>|g" _site/game/index.html

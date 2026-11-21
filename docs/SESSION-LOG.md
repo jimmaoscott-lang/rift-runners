@@ -4,6 +4,51 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 3: November 21, 2026 (M2 first battle, tap mode)
+
+**Built**
+- Play on the title screen now starts a real battle: "A Thornback blocks the trail." Thornback is an original pixel bramble beast with a rift crack in its back, drawn in code, in a pixel forest.
+- Each turn: pick one of 3 move cards (2 real words, 1 gold "Rune" word that hits harder). Then pick which of 3 sounds matches the written word and press Cast. The wrong sounds change only the vowel (cup, cop, cap), so the student has to read the vowel.
+- Miss support: first miss shows the word as letter tiles with the vowel in gold and says "Let's break it up. Listen to the middle sound." Second miss makes the right answer glow. No failure sounds, no player damage, no timers.
+- Every word has a speaker. Hearing a move's word before casting counts as help (smaller hit).
+- Encouragement that names what happened: first try, rune cracked, three in a row, five in a row, second try landed.
+- Spanish on: each hit shows the Spanish meaning with its own speaker, and cognates get "Esta ya la conoces."
+- Win screen: words read and first-try count, big and tappable. Battle again or Title screen.
+- Progress record on the device (`game/src/metrics.js`): play sessions, every word attempt (word, vowel pattern, real or rune, tries, help, time), each battle, support use. New and missed words come up more often next time. Nothing is sent anywhere yet.
+- `game/data/world1.json`: 40 real words (8 per short vowel), 12 runes, answer options, Spanish meanings.
+- `game/data/heart-words.json`: heart word lists for all 8 worlds (World 1: a, I, the, to, of, is, was).
+- `tools/check_decodable.py`: checks every word against the World 1 rules and a hidden list of crude words. Runs on every push and stops the deploy if anything fails. 156 words pass.
+- `tools/voice_lines.py` now also voices every battle word with Azure, spelled as sounds so runes are said the way they are written.
+
+**Tested (by Claude, headless Chrome)**
+- Full battles on the website and the offline file, in English and in Spanish with Extra large text and OpenDyslexic. No errors.
+- First miss, second miss, reveal, rune hits, streaks, win screen, Battle again.
+- Keyboard only: Tab, arrows, Enter, Esc through a full turn.
+- Progress record survives a page reload.
+- Word voices could not be tested here: GitHub makes them after this push. Until then the Chromebook voice fills in.
+
+**To test (Mr. Scott)**
+1. Wait about 5 minutes after this push, then open https://jimmaoscott-lang.github.io/rift-runners/ and press Play.
+2. Tap the 3 speakers on the answer side. Listen for clean short vowels, especially on gold Rune words (like "jom" or "vep"). Write down any that sound wrong.
+3. Miss on purpose twice to see the support steps.
+4. Switch to Español in Settings and win a battle.
+5. Download a fresh offline copy for the December 2 backup.
+6. Tell me if a battle feels too long or too short (it takes about 8 words now).
+
+**Not done yet**
+- Speak mode (M3).
+- Small font glitch: in OpenDyslexic regular, an accented ó (like "pegó") draws its accent off to the side. Bold looks fine. Fix later.
+- Spanish battle lines need the same quick check by a Spanish speaker.
+
+**Next up**
+- M3: speak mode for the same battle. Read the word into the mic; lenient matching for accented speech; tap mode stays one tap away. Follow the mic rule in DESIGN.md section 10.
+
+**Open questions**
+- DESIGN.md section 15, items 9 and 10: does hearing a word first count as help, and should final blends ("bend") wait for World 2?
+- Still open from Session 2: world names in DESIGN.md section 4.1A.
+
+---
+
 ## Session 2: November 21, 2026 (M1 game skeleton)
 
 **Built**

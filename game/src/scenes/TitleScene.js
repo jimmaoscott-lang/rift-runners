@@ -33,8 +33,8 @@ class TitleScene extends Phaser.Scene {
     RF.ui.fit(tagline, 1180);
 
     const play = RF.ui.button(this, cx, 0, 'title.play', () => {
-      this.scene.launch('Message', { textId: 'title.comingSoon', from: 'Title' });
-      this.scene.pause();
+      RF.stopSpeaking();
+      this.scene.start('Battle', { keyboard: this.focus.showing() });
     }, { minWidth: 340, fontPx: 40 });
     const settings = RF.ui.button(this, cx, 0, 'title.settings', () => {
       this.scene.start('Settings', { keyboard: this.focus.showing() });

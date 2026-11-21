@@ -83,7 +83,7 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 | World | Pattern | Example words | Ability unlocked (ideas) |
 |---|---|---|---|
-| 1 | Short vowels, closed syllables (CVC) | cat, sit, mud, hop, bend | Dash |
+| 1 | Short vowels, closed syllables (CVC) | map, sit, mud, hop, jet | Dash |
 | 2 | Consonant blends and digraphs (sh, ch, th, wh, ck, ng) | ship, chest, thump, crash, string | Grapple hook |
 | 3 | Silent e (VCe) | make, ride, stone, cube | Swim |
 | 4 | Vowel teams (ai, ay, ee, ea, oa, ow, oi, oy, ou) | rain, steam, float, coin, cloud | Glide |
@@ -94,7 +94,9 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 **Heart words:** each world allows a small list of high-frequency irregular words (for example: the, was, said, of, to, you, they, were). Heart words are taught directly and stored in `game/data/heart-words.json`.
 
-**Decodability checker:** a script in `tools/` checks every word and passage against the patterns taught so far plus allowed heart words, and flags anything that does not fit. All new content must pass it.
+**World 1 word rules (built in M2):** three letters, consonant + short vowel + consonant. No final r, w or y (they change the vowel), no c or g before e or i (soft sounds), and final blends like "bend" wait for World 2. Words live in `game/data/world1.json`.
+
+**Decodability checker:** `tools/check_decodable.py` checks every word and passage against the patterns taught so far plus allowed heart words, and flags anything that does not fit. All new content must pass it.
 
 ### 5.1 Mastery
 
@@ -117,14 +119,17 @@ Turn-based, one-on-one, Pokémon style.
 1. Choose a move. Each move shows a word, and harder words do more damage.
 2. Read the word:
    - **Speak mode:** read it aloud into the mic
-   - **Tap mode:** tap the word's sounds or syllables in order, or choose the matching spoken word from options
+   - **Tap mode (built in M2):** the word is on screen. Three speaker buttons each say a different word: the real one and two with a different vowel (sit, set, sat). The student listens, picks the one that matches what is written, and casts. This checks decoding, because the student has to read the written word to know which sound fits. Later worlds can add "tap the sounds in order."
 3. Correct reading lands the attack. Clean, quick reading adds a combo bonus (optional, never required to win).
-4. A miss does not hurt the player. The word is read aloud, broken into parts, and the student tries again.
+4. A miss does not hurt the player. The word is read aloud, broken into letter tiles with the vowel in gold, and the student tries again. After a second miss the right answer glows and the student taps it to attack. The word comes back more often in later battles.
+5. Any word can be heard at any time with its speaker button. Hearing a move's word before casting counts as help: the hit still lands, with less damage, and the record notes the help.
+
+**Damage (M2 numbers, easy to tune):** Thornback has 140 health, about 8 words. Real word 15, rune 25, plus a small bonus for each first-try hit in a row. With help or on a second try, about half. After the answer is shown, about a third. The student always wins; the only question is how fast.
 
 ### 6.2 Battle word types
 
 - **Real words** from the current and earlier patterns
-- **Nonsense words** (for example, "blim" or "strake"), shown as "alien code" or "spell runes," to check true decoding instead of memorized words
+- **Nonsense words** (for example, "blim" or "strake"), shown as "Rune" moves with gold edges and more power, to check true decoding instead of memorized words
 - **Word building moves** where the student builds a word from tiles to power a special attack
 - **Sentence moves** (later worlds) where a short sentence powers a big attack
 
@@ -155,6 +160,7 @@ Turn-based, one-on-one, Pokémon style.
 - **Every word can be heard** in English. Glossary entries can also be heard in Spanish.
 - **Picture support** for concrete words where possible
 - **Cognate highlights:** Spanish-English cognates are marked (example: nación / nation, motor / motor) with a short "you already know this one" moment
+- **Built in M2:** with Spanish on, every hit shows the word's Spanish meaning with its own speaker, and cognates (map / mapa, bus / autobús) get the "you already know this one" line
 - **Targeted sound practice** for English sounds that are hard for Spanish speakers: short vowels (especially short i vs. short e, short a vs. short o), sh vs. ch, v vs. b, word-ending clusters (-sts, -mps), and silent e
 - **Forgiving speech recognition:** accented pronunciation must not count as a miss. Matching is lenient, and tap mode is always available.
 - Oral vocabulary support: short meanings for words the student may be able to decode but not know
@@ -194,6 +200,7 @@ Turn-based, one-on-one, Pokémon style.
     - **Chosen so far:** narrator is English Guy (picked by Mr. Scott) and Spanish Jorge, Mexico (picked to match: a male narrator voice in the Spanish variety most common among local EB students). A Spanish-speaking colleague or student should give the Spanish voices a quick listen before launch.
   - Free tier is 0.5 million characters per month, far more than the game's full text. Free tier usage is throttled rather than billed when the limit is reached.
   - Backup option with no account: an open-source voice (Kokoro or Piper) run by the same GitHub Action.
+- **Battle words (built in M2):** every battle word, answer option and rune is voiced by `tools/voice_lines.py` into `assets/audio/words/`. Short words are sent to Azure spelled as sounds (IPA), so made-up runes and options are said exactly as written. Mr. Scott should spot-check a few runes by ear. Spanish meanings are voiced with the Spanish narrator.
 - **Phoneme sounds:** single sounds (like /b/ or short /i/) are generated with Azure's pronunciation tags and checked by ear. Any that sound wrong get recorded clips instead.
 - Music and sound effects: chiptune style, CC0 or original.
 
@@ -299,8 +306,8 @@ Each milestone is a playable, testable step.
 | # | Milestone | Playable result |
 |---|---|---|
 | M0 | Project docs | CLAUDE.md, this design doc, session log |
-| M1 | Game skeleton | Title screen running on GitHub Pages; Lexend font; settings menu |
-| M2 | First battle (tap mode) | One battle using World 1 words, read-aloud on every word |
+| M1 | Game skeleton | Title screen running on GitHub Pages; Lexend font; settings menu (done Nov 21) |
+| M2 | First battle (tap mode) | One battle using World 1 words, read-aloud on every word (done Nov 21) |
 | M3 | Speak mode | Same battle playable by reading aloud |
 | M4 | World 1 slice | One overworld area, a skill shrine, the first ability gate |
 | M5 | Creatures and saving | Catch and level creatures; progress saves; save code |
@@ -322,3 +329,5 @@ Each milestone is a playable, testable step.
 6. District approval to send student-code progress data to a teacher-owned Google Sheet
 7. Mastery threshold and how many words per battle
 8. Fluency goal on boss passages (use published oral reading fluency norms to set it)
+9. Does a student who taps a move's speaker before casting count as "help"? (M2 says yes: smaller hit, noted in the record.) Mr. Scott to confirm.
+10. Final consonant blends ("bend", "jump"): M2 keeps them out of World 1 and saves them for World 2. Mr. Scott to confirm.

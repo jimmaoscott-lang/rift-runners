@@ -1,0 +1,74 @@
+{
+  "_note": "World 1 content: short vowels in closed syllables (CVC). Every word and option must pass tools/check_decodable.py. 'options' are the two wrong answers in a tap-mode battle: same consonants, a different vowel. 'es' is the short Spanish meaning shown with Spanish on. 'cognate' marks words that look like the Spanish word.",
+  "world": 1,
+  "name": { "en": "Escape the Thornwood", "es": "Escapa del Thornwood" },
+  "pattern": "cvc",
+  "words": [
+    { "w": "map", "options": ["mop", "mep"], "es": "mapa", "cognate": true },
+    { "w": "zap", "options": ["zop", "zip"], "es": "descarga" },
+    { "w": "gas", "options": ["gos", "gus"], "es": "gas", "cognate": true },
+    { "w": "lab", "options": ["lob", "leb"], "es": "laboratorio", "cognate": true },
+    { "w": "cab", "options": ["cob", "cub"], "es": "taxi" },
+    { "w": "jab", "options": ["job", "jub"], "es": "golpe rápido" },
+    { "w": "tag", "options": ["tog", "teg"], "es": "etiqueta" },
+    { "w": "fan", "options": ["fon", "fun"], "es": "ventilador o aficionado" },
+
+    { "w": "jet", "options": ["jit", "jot"], "es": "avión a reacción", "cognate": true },
+    { "w": "net", "options": ["nit", "not"], "es": "red" },
+    { "w": "web", "options": ["wib", "wab"], "es": "telaraña o red" },
+    { "w": "pen", "options": ["pin", "pan"], "es": "pluma" },
+    { "w": "ten", "options": ["tin", "tan"], "es": "diez" },
+    { "w": "vet", "options": ["vit", "vat"], "es": "veterinario", "cognate": true },
+    { "w": "wet", "options": ["wit", "wot"], "es": "mojado" },
+    { "w": "beg", "options": ["big", "bag"], "es": "rogar" },
+
+    { "w": "hit", "options": ["het", "hat"], "es": "golpear" },
+    { "w": "rip", "options": ["rep", "rap"], "es": "rasgar" },
+    { "w": "dig", "options": ["deg", "dug"], "es": "cavar" },
+    { "w": "zip", "options": ["zep", "zap"], "es": "cierre" },
+    { "w": "fit", "options": ["fet", "fot"], "es": "en forma" },
+    { "w": "win", "options": ["wen", "wan"], "es": "ganar" },
+    { "w": "pin", "options": ["pen", "pun"], "es": "alfiler", "cognate": true },
+    { "w": "mix", "options": ["mux", "max"], "es": "mezclar", "cognate": true },
+
+    { "w": "hot", "options": ["hat", "hut"], "es": "caliente" },
+    { "w": "job", "options": ["jab", "jeb"], "es": "trabajo" },
+    { "w": "rob", "options": ["rab", "rib"], "es": "robar", "cognate": true },
+    { "w": "fog", "options": ["fig", "feg"], "es": "niebla" },
+    { "w": "box", "options": ["bax", "bex"], "es": "caja" },
+    { "w": "log", "options": ["lag", "leg"], "es": "tronco" },
+    { "w": "top", "options": ["tap", "tup"], "es": "arriba" },
+    { "w": "dot", "options": ["dut", "dit"], "es": "punto" },
+
+    { "w": "run", "options": ["ron", "ran"], "es": "correr" },
+    { "w": "cut", "options": ["cot", "cat"], "es": "cortar" },
+    { "w": "bug", "options": ["bog", "bag"], "es": "insecto" },
+    { "w": "mud", "options": ["mod", "mid"], "es": "lodo" },
+    { "w": "sun", "options": ["san", "sin"], "es": "sol" },
+    { "w": "cup", "options": ["cop", "cap"], "es": "taza" },
+    { "w": "bus", "options": ["bos", "bis"], "es": "autobús", "cognate": true },
+    { "w": "hut", "options": ["hot", "hit"], "es": "choza" }
+  ],
+  "runes": [
+    { "w": "vep", "options": ["vip", "vap"] },
+    { "w": "zot", "options": ["zat", "zut"] },
+    { "w": "mib", "options": ["meb", "mab"] },
+    { "w": "lun", "options": ["lon", "lin"] },
+    { "w": "gub", "options": ["gab", "gob"] },
+    { "w": "tef", "options": ["tif", "taf"] },
+    { "w": "jom", "options": ["jam", "jum"] },
+    { "w": "pid", "options": ["ped", "pad"] },
+    { "w": "yat", "options": ["yot", "yet"] },
+    { "w": "nop", "options": ["nap", "nup"] },
+    { "w": "sut", "options": ["sat", "set"] },
+    { "w": "fim", "options": ["fum", "fam"] }
+  ],
+  "battles": [
+    {
+      "id": "w1-b1",
+      "enemy": "thornback",
+      "enemyName": { "en": "Thornback", "es": "Thornback" },
+      "hp": 140
+    }
+  ]
+}

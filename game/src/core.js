@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.1.4';
+  RF.VERSION = 'v0.2.0';
   RF.W = 1280;
   RF.H = 720;
 
@@ -82,38 +82,81 @@ window.RF = window.RF || {};
 
   // ---------- Read-aloud ----------
   // Plays the pre-made voice file for a line. If the file does not exist yet,
-  // falls back to the Chromebook's built-in voice.
+  // falls back to the Chromebook's built-in voice. Every call returns a promise that
+  // finishes when the speaking ends, so lines can be chained. A newer call cancels older ones.
   RF.voiceManifest = { en: {}, es: {} };
+  RF.wordManifest = { en: {}, es: {} };
   let currentAudio = null;
+  let speakToken = 0;
   RF.stopSpeaking = function () {
+    speakToken++;
     if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   };
-  RF.speak = function (id, lang) {
+  function playFile(url, fallbackText, lang, token) {
+    return new Promise(function (resolve) {
+      if (token !== speakToken) return resolve();
+      const audio = new Audio(RF.assetURL(url));
+      audio.volume = RF.settings.volume / 10;
+      currentAudio = audio;
+      audio.onended = function () { resolve(); };
+      audio.onerror = function () { speakNow(fallbackText, lang, token).then(resolve); };
+      audio.play().catch(function () { speakNow(fallbackText, lang, token).then(resolve); });
+    });
+  }
+  function speakNow(text, lang, token) {
+    return new Promise(function (resolve) {
+      if (!window.speechSynthesis || !text || token !== speakToken) return resolve();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = (lang || RF.lang()) === 'es' ? 'es-MX' : 'en-US';
+      u.volume = RF.settings.volume / 10;
+      u.rate = 0.95;
+      const voices = window.speechSynthesis.getVoices();
+      const match = voices.find(function (v) { return v.lang && v.lang.replace('_', '-').indexOf(u.lang.slice(0, 2)) === 0; });
+      if (match) u.voice = match;
+      u.onend = function () { resolve(); };
+      u.onerror = function () { resolve(); };
+      window.speechSynthesis.speak(u);
+      // Some browsers never fire onend. Do not wait forever.
+      setTimeout(resolve, 600 + text.length * 120);
+    });
+  }
+  // One menu or story line (id from strings.json).
+  function lineJob(id, lang) {
     const l = lang || RF.lang();
     const file = (RF.voiceManifest[l] || {})[id];
     const text = RF.t(id, l);
+    return function (token) {
+      return file ? playFile('../assets/audio/ui/' + file, text, l, token) : speakNow(text, l, token);
+    };
+  }
+  // One battle word (English) or Spanish meaning.
+  function wordJob(word, lang) {
+    const l = lang || 'en';
+    const file = (RF.wordManifest[l] || {})[word];
+    return function (token) {
+      return file ? playFile('../assets/audio/words/' + file, word, l, token) : speakNow(word, l, token);
+    };
+  }
+  function run(jobs) {
     RF.stopSpeaking();
-    if (file) {
-      const audio = new Audio(RF.assetURL('../assets/audio/ui/' + file));
-      audio.volume = RF.settings.volume / 10;
-      currentAudio = audio;
-      audio.play().catch(function () { RF.speakText(text, l); });
-      return;
-    }
-    RF.speakText(text, l);
-  };
+    const token = speakToken;
+    return jobs.reduce(function (p, job) {
+      return p.then(function () { return token === speakToken ? job(token) : null; });
+    }, Promise.resolve());
+  }
+  RF.speak = function (id, lang) { return run([lineJob(id, lang)]); };
+  RF.speakWord = function (word, lang) { return run([wordJob(word, lang)]); };
   RF.speakText = function (text, lang) {
-    if (!window.speechSynthesis || !text) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = (lang || RF.lang()) === 'es' ? 'es-MX' : 'en-US';
-    u.volume = RF.settings.volume / 10;
-    u.rate = 0.95;
-    const voices = window.speechSynthesis.getVoices();
-    const match = voices.find(function (v) { return v.lang && v.lang.replace('_', '-').indexOf(u.lang.slice(0, 2)) === 0; });
-    if (match) u.voice = match;
-    window.speechSynthesis.speak(u);
+    return run([function (token) { return speakNow(text, lang, token); }]);
+  };
+  // Several in a row: items are { id } for a line, { word } for a battle word, { es } for a Spanish meaning.
+  RF.speakSeq = function (items) {
+    return run(items.map(function (it) {
+      if (it.word) return wordJob(it.word, 'en');
+      if (it.es) return wordJob(it.es, 'es');
+      return lineJob(it.id, it.lang);
+    }));
   };
 
   // ---------- Sound effects (made in code, chiptune style, no files) ----------
@@ -128,7 +171,12 @@ window.RF = window.RF || {};
         move: [[660, 0.05]],
         select: [[523, 0.06], [784, 0.09]],
         back: [[523, 0.06], [392, 0.09]],
-        open: [[392, 0.05], [523, 0.05], [784, 0.12]]
+        open: [[392, 0.05], [523, 0.05], [784, 0.12]],
+        hit: [[196, 0.04], [880, 0.05], [1175, 0.1]],
+        big: [[262, 0.05], [523, 0.05], [784, 0.05], [1047, 0.16]],
+        soft: [[440, 0.08], [415, 0.12]],
+        tap: [[740, 0.04]],
+        win: [[523, 0.1], [659, 0.1], [784, 0.1], [1047, 0.3]]
       }[kind] || [[600, 0.05]];
       let t = actx.currentTime;
       notes.forEach(function (n) {

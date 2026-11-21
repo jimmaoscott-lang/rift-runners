@@ -10,6 +10,7 @@ with no other files and no internet (tap mode). Outputs:
 Run: python3 tools/build_single.py
 """
 import base64
+import glob
 import json
 import os
 import re
@@ -47,15 +48,18 @@ def main():
 
     # Content and voice files
     inline = {"json": {}, "files": {}}
-    inline["json"]["data/strings.json"] = json.loads(read(os.path.join(GAME, "data", "strings.json")))
-    manifest_rel = "../assets/audio/ui/manifest.json"
-    manifest_path = os.path.normpath(os.path.join(GAME, manifest_rel))
-    if os.path.exists(manifest_path):
+    for path in sorted(glob.glob(os.path.join(GAME, "data", "*.json"))):
+        inline["json"]["data/" + os.path.basename(path)] = json.loads(read(path))
+    for folder in ("ui", "words"):
+        manifest_rel = f"../assets/audio/{folder}/manifest.json"
+        manifest_path = os.path.normpath(os.path.join(GAME, manifest_rel))
+        if not os.path.exists(manifest_path):
+            continue
         manifest = json.loads(read(manifest_path))
         inline["json"][manifest_rel] = manifest
         for lang_files in manifest.values():
             for name in lang_files.values():
-                rel = "../assets/audio/ui/" + name
+                rel = f"../assets/audio/{folder}/" + name
                 path = os.path.normpath(os.path.join(GAME, rel))
                 if os.path.exists(path):
                     inline["files"][rel] = data_uri(path, "audio/mpeg")
