@@ -95,5 +95,21 @@ window.RF = window.RF || {};
     return mastered ? 0.6 : 1 + recentMiss * 4;
   };
 
+  // The last n reads of one pattern (like 'cvc-a'), oldest first: true = right on the first try with no help.
+  // Used for rift locks (mastery). Counts every level and every visit, so progress carries over.
+  M.patternRecent = function (pattern, n) {
+    const out = [];
+    for (let i = data.attempts.length - 1; i >= 0 && out.length < n; i--) {
+      const a = data.attempts[i];
+      if (a.pattern === pattern) out.unshift(!!a.firstTry);
+    }
+    return out;
+  };
+  // The most recent finished level record for this level id, if any.
+  M.lastBattle = function (id) {
+    for (let i = data.battles.length - 1; i >= 0; i--) if (data.battles[i].id === id) return data.battles[i];
+    return null;
+  };
+
   // For testing in the browser console: RF.metrics.data()
 })(window.RF);

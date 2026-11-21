@@ -4,6 +4,38 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 6: November 21, 2026 (waves until mastery, mastery summary, Golem fix)
+
+**Asked by Mr. Scott:** phone play, waves until mastery or defeat, Stone Golem too strong, a mastery summary after every level, and progress that follows a student between phone and Chromebook.
+
+**Built**
+- Waves now keep coming, bigger each time, until the student masters the level's sounds or the Anchor falls.
+- Rift locks panel (bottom left of the battle): one lock per vowel in the level (a and i in Level 1). A lock fills when 9 of the student's last 10 reads of that vowel are right on the first try with no speaker help. All locks full means the final wave comes (after at least 3 waves). Survive it to win.
+- Lock progress comes from the saved progress record, so a lost level still counts and the next try starts where the last one ended.
+- New end screen, win or lose: each lock with the last 10 reads as colored blocks, this try's first-try count, runes on their own line, Words to practice (tap to hear), words forged, first-try percent, waves survived, and first try compared with last time.
+- Stone Golem can now be broken: less health, creatures hit it harder, it barely heals, and it takes 14 seconds to rebuild.
+
+**Tested (by Claude, headless Chrome)**
+- Locks fill and empty correctly, final wave triggers, win and lose summaries. No console errors.
+- Simulated players: 90% first-try readers win in 4 to 9 waves (5 to 10 minutes). A reader stuck near 60 to 70% loses around wave 13 (about 15 minutes) and sees what to practice. Never reading loses in wave 3.
+- Phone check: held sideways, every button and word shrinks to about half size, too small to tap or read. Upright, the battlefield is cut off.
+
+**To test (Mr. Scott)**
+1. Play Level 1. Watch the Rift Locks panel fill as you read right on the first try.
+2. Use the speaker on a word, or miss on purpose, and watch the lock drop back.
+3. Lose once on purpose, then press Try again: the locks should still be partly full.
+4. Read the summary screen as a student would. Tell me what to add or cut.
+
+**Next up**
+- Mr. Scott's choice between phone layout, cross-device saving and M4 (World 1 map). See Open questions.
+
+**Open questions**
+- Phone play: build a sideways (landscape) phone layout with bigger buttons and a "turn your phone" screen when held upright? About one session.
+- Moving between phone and Chromebook: (A) sync through a Google Sheet on his district account with a student code and PIN, the same path the teacher reports need (M10); or (B) a save code the student types on the other device, which carries levels and locks but not full history. Recommended: A.
+- Are students allowed to play on phones at school, at home, or both?
+
+---
+
 ## Session 5: November 21, 2026 (M3 Hold the Rift core)
 
 **Built**

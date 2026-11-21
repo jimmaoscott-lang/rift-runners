@@ -73,23 +73,23 @@
         70,
         110
       ],
-      "respawn": 10,
-      "regen": 6,
+      "respawn": 14,
+      "regen": 2,
       "levels": [
         {
-          "hp": 220,
+          "hp": 150,
           "dmg": 14,
           "rate": 1.0,
           "hold": 3
         },
         {
-          "hp": 320,
+          "hp": 210,
           "dmg": 20,
           "rate": 1.1,
           "hold": 3
         },
         {
-          "hp": 460,
+          "hp": 290,
           "dmg": 28,
           "rate": 1.2,
           "hold": 4
@@ -166,7 +166,7 @@
       "speed": 1.9,
       "anchor": 2,
       "shards": 2,
-      "hit": 10,
+      "hit": 16,
       "size": 1.0
     },
     "wisp": {
@@ -175,7 +175,7 @@
       "speed": 3.4,
       "anchor": 1,
       "shards": 1,
-      "hit": 4,
+      "hit": 6,
       "size": 1.0
     }
   }

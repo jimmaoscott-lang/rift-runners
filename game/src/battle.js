@@ -50,12 +50,14 @@ window.RF = window.RF || {};
     B.paused = false; B.speed = 1; B.shake = 0;
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
+    B.sealReady = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0;
     world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; });
     world.anchorFlash = 0;
 
     app.setView(374, 140);
     app.battleCam();
     B.buildHUD();
+    B.refreshLocks(true);
     B.updatePads();
     canvasOn();
     B.toast('hud.buildStart', true);
@@ -78,7 +80,7 @@ window.RF = window.RF || {};
     B.crystalChip.style.transition = 'transform .15s';
     B.waveChip = D.el('div', 'chip', '', top);
     B.waveChip.style.cssText += ';font-size:16px;cursor:pointer;padding:6px 12px';
-    B.waveChip.addEventListener('click', function () { RF.speakSeq([{ id: 'hud.wave' }, { id: 'num.' + Math.max(1, B.wave) }, { id: 'hud.of' }, { id: 'num.' + B.L.waves.length }]); });
+    B.waveChip.addEventListener('click', function () { RF.speakSeq(B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(Math.max(1, B.wave))]); });
     const lv = D.el('div', 'chip', '', top);
     lv.style.cssText += ';font-size:14px;gap:8px;padding:4px 10px';
     lv.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'level.world1short' }, { id: 'level.n' + B.L.num }, { id: B.L.name }]); }, true));
@@ -106,6 +108,7 @@ window.RF = window.RF || {};
       level: B.L,
       restore: forgeRestore,
       onPay: function (amount, fromEl) { B.pay(amount, fromEl); },
+      onRead: function () { B.refreshLocks(false); },
       onMega: function () { B.megaBlast(); }
     });
 
@@ -123,6 +126,8 @@ window.RF = window.RF || {};
       const c = D.el('button', 'card locked', '<img alt="" src="' + ic[lk.id] + '"><div class="n">' + D.esc(RF.t(lk.name)) + '</div><div class="c" style="color:#c9c3ff">&#128274; ' + D.esc(RF.t(lk.unlock)) + '</div>', bar);
       c.addEventListener('click', function () { RF.speakSeq([{ id: lk.name }, { id: 'hud.unlocksAt' }, { id: lk.unlock }]); });
     });
+    B.locksBox = auto(D.el('div', 'panel', null, hud));
+    B.locksBox.style.cssText += ';position:absolute;left:12px;bottom:146px;padding:8px 12px;border-color:#c04dff;display:flex;flex-direction:column;gap:6px;box-shadow:0 0 16px rgba(192,77,255,.35),0 4px 0 #05060f';
     B.info = auto(D.el('div', 'info', null, hud));
     B.info.style.display = 'none';
     B.popup = auto(D.el('div', 'popup', null, hud));
@@ -139,6 +144,54 @@ window.RF = window.RF || {};
     B.defenders.forEach(function (d) { if (d.type === 'golem') { d.label = makeBar(true); labels.appendChild(d.label); } });
     B.renderTop();
     B.renderCards();
+    if (B.locks) B.renderLocks();
+  };
+
+  // ---------- Rift locks (mastery, DESIGN.md 5.1) ----------
+  // One lock per vowel pattern in the level. A lock fills from the last reads of that pattern
+  // (right on the first try, no help). When every lock is full, the final wave comes.
+  B.refreshLocks = function (quiet) {
+    const m = B.L.mastery;
+    B.locks = B.L.vowels.map(function (v) {
+      const pat = 'cvc-' + v;
+      const recent = RF.metrics.patternRecent(pat, m.window);
+      const first = recent.filter(Boolean).length;
+      return { v: v, pat: pat, recent: recent, first: first, done: first >= m.need };
+    });
+    if (!B.locksBox) return;
+    B.renderLocks();
+    B.locks.forEach(function (k) {
+      if (k.done && !B.locksFull[k.pat]) {
+        B.locksFull[k.pat] = true;
+        if (!quiet && !B.locks.every(function (x) { return x.done; })) { B.toast(null, true, [{ id: 'lock.oneFull' }, { id: 'pat.' + k.pat }]); RF.sfx('big'); }
+      }
+    });
+    if (!B.sealReady && B.locks.every(function (x) { return x.done; })) {
+      B.sealReady = true;
+      if (!quiet) { B.toast('lock.allFull', true); RF.sfx('win'); }
+    }
+  };
+  B.renderLocks = function () {
+    const box = B.locksBox;
+    const need = B.L.mastery.need;
+    D.clear(box);
+    const h = D.line('lock.title', '', box);
+    h.querySelector('.txt').style.cssText = 'font-size:14px;font-weight:700;color:#f0c8ff;letter-spacing:.5px;font-family:Lexend,sans-serif';
+    h.querySelector('.txt').textContent = RF.t('lock.title').toUpperCase();
+    B.locks.forEach(function (k) {
+      const row = D.el('div', null, null, box);
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer';
+      row.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'pat.' + k.pat }, D.num(Math.min(k.first, need)), { id: 'res.of' }, D.num(need)]); }, true));
+      const letter = D.el('div', 'read', D.esc(k.v), row);
+      letter.style.cssText = 'font-size:calc(24px * var(--ts));font-weight:700;width:26px;text-align:center;color:' + (k.done ? '#ffd76a' : '#fff');
+      const bar = D.el('div', null, null, row);
+      bar.style.cssText = 'display:flex;gap:3px';
+      for (let i = 0; i < need; i++) {
+        const seg = D.el('div', null, null, bar);
+        seg.style.cssText = 'width:12px;height:16px;border-radius:3px;background:' + (i < k.first ? (k.done ? '#ffd76a' : '#c04dff') : '#2a2a55');
+      }
+      D.el('div', null, k.done ? '&#128274;' : Math.min(k.first, need) + '/' + need, row).style.cssText = 'font-size:13px;color:#c9c3ff;min-width:30px';
+    });
   };
 
   function makeBar(green) {
@@ -148,10 +201,11 @@ window.RF = window.RF || {};
 
   B.renderTop = function () {
     B.crystalChip.innerHTML = D.CRYSTAL(30) + ' <span class="cyan">' + B.crystals + '</span>';
-    B.waveChip.innerHTML = D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span> / ' + B.L.waves.length;
+    B.waveChip.innerHTML = B.finalWave ? '<span class="gold">' + D.esc(RF.t('hud.finalWave')) + '</span>' : D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span>';
     const showStart = B.phase === 'build' || B.phase === 'between';
     B.startBtn.style.display = showStart ? '' : 'none';
-    B.startBtn.innerHTML = '&#9654; ' + D.esc(RF.t('hud.startWave')) + ' ' + (B.wave + 1);
+    const nextFinal = B.sealReady && B.wave + 1 >= B.L.minWaves;
+    B.startBtn.innerHTML = '&#9654; ' + (nextFinal ? D.esc(RF.t('hud.finalWave')) : D.esc(RF.t('hud.startWave')) + ' ' + (B.wave + 1));
     B.pauseBtn.innerHTML = B.paused ? '&#9654; ' + D.esc(RF.t('hud.resume')) : '&#10074;&#10074; ' + D.esc(RF.t('hud.pause'));
     B.speedBtn.innerHTML = '&#9654;&#9654; x' + B.speed;
     B.speedBtn.classList.toggle('on', B.speed === 2);
@@ -213,9 +267,21 @@ window.RF = window.RF || {};
   }
 
   // ---------- Waves ----------
+  // Wave k (1, 2, 3...). The first ones come from the level file; after that they keep growing.
+  B.waveDef = function (k) {
+    const W = B.L.waves;
+    if (k <= W.length) return W[k - 1];
+    const base = W[W.length - 1], e = B.L.endless, x = k - W.length;
+    return { hp: (base.hp || 1) * Math.pow(1 + e.hpStep, x), groups: base.groups.map(function (g) { return Object.assign({}, g, { count: Math.round(g.count * (1 + e.countStep * x)) }); }) };
+  };
   B.startWave = function () {
     if (!(B.phase === 'build' || B.phase === 'between')) return;
-    const w = B.L.waves[B.wave];
+    B.finalWave = B.sealReady && B.wave + 1 >= B.L.minWaves;
+    let w = B.waveDef(B.wave + 1);
+    if (B.finalWave) {
+      const f = B.L.finalBoost;
+      w = { hp: (w.hp || 1) * f, groups: w.groups.map(function (g) { return Object.assign({}, g, { count: Math.round(g.count * f) }); }) };
+    }
     B.queue = [];
     w.groups.forEach(function (g) {
       for (let i = 0; i < g.count; i++) B.queue.push({ type: g.type, at: (g.delay || 0) + i * g.gap, hp: w.hp || 1 });
@@ -226,8 +292,7 @@ window.RF = window.RF || {};
     B.phase = 'wave';
     RF.sfx('open');
     B.renderTop();
-    const last = B.wave === B.L.waves.length;
-    B.toast(null, true, last ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, { id: 'num.' + B.wave }]);
+    B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);
   };
 
   function spawn(type, hpScale) {
@@ -352,6 +417,7 @@ window.RF = window.RF || {};
     const box = B.info;
     D.clear(box);
     box.style.display = '';
+    box.style.bottom = (146 + B.locksBox.offsetHeight + 8) + 'px';
     const p = D.el('div', 'panel', null, box);
     p.style.cssText += ';padding:12px 14px;display:flex;flex-direction:column;gap:8px;border-color:#ffd76a';
     const nm = D.line(d.name, '', p);
@@ -626,6 +692,7 @@ window.RF = window.RF || {};
       }
       if (d.hp <= 0) {
         d.down = U.defenders.golem.respawn;
+        B.golemFalls++;
         d.obj.visible = false;
         burst(d.pad.x, 1.2, d.pad.z, RF.G.TEX.cyan, 6);
         d.held.forEach(function (c) { c.held = null; });
@@ -699,7 +766,7 @@ window.RF = window.RF || {};
     }
     // Wave over?
     if (B.phase === 'wave' && !B.queue.length && !B.creatures.length) {
-      if (B.wave >= B.L.waves.length) return B.finish(true);
+      if (B.finalWave) return B.finish(true);
       B.phase = 'between';
       B.renderTop();
       RF.sfx('win');
@@ -772,14 +839,17 @@ window.RF = window.RF || {};
     B.selectBuild(null);
     const stars = !win ? 0 : B.anchor >= B.anchorMax ? 3 : B.anchor > B.anchorMax / 2 ? 2 : 1;
     const fs = B.forge.stats;
+    const prev = RF.metrics.lastBattle(B.L.id);
+    B.refreshLocks(true);
     RF.metrics.battleDone({
       id: B.L.id, result: win ? 'win' : 'lose', stars: stars, waves: B.wave, anchor: Math.max(0, B.anchor),
       words: fs.forged, firstTry: fs.firstTry, misses: fs.misses, help: fs.help, forgeCrystals: fs.crystals,
+      patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
       ms: Date.now() - B.started
     });
     RF.sfx(win ? 'win' : 'soft');
     setTimeout(function () {
-      RF.screens.results({ win: win, stars: stars, stats: fs, L: B.L, levelIndex: B.levelIndex });
+      RF.screens.results({ win: win, stars: stars, stats: fs, L: B.L, levelIndex: B.levelIndex, locks: B.locks, waves: win ? B.wave : Math.max(0, B.wave - 1), prev: prev });
     }, win ? 700 : 900);
   };
   B.cleanup = function () {

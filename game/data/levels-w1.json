@@ -1,5 +1,5 @@
 {
-  "_note": "World 1 level layouts for Hold the Rift. 'path' is the trail from the rift to the camp (x, z points). 'towerPads' are stone pads beside the trail: t = how far along the trail (0 to 1), side = which side (1 or -1). 'trailPads' are marked spots on the trail for traps and golems. Waves: each group sends 'count' creatures of 'type', 'gap' seconds apart, starting 'delay' seconds into the wave. 'vowels' and 'runeRate' control the Forge words (DESIGN.md section 5 level ramp).",
+  "_note": "World 1 level layouts for Hold the Rift. 'path' is the trail from the rift to the camp (x, z points). 'towerPads' are stone pads beside the trail: t = how far along the trail (0 to 1), side = which side (1 or -1). 'trailPads' are marked spots on the trail for traps and golems. Waves: each group sends 'count' creatures of 'type', 'gap' seconds apart, starting 'delay' seconds into the wave. 'vowels' and 'runeRate' control the Forge words (DESIGN.md section 5 level ramp). The first waves follow the list; after that, waves keep coming and grow ('endless'). When every rift lock is full (mastery, see 'mastery'), the next wave after 'minWaves' is the final wave, made 'finalBoost' times tougher.",
   "world": 1,
   "levels": [
     {
@@ -203,7 +203,17 @@
             }
           ]
         }
-      ]
+      ],
+      "minWaves": 3,
+      "mastery": {
+        "window": 10,
+        "need": 9
+      },
+      "endless": {
+        "hpStep": 0.2,
+        "countStep": 0.15
+      },
+      "finalBoost": 1.2
     }
   ]
 }

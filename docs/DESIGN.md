@@ -70,7 +70,7 @@ World names: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead
 1. **Build phase:** start crystals plus the Forge. Place the first defenders. Press Start Wave when ready (no timer).
 2. **Waves:** creatures march. Defenders fight on their own. The student keeps forging crystals, builds more, upgrades, and fires hero powers.
 3. **Between waves:** a short breather. Forge, build, upgrade.
-4. **Win** by surviving every wave. Stars: 3 = Anchor untouched, 2 = Anchor above half, 1 = survived.
+4. **Waves keep coming until mastery or defeat (Mr. Scott, Session 6).** The first waves follow the level file; after that they keep coming, bigger and tougher each time. Each level shows **rift locks**, one per vowel pattern it teaches. When every lock is full (mastery, section 5.1), the next wave after the level's minimum (3 waves in Level 1) is the **final wave**. Surviving it closes the rift and wins. Stars: 3 = Anchor untouched, 2 = Anchor above half, 1 = survived. If the Anchor falls first, the level is lost, but lock progress is kept.
 5. **Rewards:** the next level unlocks, often a new defender or upgrade, skins for 3 stars, crystals carried to the upgrade bank.
 6. **Level Clear screen** with growth (section 12A).
 
@@ -100,6 +100,8 @@ A structured literacy sequence built for older readers. Each world adds to every
 **Decodability checker:** `tools/check_decodable.py` checks every word and passage against the patterns taught so far plus allowed heart words, and flags anything that does not fit. All new content must pass it.
 
 ### 5.1 Mastery
+
+**Rift locks (built in Session 6, decided by Claude):** a lock fills from the student's last 10 reads of that pattern, counting only reads that are right on the first try with no speaker help. 9 of the last 10 fills it (90%). Runes count toward their vowel's lock, since they are pure decoding. The count uses the student's whole history on the device, so a lost level still moves the locks forward, and a pattern mastered in one level stays mastered in the next unless new misses pull it down. Settings per level: `mastery`, `minWaves`, `endless` and `finalBoost` in `game/data/levels-w1.json`. Simulated players: 90% readers close the rift in about 4 to 9 waves; a reader who never reaches 90% falls around wave 13 (about 15 minutes), which ends the session with a summary of what to practice.
 
 - A pattern is mastered when the student reads pattern words with about 90% accuracy across at least two separate play sessions.
 - Missed words come back more often (spaced review). Mastered words still appear occasionally so skills stay sharp.
@@ -149,7 +151,7 @@ Always on screen in a level, on the right side.
 
 **Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
 
-**Level 1 balance (M3, tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. A slow reader (5 words a minute, 70% first try) wins with the Anchor untouched. A stronger reader wins with spare crystals. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.
+**Level 1 balance (tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. With waves until mastery (Session 6), accurate readers win in 4 to 9 waves and inaccurate ones lose later with progress saved. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.
 
 ---
 
@@ -172,7 +174,7 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Rift Mine (World 2+) | One-time blast on the trail | World 2 |
 | Hawk Nest (World 2+) | Hawks hunt fliers anywhere on the map | World 2 |
 
-**Built in M3:** Archer Tower, Spike Pit, Stone Golem and Frost Totem, each with 3 levels (upgrade adds a gold band; tier 3 specialties come in M6). The Golem holds up to 3 creatures (4 at level 3), and if it falls it rebuilds itself after 10 seconds. Selling returns 60% of what was spent. Build two ways: pick a card in the build bar and tap a glowing spot, or tap an empty spot and pick from the menu. Level 1 offers all four for the demo; the unlock order above takes over with the map in M4. Locked defenders show in the bar with the level that opens them.
+**Built in M3:** Archer Tower, Spike Pit, Stone Golem and Frost Totem, each with 3 levels (upgrade adds a gold band; tier 3 specialties come in M6). The Golem holds up to 3 creatures (4 at level 3). Session 6: Mr. Scott found it felt unbreakable, so its health dropped (150, 210, 290 by level), Thornbacks and Wisps hit it harder, it barely heals, and it rebuilds 14 seconds after it falls. Selling returns 60% of what was spent. Build two ways: pick a card in the build bar and tap a glowing spot, or tap an empty spot and pick from the menu. Level 1 offers all four for the demo; the unlock order above takes over with the map in M4. Locked defenders show in the bar with the level that opens them.
 
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 
@@ -331,6 +333,8 @@ After every level, the student sees a short **Level Clear** screen:
 - An arrow and short line when something improved: "+14 words per minute since your first try"
 - Large Lexend text, and every label can be read aloud. A Spanish label option is available.
 
+**Built in Session 6 (win or lose):** headline, stars or a tip, each rift lock with its last 10 reads as colored blocks and this try's first-try count, runes on their own line (true decoding), "Words to practice" (every word missed or helped this try, tap to hear), words forged, first-try percent, waves survived, and first-try percent compared with the last try of the same level. Every line has a speaker. The full Then vs. Now graph comes with M4.
+
 If a number drops (common when a new world brings harder words), the screen shows something that did improve instead, such as accuracy on earlier patterns or words read this week. Students should leave every Level Clear screen with a reason to keep going.
 
 ---
@@ -382,6 +386,8 @@ Each milestone is a playable, testable step.
 ---
 
 ## 15. Open questions
+
+0. **Phones and moving between devices (raised Session 6).** The game runs on a phone but the layout is built for a Chromebook screen, so it is too small to play. Progress is saved only in the browser on each device. See the Session 6 log for the options.
 
 1. ~~Final game title~~ Decided: Rift Runners
 2. Story and setting: who is the player, and what are they fighting? Starting idea from the title: rifts are tearing the worlds apart and the player runs through each world to seal its rift.

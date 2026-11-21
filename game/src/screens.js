@@ -75,7 +75,7 @@ window.RF = window.RF || {};
     const nm = D.line(L.name, '', p);
     nm.querySelector('.txt').style.cssText = 'font-size:calc(34px * var(--ts));font-weight:700';
     const rows = [
-      ['level.card.waves', null, D.num(L.waves.length), String(L.waves.length), '#fff'],
+      ['level.card.waves', 'level.wavesUntil', null, null, '#fff'],
       ['level.card.enemies', L.enemies, null, null, '#d9a8ff'],
       ['level.card.words', L.words, null, null, '#fff'],
       ['level.card.reward', L.reward, null, null, '#ffd76a']
@@ -266,32 +266,88 @@ window.RF = window.RF || {};
     D.nav(box, back);
   };
 
-  // ---------- End of level ----------
+  // ---------- End of level: what happened, and the mastery summary (win or lose) ----------
   S.results = function (r) {
     const box = open(true);
-    const p = panel(box, 620, r.win ? '#ffd76a' : '#ff8a8a');
-    p.style.alignItems = 'center';
-    p.style.textAlign = 'center';
-    const head = D.line(r.win ? 'res.win' : 'res.lose', '', p);
-    head.querySelector('.txt').style.cssText = 'font-size:calc(32px * var(--ts));font-weight:700;color:' + (r.win ? '#ffd76a' : '#ffb0b0');
+    const p = panel(box, 820, r.win ? '#ffd76a' : '#ff8a8a');
+    p.style.cssText += ';max-height:96%;overflow-y:auto;gap:12px;padding:18px 22px';
+    const top = D.el('div', null, null, p);
+    top.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap';
+    const head = D.line(r.win ? 'res.win' : 'res.lose', '', top);
+    head.querySelector('.txt').style.cssText = 'font-size:calc(30px * var(--ts));font-weight:700;color:' + (r.win ? '#ffd76a' : '#ffb0b0');
     if (r.win) {
-      const stars = D.el('div', null, [1, 2, 3].map(function (i) { return '<span style="color:' + (i <= r.stars ? '#ffd76a' : '#3a3f6e') + ';text-shadow:0 0 ' + (i <= r.stars ? 18 : 0) + 'px #ffb000">&#9733;</span>'; }).join(''), p);
-      stars.style.cssText = 'font-size:64px;letter-spacing:10px;line-height:1';
+      D.el('div', null, [1, 2, 3].map(function (i) { return '<span style="color:' + (i <= r.stars ? '#ffd76a' : '#3a3f6e') + ';text-shadow:0 0 ' + (i <= r.stars ? 14 : 0) + 'px #ffb000">&#9733;</span>'; }).join(''), top).style.cssText = 'font-size:48px;letter-spacing:6px;line-height:1';
       D.line('res.stars' + r.stars, '', p).querySelector('.txt').style.color = '#e6e9ff';
     } else {
       D.line('res.loseTip', '', p).querySelector('.txt').style.color = '#e6e9ff';
     }
-    const grid = D.el('div', null, null, p);
-    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;margin-top:6px';
-    [['res.words', r.stats.forged], ['res.first', r.stats.firstTry], ['res.crystals', r.stats.crystals]].forEach(function (s) {
-      const c = D.el('div', 'chip', null, grid);
-      c.style.cssText += ';flex-direction:column;gap:4px;padding:12px 8px';
-      D.el('div', null, String(s[1]), c).style.cssText = 'font-size:40px;color:#7ef3ff;line-height:1';
-      const l = D.lineParts([{ id: s[0] }, D.num(s[1])], '', c, D.esc(RF.t(s[0])));
-      l.querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));font-weight:400;color:#c9c3ff';
+
+    // Rift locks: one row per pattern, plus runes.
+    const sec = D.el('div', null, null, p);
+    sec.style.cssText = 'background:#0b0d20;border:2px solid #4b4f9c;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px';
+    const lt = D.line('res.locksTitle', '', sec);
+    lt.querySelector('.txt').style.cssText = 'font-weight:700;color:#f0c8ff;font-size:calc(17px * var(--ts))';
+    const st = r.stats;
+    const need = r.L.mastery.need, win10 = r.L.mastery.window;
+    r.locks.forEach(function (k) {
+      const bp = st.byPat[k.pat] || { n: 0, first: 0 };
+      const row = D.el('div', null, null, sec);
+      row.style.cssText = 'display:grid;grid-template-columns:auto 110px auto 1fr auto;gap:10px;align-items:center';
+      const parts = [{ id: 'pat.' + k.pat }, { id: 'res.thisTry' }, D.num(bp.first), { id: 'res.of' }, D.num(bp.n), { id: 'res.ofFirst' }, { id: k.done ? 'res.lockDone' : 'res.lockWorking' }];
+      row.appendChild(D.speaker(function () { RF.speakSeq(parts); }, true));
+      D.el('div', 'read', D.esc(RF.t('pat.' + k.pat)), row).style.cssText = 'font-size:calc(18px * var(--ts));font-weight:700';
+      const bar = D.el('div', null, null, row);
+      bar.title = RF.t('res.lastTen');
+      bar.style.cssText = 'display:flex;gap:3px';
+      for (let i = 0; i < win10; i++) {
+        const v = k.recent[i];
+        D.el('div', null, null, bar).style.cssText = 'width:13px;height:18px;border-radius:3px;background:' + (v === undefined ? '#22264a' : v ? (k.done ? '#ffd76a' : '#9cf2c0') : '#5a3a6e');
+      }
+      D.el('div', null, D.esc(RF.t('res.thisTry')) + ' <b class="cyan">' + bp.first + '</b> ' + D.esc(RF.t('res.of')) + ' ' + bp.n + ' ' + D.esc(RF.t('res.ofFirst')), row).style.cssText = 'font-size:calc(14px * var(--ts));color:#c9c3ff';
+      const chip = D.el('div', 'chip', (k.done ? '&#128274; ' : '') + D.esc(RF.t(k.done ? 'res.lockDone' : 'res.lockWorking')) + (k.done ? '' : ' ' + Math.min(k.first, need) + '/' + need), row);
+      chip.style.cssText += ';font-size:14px;padding:3px 10px;border-color:' + (k.done ? '#ffd76a' : '#7d89d8') + ';color:' + (k.done ? '#ffd76a' : '#fff');
     });
+    const rr = D.el('div', null, null, sec);
+    rr.style.cssText = 'display:flex;gap:10px;align-items:center';
+    const rparts = [{ id: 'res.runes' }, { id: 'res.thisTry' }, D.num(st.runeFirst || 0), { id: 'res.of' }, D.num(st.runes), { id: 'res.ofFirst' }];
+    rr.appendChild(D.speaker(function () { RF.speakSeq(rparts); }, true));
+    D.el('div', null, D.esc(RF.t('res.runes')) + ' &nbsp; <span style="color:#c9c3ff;font-weight:400">' + D.esc(RF.t('res.thisTry')) + ' <b class="cyan">' + (st.runeFirst || 0) + '</b> ' + D.esc(RF.t('res.of')) + ' ' + st.runes + ' ' + D.esc(RF.t('res.ofFirst')) + '</span>', rr).style.cssText = 'font-size:calc(15px * var(--ts));font-weight:700;color:#ffe9a8';
+    if (!r.win || !r.locks.every(function (k) { return k.done; })) D.line('res.carry', '', sec).querySelector('.txt').style.cssText = 'color:#9cf2c0;font-size:calc(14px * var(--ts))';
+
+    // Words to practice (tap to hear).
+    const pr = D.el('div', null, null, p);
+    pr.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+    D.line('res.practice', '', pr).querySelector('.txt').style.cssText = 'font-weight:700;color:#aab6ff;font-size:calc(15px * var(--ts))';
+    if (st.practice.length) {
+      st.practice.slice(0, 10).forEach(function (w) {
+        const b = D.el('button', 'btn read', D.esc(w), pr);
+        b.style.cssText += ';font-family:var(--rf);font-size:calc(20px * var(--ts));padding:4px 12px;color:#ffd76a';
+        b.addEventListener('click', function () { RF.speakWord(w); });
+      });
+    } else {
+      D.el('span', null, D.esc(RF.t('res.practiceNone')), pr).style.cssText = 'color:#9cf2c0;font-size:calc(15px * var(--ts))';
+    }
+
+    // Numbers, and how this try compares with the last one.
+    const pct = st.forged ? Math.round(st.firstTry / st.forged * 100) : 0;
+    const grid = D.el('div', null, null, p);
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%';
+    [['res.words', st.forged, D.num(st.forged)], ['res.firstRate', pct + '%', { text: pct + '%' }], ['res.waves', r.waves, D.num(r.waves)]].forEach(function (s2) {
+      const c = D.el('div', 'chip', null, grid);
+      c.style.cssText += ';flex-direction:column;gap:2px;padding:8px';
+      D.el('div', null, String(s2[1]), c).style.cssText = 'font-size:32px;color:#7ef3ff;line-height:1';
+      D.lineParts([{ id: s2[0] }, s2[2]], '', c, D.esc(RF.t(s2[0]))).querySelector('.txt').style.cssText = 'font-size:calc(13px * var(--ts));font-weight:400;color:#c9c3ff';
+    });
+    if (r.prev && r.prev.words) {
+      const before = Math.round(r.prev.firstTry / r.prev.words * 100);
+      const up = pct >= before;
+      const parts = [{ id: 'res.firstRate' }, { text: pct + '%' }, { id: 'res.vsLast' }, { text: before + '%' }];
+      const l = D.lineParts(parts, '', p, D.esc(RF.t('res.firstRate')) + ': <b class="cyan">' + pct + '%</b> ' + (up && pct > before ? '<span style="color:#7dff9c">&#9650;</span>' : '') + ' &nbsp; ' + D.esc(RF.t('res.vsLast')) + ': ' + before + '%');
+      l.querySelector('.txt').style.color = '#e6e9ff';
+    }
+
     const row = D.el('div', null, null, p);
-    row.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:6px';
+    row.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:4px';
     D.button(r.win ? 'res.again' : 'res.tryAgain', function () { S.close(); RF.startBattle(r.levelIndex); }, 'big go', row).btn.dataset.first = '1';
     D.button('battle.toTitle', function () { S.title(); }, '', row);
     RF.speak(r.win ? 'res.win' : 'res.lose');
