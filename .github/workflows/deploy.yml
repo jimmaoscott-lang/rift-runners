@@ -48,13 +48,14 @@ jobs:
       - name: Put the website together
         run: |
           mkdir -p _site
-          cp index.html progress.html progress.json _site/
+          cp index.html progress.html progress.json sound-check.html _site/
           cp -r game _site/game
           mkdir -p _site/assets
           cp -r assets/fonts _site/assets/fonts
           mkdir -p _site/assets/audio
           if [ -d assets/audio/ui ]; then cp -r assets/audio/ui _site/assets/audio/ui; fi
           if [ -d assets/audio/words ]; then cp -r assets/audio/words _site/assets/audio/words; fi
+          if [ -d assets/audio/samples ]; then cp -r assets/audio/samples _site/assets/audio/samples; fi
           cp -r dist _site/dist
           # Make browsers load fresh game code after every update.
           sed -i "s|\.js\"></script>|.js?v=${GITHUB_SHA::8}\"></script>|g" _site/game/index.html

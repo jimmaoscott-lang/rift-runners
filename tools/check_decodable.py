@@ -121,6 +121,8 @@ def check_file(path):
                     errors.append(f"{name}: '{w}' lists itself as an option")
                 elif world == 1 and len(o) == 3 and (o[0] != w[0] or o[2] != w[2]):
                     errors.append(f"{name}: option '{o}' for '{w}' must change only the vowel")
+                elif world == 1 and len(o) == 3 and {o[1], w[1]} == {"i", "e"} and w[2] in "mn":
+                    errors.append(f"{name}: option '{o}' for '{w}': short i and short e sound alike before m or n (pin/pen). Pick another vowel.")
     return errors, count
 
 

@@ -4,6 +4,27 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 7: November 21, 2026 (Forge sounds fixed)
+
+**Mr. Scott's playtest:** on "yat" two choices sounded the same and the right answer seemed marked wrong; "pin" and "pen" sounded alike; on "hit" the choices were hard to understand.
+
+**Cause:** the wrong choices used vowels too close to the right one (yat/yet, pin/pen), the computer voice blurs short vowels in a single word, and short i and short e sound the same before m and n in Gulf Coast speech.
+
+**Fixed**
+- New rule for the two wrong choices: vowels that sound far apart (DESIGN.md section 6). Example: pin now comes with pan and pun; hit with hat and hut; yat with yit and yut. All 52 words updated.
+- The decodability checker now refuses short i and short e as a pair before m or n.
+- Every Forge word is re-voiced 25% slower with a short pause first so the start is never cut off. GitHub makes the new files after this push (a few minutes).
+- New page to pick the clearest word voice: https://jimmaoscott-lang.github.io/rift-runners/sound-check.html (8 voices saying the same Forge choices).
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then refresh the game and play. Listen to the 3 choices on several words.
+2. Open the sound-check page, play each voice, and tell me which one is clearest. I will switch the Forge words to it.
+
+**Next up**
+- Switch the word voice to Mr. Scott's pick, then M4 (World 1 map).
+
+---
+
 ## Session 6: November 21, 2026 (waves until mastery, mastery summary, Golem fix)
 
 **Asked by Mr. Scott:** phone play, waves until mastery or defeat, Stone Golem too strong, a mastery summary after every level, and progress that follows a student between phone and Chromebook.

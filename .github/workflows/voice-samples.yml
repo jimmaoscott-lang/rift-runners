@@ -24,6 +24,7 @@ jobs:
         env:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          ONLY_SAMPLE: choices
         run: python tools/voice_samples.py
       - name: Save samples to the repo
         run: |
@@ -34,5 +35,6 @@ jobs:
             echo "No new audio."
           else
             git commit -m "Add voice samples"
+            git pull --rebase origin main
             git push
           fi

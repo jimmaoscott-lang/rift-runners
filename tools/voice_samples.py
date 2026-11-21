@@ -36,6 +36,19 @@ ENGLISH_SAMPLES = [
         '<phoneme alphabet="ipa" ph="tʃ">ch</phoneme>',
     ])),
 ]
+# The Forge's three sound choices, said the way the game says them, to pick the clearest word voice.
+IPA = {"a": "æ", "e": "ɛ", "i": "ɪ", "o": "ɑ", "u": "ʌ", "f": "f", "h": "h", "m": "m", "n": "n", "p": "p",
+       "t": "t", "y": "j"}
+
+
+def _word(w):
+    return f'<phoneme alphabet="ipa" ph="{"".join(IPA[c] for c in w)}">{w}</phoneme>'
+
+
+CHOICE_SETS = [["hit", "hat", "hut"], ["pin", "pan", "pun"], ["yat", "yit", "yut"], ["map", "mip", "mup"]]
+ENGLISH_SAMPLES.append(("choices", '<break time="1000ms"/>'.join(
+    '<break time="500ms"/>'.join(_word(w) for w in s) for s in CHOICE_SETS)))
+
 SPANISH_SAMPLES = [
     ("game-line", escape("¡Bien hecho! Toca cualquier palabra para escucharla.")),
     ("glossary", escape("Construcción. Construction. Ya conoces esta palabra.")),
@@ -58,15 +71,16 @@ def main():
 
     available = {v["ShortName"] for v in json.loads(request(f"{base}/voices/list", headers=auth))}
     made, skipped = [], []
-    jobs = [(v, "en-US", s) for v in ENGLISH_VOICES for s in ENGLISH_SAMPLES]
-    jobs += [(v, v[:5], s) for v in SPANISH_VOICES for s in SPANISH_SAMPLES]
+    only = os.environ.get("ONLY_SAMPLE", "").strip()
+    jobs = [(v, "en-US", s) for v in ENGLISH_VOICES for s in ENGLISH_SAMPLES if not only or s[0] == only]
+    jobs += [(v, v[:5], s) for v in SPANISH_VOICES for s in SPANISH_SAMPLES if not only or s[0] == only]
 
     for voice, lang, (label, body) in jobs:
         if voice not in available:
             skipped.append(voice)
             continue
         ssml = (f'<speak version="1.0" xml:lang="{lang}" xmlns="http://www.w3.org/2001/10/synthesis">'
-                f'<voice name="{voice}"><prosody rate="-5%">{body}</prosody></voice></speak>')
+                f'<voice name="{voice}"><prosody rate="{"-25%" if label == "choices" else "-5%"}">{body}</prosody></voice></speak>')
         headers = dict(auth)
         headers.update({
             "Content-Type": "application/ssml+xml",

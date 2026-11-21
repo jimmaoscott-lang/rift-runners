@@ -50,6 +50,8 @@ def cvc_ipa(word):
         return "".join(IPA[ch] for ch in word)
     return None
 LOCALES = {"en": "en-US", "es": "es-MX"}
+# Forge words are short and every vowel matters, so they are said slowly.
+WORD_RATE = "-25%"
 
 KEY = os.environ.get("AZURE_SPEECH_KEY", "").strip()
 REGION = os.environ.get("AZURE_SPEECH_REGION", "").strip()
@@ -62,7 +64,8 @@ def fingerprint(voice, text):
 def synthesize(voice, locale, text, ipa=None, rate="-5%"):
     body = escape(text)
     if ipa:
-        body = f'<phoneme alphabet="ipa" ph="{ipa}">{escape(text)}</phoneme>'
+        # A short silence first so the start of the word is never clipped when it plays.
+        body = f'<break time="150ms"/><phoneme alphabet="ipa" ph="{ipa}">{escape(text)}</phoneme>'
     ssml = (f'<speak version="1.0" xml:lang="{locale}" xmlns="http://www.w3.org/2001/10/synthesis">'
             f'<voice name="{voice}"><prosody rate="{rate}">{body}</prosody></voice></speak>')
     req = urllib.request.Request(
@@ -154,11 +157,12 @@ def voice_words(voices):
         os.makedirs(os.path.join(WORDS_OUT, lang), exist_ok=True)
         for text in items:
             ipa = cvc_ipa(text) if lang == "en" else None
-            key = voice + ("|ipa:" + ipa if ipa else "")
+            # 'w2' = slower, with a lead-in pause (Session 7). Changing it re-voices every word.
+            key = voice + ("|ipa:" + ipa + "|w2" if ipa else "")
             name = f"{lang}/{fingerprint(key, text)}.mp3"
             path = os.path.join(WORDS_OUT, name)
             if not os.path.exists(path):
-                audio = synthesize(voice, locale, text, ipa, "-10%" if lang == "en" else "-5%")
+                audio = synthesize(voice, locale, text, ipa, WORD_RATE if lang == "en" else "-5%")
                 time.sleep(0.4)
                 if audio is None:
                     continue

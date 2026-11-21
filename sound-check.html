@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Rift Runners: pick the clearest word voice</title>
+  <style>
+    @font-face { font-family: 'Lexend'; font-weight: 400; src: url('assets/fonts/lexend-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Lexend'; font-weight: 700; src: url('assets/fonts/lexend-latin-700-normal.woff2') format('woff2'); }
+    body { margin: 0; background: #0b0e24; color: #fff; font-family: Lexend, sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 32px 20px 60px; }
+    h1 { color: #ffd76a; margin: 0 0 8px; font-size: 30px; }
+    p { color: #cfd6ff; line-height: 1.5; }
+    .sets { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 24px; }
+    .sets span { background: #141a33; border: 2px solid #6c7bd9; border-radius: 10px; padding: 6px 12px; font-size: 20px; }
+    .row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: 8px; background: #141a33; border-left: 6px solid #2a3470; }
+    .row b { width: 90px; font-size: 20px; }
+    button { font: 700 18px Lexend, sans-serif; background: #2bb3c9; color: #fff; border: 2px solid #c8fbff; border-radius: 10px; padding: 8px 18px; cursor: pointer; }
+    .now { color: #ffd76a; font-size: 14px; }
+    .missing { color: #ff9a9a; font-size: 14px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pick the clearest word voice</h1>
+  <p>Each button plays the same 4 sets of Forge choices, slowed down the way the game now says them. Listen for which voice makes the middle sound easiest to hear. Tell Claude the name of the best one (and any that are bad).</p>
+  <div class="sets"><span>hit, hat, hut</span><span>pin, pan, pun</span><span>yat, yit, yut</span><span>map, mip, mup</span></div>
+  <div id="list"></div>
+</main>
+<script>
+  const voices = [['Guy', 'now in the game'], ['Andrew'], ['Brian'], ['Davis'], ['Ava'], ['Emma'], ['Jenny'], ['Aria']];
+  let playing = null;
+  const list = document.getElementById('list');
+  voices.forEach(function (v) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = '<b>' + v[0] + '</b><button>Play</button>' + (v[1] ? '<span class="now">' + v[1] + '</span>' : '') + '<span class="missing" hidden>Not ready yet. Try again in a few minutes.</span>';
+    const audio = new Audio('assets/audio/samples/en-US-' + v[0] + '_choices.mp3');
+    audio.onerror = function () { row.querySelector('.missing').hidden = false; };
+    row.querySelector('button').onclick = function () {
+      if (playing) playing.pause();
+      audio.currentTime = 0;
+      audio.play().catch(function () { row.querySelector('.missing').hidden = false; });
+      playing = audio;
+    };
+    list.appendChild(row);
+  });
+</script>
+</body>
+</html>
