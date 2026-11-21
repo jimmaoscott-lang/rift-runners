@@ -398,8 +398,8 @@ window.RF = window.RF || {};
   //
   // Scoring rules (decided by Claude, standard oral reading fluency practice):
   //  - A word is right when Azure says it was read (None), or read with an accent (Mispronunciation
-  //    with a word score at or above passage.wordMin). Repeats and extra words never count against
-  //    the student. A word Azure calls skipped still counts if Chrome clearly heard it there.
+  //    with a word score at or above passage.wordMin, 50 since Session 15). Repeats and extra words
+  //    never count against the student. A word Azure calls skipped is a miss (Chrome rescue is off).
   //  - Reading time runs from the first voice to the last voice, pauses included (the usual way WCPM
   //    is timed). Words correct per minute = right words / minutes.
   MIC.canReadAloud = function () { return MIC.state === 'ok' && (azOK() || MIC.chrome === 'ok'); };
@@ -437,7 +437,7 @@ window.RF = window.RF || {};
     const pc = cfg().passage || {};
     if (!aw) return false;
     if (aw.error === 'None') return true;
-    if (aw.error === 'Mispronunciation') return (aw.accuracy || 0) >= (pc.wordMin != null ? pc.wordMin : 35);
+    if (aw.error === 'Mispronunciation') return (aw.accuracy || 0) >= (pc.wordMin != null ? pc.wordMin : 50);
     return false;
   }
   // Line Azure's word list up with the sentence's reference words.
@@ -586,6 +586,7 @@ window.RF = window.RF || {};
       Promise.race([settle, cap]).then(function () {
         MIC.busy = false;
         let correct = 0, total = 0, usedAz = 0;
+        const low = []; // Test mode: Azure word scores under 75, to tune passage.wordMin
         const out = refs.map(function (ref, s) {
           const parts = azParts[s];
           return ref.map(function (w, wi) {
@@ -596,7 +597,11 @@ window.RF = window.RF || {};
               // A long sentence may come in more than one clip: a word read right in any clip counts.
               ok = parts.some(function (m) { return m[wi] && m[wi].ok; });
               const skipped = parts.every(function (m) { return !m[wi] || m[wi].skipped; });
-              if (!ok && skipped && hitAt(s, wi)) ok = true;
+              // Off by default since Session 15: Chrome guesses words from the sentence around them,
+              // so it "heard" mangled words and gave them back as right. Turn on with passage.chromeRescue.
+              if (!ok && skipped && pc.chromeRescue && hitAt(s, wi)) ok = true;
+              const acc = parts.reduce(function (m, x) { return x[wi] && x[wi].acc != null ? Math.max(m, x[wi].acc) : m; }, -1);
+              if (acc >= 0 && acc < 75) low.push(w + ' ' + Math.round(acc));
             } else ok = hitAt(s, wi);
             if (ok) correct++;
             return { w: w, ok: !!ok };
@@ -607,7 +612,7 @@ window.RF = window.RF || {};
         opts.onDone({
           ok: true, engine: engine, sentences: out, correct: correct, total: total, ms: Math.round(ms),
           wcpm: ms ? Math.round(correct / (ms / 60000)) : 0,
-          diag: engine + (azWhy ? ', azure ' + azWhy : '') + (chromeErr ? ', chrome ' + chromeErr : '') + ', ' + Math.round(ms / 100) / 10 + ' s'
+          diag: engine + (azWhy ? ', azure ' + azWhy : '') + (chromeErr ? ', chrome ' + chromeErr : '') + ', ' + Math.round(ms / 100) / 10 + ' s' + (low.length ? '; low: ' + low.slice(0, 12).join(', ') : '')
         });
       });
     }

@@ -38,6 +38,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Mr. Scott's test (Nov 21):** beat Level 1 in 3 waves with only Archer Towers. Likely causes: rift locks already full from earlier reading on the device (locks read the whole history), and an adult reading every word right plays as the strong reader, who wins in 3 waves by design. Retest from cleared progress, missing about 1 word in 5 on purpose to play like a typical student.
 
+**Fix after the session (Mr. Scott, Nov 21): final level read aloud was too loose.** Azure's accent bar raised from 35 to 50, and Chrome no longer rescues words Azure called skipped (Chrome fills in mangled words from context). Test mode's orange line lists words Azure scored under 75 so the bar can be tuned. If the orange line says chrome, Azure was not used and scoring stays loose. v0.9.4.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
