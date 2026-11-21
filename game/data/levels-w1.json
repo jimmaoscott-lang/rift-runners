@@ -14,7 +14,7 @@
         "i"
       ],
       "runeRate": 0.25,
-      "startCrystals": 100,
+      "startCrystals": 100, "waveEvery": 10,
       "anchor": 20,
       "path": [
         [
@@ -128,7 +128,7 @@
           ]
         },
         {
-          "hp": 1.1,
+          "hp": 1.35,
           "groups": [
             {
               "type": "thornback",
@@ -144,7 +144,7 @@
           ]
         },
         {
-          "hp": 1.2,
+          "hp": 1.8,
           "groups": [
             {
               "type": "wisp",
@@ -160,7 +160,7 @@
           ]
         },
         {
-          "hp": 1.35,
+          "hp": 2.3,
           "groups": [
             {
               "type": "thornback",
@@ -176,7 +176,7 @@
           ]
         },
         {
-          "hp": 1.5,
+          "hp": 2.7,
           "groups": [
             {
               "type": "thornback",
@@ -204,8 +204,8 @@
         "need": 9
       },
       "endless": {
-        "hpStep": 0.2,
-        "countStep": 0.15
+        "hpStep": 0.1,
+        "countStep": 0.12
       },
       "finalBoost": 1.2
     },
@@ -222,7 +222,7 @@
         "o"
       ],
       "runeRate": 0.25,
-      "startCrystals": 100,
+      "startCrystals": 100, "waveEvery": 10,
       "anchor": 20,
       "path": [
         [
@@ -359,7 +359,7 @@
           ]
         },
         {
-          "hp": 1.15,
+          "hp": 1.3,
           "groups": [
             {
               "type": "bramble",
@@ -381,7 +381,7 @@
           ]
         },
         {
-          "hp": 1.3,
+          "hp": 1.55,
           "groups": [
             {
               "type": "thornback",
@@ -403,7 +403,7 @@
           ]
         },
         {
-          "hp": 1.45,
+          "hp": 2.4,
           "groups": [
             {
               "type": "bramble",
@@ -425,7 +425,7 @@
           ]
         },
         {
-          "hp": 1.6,
+          "hp": 3.1,
           "groups": [
             {
               "type": "bramble",
@@ -459,8 +459,8 @@
         "need": 9
       },
       "endless": {
-        "hpStep": 0.2,
-        "countStep": 0.15
+        "hpStep": 0.18,
+        "countStep": 0.12
       },
       "finalBoost": 1.2
     },
@@ -478,7 +478,7 @@
         "e"
       ],
       "runeRate": 0.3,
-      "startCrystals": 120,
+      "startCrystals": 120, "waveEvery": 10,
       "anchor": 20,
       "path": [
         [
@@ -623,7 +623,7 @@
           ]
         },
         {
-          "hp": 1.1,
+          "hp": 1.3,
           "groups": [
             {
               "type": "brute",
@@ -652,7 +652,7 @@
           ]
         },
         {
-          "hp": 1.25,
+          "hp": 1.6,
           "groups": [
             {
               "type": "brute",
@@ -681,7 +681,7 @@
           ]
         },
         {
-          "hp": 1.4,
+          "hp": 2.2,
           "groups": [
             {
               "type": "brute",
@@ -710,7 +710,7 @@
           ]
         },
         {
-          "hp": 1.55,
+          "hp": 2.8,
           "groups": [
             {
               "type": "brute",
@@ -751,8 +751,8 @@
         "need": 9
       },
       "endless": {
-        "hpStep": 0.2,
-        "countStep": 0.15
+        "hpStep": 0.15,
+        "countStep": 0.12
       },
       "finalBoost": 1.2
     },
@@ -768,7 +768,7 @@
       "reward": "level.w8final.reward",
       "vowels": [],
       "runeRate": 0,
-      "startCrystals": 900,
+      "startCrystals": 400, "waveEvery": 10,
       "anchor": 20,
       "path": [
         [
@@ -900,7 +900,7 @@
       ],
       "waves": [
         {
-          "hp": 1.3,
+          "hp": 1.9,
           "groups": [
             {
               "type": "brute",
@@ -929,7 +929,7 @@
           ]
         },
         {
-          "hp": 1.6,
+          "hp": 2.8,
           "groups": [
             {
               "type": "brute",
@@ -958,7 +958,7 @@
           ]
         },
         {
-          "hp": 1.9,
+          "hp": 3.6,
           "groups": [
             {
               "type": "brute",
@@ -993,8 +993,8 @@
         "need": 8
       },
       "endless": {
-        "hpStep": 0.2,
-        "countStep": 0.15
+        "hpStep": 0.4,
+        "countStep": 0.2
       },
       "finalBoost": 1.2
     }

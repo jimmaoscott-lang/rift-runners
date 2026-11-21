@@ -144,8 +144,8 @@
     "hud.maxed": "Fully upgraded",
     "hud.paused": "Paused. The Rune Forge stays open.",
     "hud.quit": "Back to the map",
-    "hud.buildStart": "Forge crystals and build defenders. Press Start wave when you're ready.",
-    "hud.waveCleared": "Wave cleared. Forge, build, then start the next wave.",
+    "hud.buildStart": "Build defenders, then forge. Every 10 words brings a wave.",
+    "hud.waveCleared": "Wave cleared! Keep reading to bring the next one. Build while you can.",
     "tag.slowed": "SLOWED",
     "tag.held": "HELD",
     "tag.rebuild": "REBUILDING",
@@ -368,7 +368,16 @@
     "res.wcpmCards": "Words correct per minute",
     "res.noAloud": "Next time, press Read it aloud to see your reading speed.",
     "res.noMic": "Reading aloud needs a working microphone. Tap mode still counts.",
-    "res.winFinal": "The rift is sealed!"
+    "res.winFinal": "The rift is sealed!",
+    "hud.buildStartCards": "Build defenders, then read. Every 10 cards brings a wave.",
+    "hud.nextIn": "Next wave in",
+    "hud.words": "words",
+    "hud.word1": "word",
+    "hud.cards": "cards",
+    "hud.card": "card",
+    "hud.nextComing": "Next wave coming!",
+    "hud.nextAfter": "Next wave comes right after this one",
+    "hud.nextAfterShort": "comes next"
   },
   "es": {
     "title.name": "Rift Runners",
@@ -514,8 +523,8 @@
     "hud.maxed": "Mejora completa",
     "hud.paused": "En pausa. La Forja de runas sigue abierta.",
     "hud.quit": "Volver al mapa",
-    "hud.buildStart": "Forja cristales y pon defensores. Pulsa Empezar oleada cuando estés listo.",
-    "hud.waveCleared": "Oleada vencida. Forja, construye y empieza la próxima.",
+    "hud.buildStart": "Pon defensores y luego forja. Cada 10 palabras traen una oleada.",
+    "hud.waveCleared": "¡Oleada vencida! Sigue leyendo para traer la próxima. Construye mientras puedas.",
     "tag.slowed": "LENTO",
     "tag.held": "ATRAPADO",
     "tag.rebuild": "REARMANDO",
@@ -738,6 +747,15 @@
     "res.wcpmCards": "Palabras correctas por minuto",
     "res.noAloud": "La próxima vez, presiona Léelo en voz alta para ver tu velocidad de lectura.",
     "res.noMic": "Leer en voz alta necesita un micrófono que funcione. El modo de tocar también cuenta.",
-    "res.winFinal": "¡La grieta está sellada!"
+    "res.winFinal": "¡La grieta está sellada!",
+    "hud.buildStartCards": "Pon defensores y luego lee. Cada 10 tarjetas traen una oleada.",
+    "hud.nextIn": "Próxima oleada en",
+    "hud.words": "palabras",
+    "hud.word1": "palabra",
+    "hud.cards": "tarjetas",
+    "hud.card": "tarjeta",
+    "hud.nextComing": "¡Viene la próxima oleada!",
+    "hud.nextAfter": "La próxima oleada viene justo después de esta",
+    "hud.nextAfterShort": "viene después"
   }
 }

@@ -69,9 +69,9 @@ World names: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead
 
 ### 4.2 Core loop (one level, about 8 to 12 minutes)
 
-1. **Build phase:** start crystals plus the Forge. Place the first defenders. Press Start Wave when ready (no timer).
+1. **Build phase:** start crystals plus the Forge. Place the first defenders. The first wave comes after 10 finished words (or cards), or sooner if the student presses Start wave (no timer).
 2. **Waves:** creatures march. Defenders fight on their own. The student keeps forging crystals, builds more, upgrades, and fires hero powers.
-3. **Between waves:** a short breather. Forge, build, upgrade.
+3. **Between waves:** forge, build, upgrade. The next wave comes when the student has finished 10 more words (or cards). Waves come from reading, never from a clock (section 6).
 4. **Waves keep coming until mastery or defeat (Mr. Scott, Session 6).** The first waves follow the level file; after that they keep coming, bigger and tougher each time. Each level shows **rift locks**, one per vowel pattern it teaches. When every lock is full (mastery, section 5.1), the next wave after the level's minimum (3 waves in Level 1) is the **final wave**. Surviving it closes the rift and wins. Stars: 3 = Anchor untouched, 2 = Anchor above half, 1 = survived. If the Anchor falls first, the level is lost, but lock progress is kept.
 5. **Rewards:** the next level unlocks, often a new defender or upgrade, skins for 3 stars, crystals carried to the upgrade bank.
 6. **Level Clear screen** with growth (section 12A).
@@ -171,8 +171,8 @@ Always on screen in a level, on the right side.
    - **Limit:** Chrome's speech recognizer turns sounds into real words, so it cannot judge made-up runes and may hear "set" as "sit." Runes stay in tap mode until a pronunciation checker (Azure Pronunciation Assessment or an on-device model) is tested in M5.
 3. **Every forge pays right away:** crystals fly from the Forge into the crystal counter with a sound.
    - Real word, first try: +10. Rune, first try: +20.
-   - Hearing the word first (speaker on the word) or second try: about half.
-   - After the answer is shown: a small amount, so the student is never stuck.
+   - Hearing the word first (speaker on the word) or second try: 30% (real word 3, rune 6). Lowered from half in Session 15 so first-try accuracy matters more now that waves come from reading.
+   - After the answer is shown: 2, so the student is never stuck.
 4. **Streak meter:** first-try reads in a row fill 8 pips. A full meter is a **Mega Forge**: +100 crystals and a burst of light over the battlefield that hits every creature for 25 damage (built in M3, so a strong read streak is felt on the field).
 5. **Hero charge:** forging also charges the hero's powers.
 6. **Misses:** no lost crystals. Letter tiles with the vowel in gold, "Let's break it up," then try again. The word comes back sooner next time.
@@ -184,11 +184,28 @@ Always on screen in a level, on the right side.
 
 **Keyboard (built in M3):** 1, 2, 3 pick a sound; Enter or F forges; H hears the word; S starts the next wave; P or Esc pauses; after picking a defender, arrow keys move between glowing spots and Enter builds.
 
-**Waves from reading (decided by Mr. Scott, Nov 21, to build in Session 15):** a wave comes every 10 finished words (World 1) or 10 finished cards (World 8); finished items, not tries, and items finished during a wave count toward the next. Start wave stays as an early call. This stops stockpiling between waves while keeping the game untimed. Final level starts at about 400 crystals. See SESSION-LOG Session 14 for the balance targets.
+**Waves from reading (decided by Mr. Scott, Nov 21; built in Session 15):** waves come from reading instead of the Start wave button, so a student cannot stockpile crystals by forging as long as they like between waves.
+- A wave comes every 10 finished words (World 1) or 10 finished cards (World 8), set per level as `waveEvery` in `game/data/levels-w1.json`. Only finished items count (a word forged or a card answered, after any number of tries), so guessing never brings waves faster.
+- Items finished during a wave count toward the next one. If the count fills during a wave, that wave is banked and comes as soon as the field is clear, after a 3 second breath (Claude's call: waves line up one after another instead of piling on top of each other, so reading fast is never punished, and every student faces the same waves for the same reading). If the count fills between waves, the wave comes after 1.5 seconds (first wave) or 3 seconds. The breath runs on game time, so Pause and Focus stretch it.
+- **Start wave** stays as an early call. It brings the wave the student was reading toward, so the count starts over at 0. It shows only between waves while no wave is already on its way.
+- **Counter:** the top bar shows "Next wave in 7 words" (or cards) beside Start wave; tap it to hear it. When a wave is earned it says "Next wave coming!", or "Wave 3 comes next" during a wave. The Pause button is icon only so the bar fits beside the Forge.
+- Still untimed: a student who stops reading is never attacked. Waves come from reading, never from a clock.
+- Story levels: finishing the Rift Seal brings the final wave right away (the Seal is the level's big read). World 1 levels: once every lock is full and the minimum waves are done, the next earned (or called) wave is the final one.
 
 **Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
 
 **Level 1 balance (tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. With waves until mastery (Session 6), accurate readers win in 4 to 9 waves and inaccurate ones lose later with progress saved. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.
+
+**Balance with waves from reading (Session 15, `tools/sim_balance.py`):** the simulated player plays the real battle code with a steady builder and three readers: strong (95% first try, speak mode, a word every 4 seconds or a card every 9), typical (80%, tap, 6 or 13 seconds) and struggling (50%, tap, 8.5 or 18 seconds). Targets from Mr. Scott: typical barely holds, struggling loses around wave 4 or 5 with progress saved, strong wins. Results, 10 runs each:
+
+| Level | Strong | Typical | Struggling |
+|---|---|---|---|
+| 1 | wins all, 3 to 4 waves | wins 9 of 10 (3 with Anchor damage), 3 to 8 waves | loses at wave 4 or 5 |
+| 2 | wins all, 3 to 4 waves | wins 9 of 10, 4 to 11 waves | loses at wave 4 to 6 (two at 8) |
+| 3 | wins all, 4 to 8 waves | wins 7 of 10 (3 with damage), 7 to 11 waves; losses near wave 15 | loses at wave 4 |
+| Final | wins all in 3 waves | wins all in 3 waves (2 with damage) | loses at wave 4 to 6 in 7 of 10; 3 win when the Story lock fills by luck |
+
+Crystals per 10 items: World 1 about 80 (struggling), 145 (typical), 245 (strong, Mega Forges included); final level about 225, 300 and 380. Wave strength (`hp` per wave, `endless` steps) was raised in the middle waves and the endless steps set per level; World 1 starting crystals are unchanged (100, 100, 120) and the final level starts with 400. Numbers live in `game/data/levels-w1.json` and `game/data/units.json`. Run `python3 tools/sim_balance.py` after any change to waves, defenders or pay.
 
 ---
 
@@ -281,7 +298,7 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
   - **Saved on the device:** one record per passage read aloud (passage id, words right, total, time, WCPM, which checker) in the progress record, for the WCPM line in teacher reports (M10). No audio is ever kept.
   - Free Azure hours: the 70-word Seal uses about 1 to 2 minutes of audio per read, a card about 10 seconds.
 - Reached from the World 1 map with Test mode on (teacher button "Final level preview").
-- Balance for the preview (Session 13, Claude): 900 start crystals and creatures 1.3 to 1.9 times tougher, since a preview player has no Armory upgrades. A simulated reader answering a card about every 8 seconds wins in about 3 minutes. Real World 8 balance comes with M9.
+- Balance for the preview (Session 13, Claude; retuned in Session 15 for waves from reading): 400 start crystals, a wave every 10 cards, waves 1.9, 2.8 and 3.6 times tougher than World 1 creatures, then 40% tougher each wave after that. A typical reader (80%, a card every 13 seconds) wins in about 8 minutes; a struggling reader (50%) usually falls in waves 4 to 6. Finishing the Rift Seal brings the final wave right away. Real World 8 balance comes with M9.
 - The decodability checker accepts any plain English word in World 8 (all patterns are taught by then) and still blocks unsafe words.
 
 

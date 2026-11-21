@@ -4,6 +4,44 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 15: November 21, 2026 (Waves from reading, all levels)
+
+**Built**
+- Waves now come from reading on every level: a wave every 10 finished words (World 1) or 10 finished cards (final level). Only finished items count, so guessing does not bring waves faster.
+- Items finished during a wave count toward the next one. If the count fills during a wave, that wave is banked and comes as soon as the field is clear (3 second breath). Claude's call: waves line up instead of piling on top of each other, so reading fast never makes the fight harder.
+- A **Next wave in N words** (or cards) counter sits in the top bar beside Start wave. Tap it to hear it. It turns to "Next wave coming!" when a wave is earned, or "Wave 3 comes next" during a wave.
+- **Start wave** stays as an early call. It brings the wave the student was reading toward, so the count starts over.
+- Final level: starts with 400 crystals, and finishing the Rift Seal brings the final wave right away.
+- Pay change (Claude's call, the open option from Session 14): a word read on the second try or after hearing it pays 3 instead of 5 (runes 6), and a shown answer pays 2. First-try reading matters more. No read ever costs crystals.
+- Every level's waves retuned (DESIGN.md 6, balance table). The Pause button is now an icon so the top bar fits beside the Forge in Spanish too.
+- New tool: `tools/sim_balance.py` plays every level in headless Chrome with a strong, typical and struggling reader and prints the results. Version v0.9.1. 9 new English and Spanish lines (voiced about 10 minutes after the push).
+
+**Balance (simulated player, 10 runs per reader per level)**
+- Strong reader (95%): wins every level, usually in 3 to 6 waves.
+- Typical reader (80%): wins Level 1 and 2 nine times in ten, Level 3 seven in ten, the final level every time; several wins end with Anchor damage.
+- Struggling reader (50%): loses at wave 4 or 5 on most runs, progress saved. On the final level 3 of 10 still win when the Story lock fills by luck.
+
+**Tested (by Claude, headless Chrome)**
+- Level 1: 10 forged words brought wave 1; 10 more during the wave banked wave 2, which started right after wave 1 cleared. Start wave mid-count started the wave and reset the count. Spanish counter reads right.
+- Final level: answered 26 cards; waves came every 10, the Seal opened, finishing it brought the final wave, and the win screen showed "The rift is sealed!" No game errors. Decodability check passes.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.9.1).
+2. Play Level 1 like a student: build, then forge. Watch the counter in the top bar count down and the wave arrive.
+3. Try forging fast during a wave, and try pressing Start wave early.
+4. Turn on Test mode and play the Final level preview the same way.
+5. Tell me: does it feel harder now? Does 10 words per wave feel right, or should it be 8 or 12?
+
+**Next up**
+- M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+
+**Open questions**
+- A struggling reader can still win the final level when 8 of 10 cards happen to go right. That is the Story lock bar (80%), not the waves. Leave it, or raise it to 9 of 10 for the real World 8?
+- New lines in Spanish need a Spanish speaker's check.
+
+---
+
 ## Session 14: November 21, 2026 (Final level preview, Part B: read aloud with words correct per minute)
 
 **Built**

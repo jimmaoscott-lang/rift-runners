@@ -47,6 +47,8 @@ window.RF = window.RF || {};
     B.crystals = L.startCrystals;
     B.anchorMax = L.anchor; B.anchor = L.anchor;
     B.wave = 0; B.waveTime = 0; B.queue = [];
+    // Waves from reading (DESIGN.md 6): every waveEvery finished words or cards brings a wave.
+    B.every = L.waveEvery || 10; B.readCount = 0; B.wavesDue = 0; B.dueT = 0;
     B.creatures = []; B.defenders = []; B.shots = []; B.fx = [];
     B.paused = false; B.speed = 1; B.shake = 0;
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
@@ -62,7 +64,8 @@ window.RF = window.RF || {};
     B.updatePads();
     canvasOn();
     // Locks can already be full from earlier play: say when the final wave will be.
-    B.toast(null, true, B.sealReady ? [{ id: 'hud.buildStart' }].concat(B.allFullParts()) : [{ id: 'hud.buildStart' }]);
+    const bs = [{ id: L.story ? 'hud.buildStartCards' : 'hud.buildStart' }];
+    B.toast(null, true, B.sealReady ? bs.concat(B.allFullParts()) : bs);
     RF.audio.music('calm');
   };
 
@@ -98,9 +101,13 @@ window.RF = window.RF || {};
     D.el('div', null, '<span class="gold">' + tagParts.map(function (p) { return D.esc(RF.t(p.id)); }).join(' · ') + '</span><br>' + D.esc(RF.t(B.L.name)), lv).style.lineHeight = '1.2';
     const ctr = D.el('div', null, null, top);
     ctr.style.cssText = 'display:flex;gap:6px;margin-left:6px';
-    B.startBtn = D.el('button', 'btn start pulse', '', ctr);
+    // "Next wave in 7 words": waves come from reading, so the student always sees how close the next one is.
+    B.nextChip = D.el('div', 'chip', '', ctr);
+    B.nextChip.style.cssText += ';font-size:15px;padding:3px 10px;border-color:#c04dff;cursor:pointer';
+    B.nextChip.addEventListener('click', function () { RF.speakSeq(B.nextParts()); });
+    B.startBtn = D.el('button', 'btn start', '', ctr);
     B.startBtn.style.fontSize = '17px';
-    B.startBtn.addEventListener('click', function () { B.startWave(); });
+    B.startBtn.addEventListener('click', function () { B.callWave(); });
     B.pauseBtn = D.el('button', 'btn', '', ctr);
     B.pauseBtn.style.fontSize = '15px';
     B.pauseBtn.addEventListener('click', function () { B.setPaused(!B.paused); });
@@ -119,7 +126,7 @@ window.RF = window.RF || {};
       level: B.L,
       restore: forgeRestore,
       onPay: function (amount, fromEl) { B.pay(amount, fromEl); },
-      onRead: function () { B.refreshLocks(false); },
+      onRead: function () { B.refreshLocks(false); B.readTick(); },
       onMega: function () { B.megaBlast(); },
       onSeal: function () { B.sealComplete(); },
       // Reading the Rift Seal aloud: the battle holds still so the reading is fair (DESIGN.md 7).
@@ -220,6 +227,9 @@ window.RF = window.RF || {};
   B.sealComplete = function () {
     B.sealDone = true;
     B.sealReady = true;
+    // The Seal is the level's big read: the final wave comes right after it.
+    if (!B.wavesDue) B.wavesDue = 1;
+    B.readCount = 0;
     B.megaBlast();
     B.toast('seal.done', true);
     B.renderTop();
@@ -264,11 +274,22 @@ window.RF = window.RF || {};
     // Once every lock is full, the chip counts down to the final wave: "Wave 1 of 3".
     B.waveChip.innerHTML = B.finalWave ? '<span class="gold">' + D.esc(RF.t('hud.finalWave')) + '</span>' : D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span>' +
       (B.sealReady ? ' ' + D.esc(RF.t('res.of')) + ' <span class="gold" style="font-size:22px">' + B.finalWaveNum() + '</span>' : '');
-    const showStart = B.phase === 'build' || B.phase === 'between';
+    // Start wave is an early call: it shows between waves while no wave is already on its way.
+    const showStart = (B.phase === 'build' || B.phase === 'between') && !B.wavesDue;
     B.startBtn.style.display = showStart ? '' : 'none';
     const nextFinal = B.sealReady && B.wave + 1 >= B.L.minWaves;
     B.startBtn.innerHTML = '&#9654; ' + (nextFinal ? D.esc(RF.t('hud.finalWave')) : D.esc(RF.t('hud.startWave')) + ' ' + (B.wave + 1));
-    B.pauseBtn.innerHTML = B.paused ? '&#9654; ' + D.esc(RF.t('hud.resume')) : '&#10074;&#10074; ' + D.esc(RF.t('hud.pause'));
+    const left = B.every - B.readCount;
+    // Two short lines so the top bar fits beside the Forge on a Chromebook screen.
+    const small = function (t) { return '<span style="font-size:13px;color:#d9c8ff">' + D.esc(t) + '</span>'; };
+    B.nextChip.innerHTML = '<div style="line-height:1.15;text-align:center">' + (B.wavesDue
+      ? small(nextFinal ? RF.t('hud.finalWave') : RF.t('hud.wave') + ' ' + (B.wave + 1)) + '<br><span class="gold">' + D.esc(RF.t(B.phase === 'wave' ? 'hud.nextAfterShort' : 'hud.nextComing')) + '</span>'
+      : small(RF.t('hud.nextIn')) + '<br><span class="gold" style="font-size:19px">' + left + '</span> ' + D.esc(RF.t(B.L.story ? (left === 1 ? 'hud.card' : 'hud.cards') : (left === 1 ? 'hud.word1' : 'hud.words')))) + '</div>';
+    B.nextChip.style.display = B.finalWave ? 'none' : '';
+    // Icon only, so the top bar fits beside the Forge (the pause panel says "Paused" out loud).
+    B.pauseBtn.innerHTML = B.paused ? '&#9654;' : '&#10074;&#10074;';
+    B.pauseBtn.title = RF.t(B.paused ? 'hud.resume' : 'hud.pause');
+    B.pauseBtn.setAttribute('aria-label', B.pauseBtn.title);
     B.speedBtn.innerHTML = '&#9654;&#9654; x' + B.speed;
     B.speedBtn.classList.toggle('on', B.speed === 2);
     B.focusChip.style.display = RF.settings.focus ? '' : 'none';
@@ -336,8 +357,33 @@ window.RF = window.RF || {};
     const base = W[W.length - 1], e = B.L.endless, x = k - W.length;
     return { hp: (base.hp || 1) * Math.pow(1 + e.hpStep, x), groups: base.groups.map(function (g) { return Object.assign({}, g, { count: Math.round(g.count * (1 + e.countStep * x)) }); }) };
   };
+  // A word or card was finished (right, after any number of tries). Tries never count, so guessing
+  // does not bring waves faster. Reads during a wave count toward the next one.
+  B.readTick = function () {
+    if (B.phase === 'done' || B.finalWave) return;
+    B.readCount++;
+    if (B.readCount >= B.every) {
+      B.readCount -= B.every;
+      B.wavesDue++;
+      if (B.phase !== 'wave') B.toast(null, true, B.nextParts());
+    }
+    if (B.waveChip) B.renderTop();
+  };
+  B.nextParts = function () {
+    if (B.wavesDue) return [{ id: B.phase === 'wave' ? 'hud.nextAfter' : 'hud.nextComing' }];
+    const left = B.every - B.readCount;
+    return [{ id: 'hud.nextIn' }, D.num(left), { id: B.L.story ? (left === 1 ? 'hud.card' : 'hud.cards') : (left === 1 ? 'hud.word1' : 'hud.words') }];
+  };
+  // Start wave pressed: an early call. It brings the wave the student was reading toward,
+  // so the count starts over. A wave already due just comes now.
+  B.callWave = function () {
+    if (!(B.phase === 'build' || B.phase === 'between')) return;
+    if (B.wavesDue) B.wavesDue--; else B.readCount = 0;
+    B.startWave();
+  };
   B.startWave = function () {
     if (!(B.phase === 'build' || B.phase === 'between')) return;
+    B.dueT = 0;
     B.finalWave = B.sealReady && B.wave + 1 >= B.L.minWaves;
     let w = B.waveDef(B.wave + 1);
     if (B.finalWave) {
@@ -801,6 +847,12 @@ window.RF = window.RF || {};
     }
     if (!dt) return;
 
+    // A wave earned by reading comes after a short breath (game time, so Pause and Focus slow it too).
+    if ((B.phase === 'build' || B.phase === 'between') && B.wavesDue > 0) {
+      B.dueT += dt;
+      if (B.dueT >= (B.phase === 'build' ? 1.5 : 3)) { B.wavesDue--; B.startWave(); }
+    }
+
     // Spawns
     if (B.phase === 'wave') {
       B.waveTime += dt;
@@ -1157,7 +1209,7 @@ window.RF = window.RF || {};
       return;
     }
     if (ev.key === 'p' || ev.key === 'P') { B.setPaused(!B.paused); return; }
-    if (ev.key === 's' || ev.key === 'S') { B.startWave(); return; }
+    if (ev.key === 's' || ev.key === 'S') { B.callWave(); return; }
     if (B.buildSel) {
       const cand = candidates();
       if (cand.length && (ev.key === 'ArrowRight' || ev.key === 'ArrowDown' || ev.key === 'ArrowLeft' || ev.key === 'ArrowUp')) {
