@@ -72,14 +72,16 @@ window.RF = window.RF || {};
   };
 
   // Can the checker that is up right now fairly judge this word?
-  // Azure: every real word, and runes when spokenRunes is on (or in Test mode, for trying it).
+  // Azure: every real word (runes only if spokenRunes is turned on, which it is not).
   // Chrome only: not runes, and not short i or short e before m or n (pin, pen, ten, win), which
   // Chrome hears but will not name (DESIGN.md 6, Speak mode word rule). Any word marked noSpeak
   // stays tap only with either checker.
   function chromeCan(w) { return w.kind !== 'rune' && !/[ie][mn]/.test(w.w); }
   MIC.canCheck = function (w) {
     if (!w || w.noSpeak) return false;
-    if (azOK()) return w.kind !== 'rune' || !!cfg().spokenRunes || !!(RF.unlocks && RF.unlocks.testMode());
+    // Runes stay tap only: Azure guesses how a made-up word sounds and guesses wrong (it heard
+    // "pid" as "peed"), so a right read could never pass (Session 11 test).
+    if (azOK()) return w.kind !== 'rune' || !!cfg().spokenRunes;
     return MIC.chrome === 'ok' && chromeCan(w);
   };
 

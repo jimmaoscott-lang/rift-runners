@@ -36,13 +36,14 @@ Newest entry at the top. Each session adds one entry.
 4. Tell me: any right read called wrong, or wrong read called right? Send the readout line for those. Also: does the answer feel fast enough?
 5. At school (after Thanksgiving): run the microphone test on a student Chromebook to see if the district network lets the checker through.
 
+**Mr. Scott's test (Nov 21):** Azure is on. Every real word he read right was accepted, including pin, pen, ten and win, and every wrong vowel was caught. The rune "pid" never passed: Azure guessed it as "peed" with extra sounds. Fix (v0.6.1): runes are tap only again, in Test mode too.
+
 **Next up**
-- Tune the scoring from Mr. Scott's readouts if needed (Opus, short).
+- Watch Test mode readouts during classroom use; tune `game/data/speech.json` if a right read fails.
 - Then M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
 
 **Open questions**
 - If the Worker address is not `rift-runners-speech.jimmaoscott.workers.dev` (Cloudflare picks the middle part per account), the health check in step 6 fails and the game quietly stays on Chrome. Tell Claude the address the Actions run printed and it is a one-line fix.
-- Spoken runes: try a few in Test mode. If Azure judges made-up words fairly, turn them on for everyone.
 - Free hours: 5 a month covers about 15,000 spoken words. If a full class plays every day, it may run out late in the month (the game falls back to Chrome on its own). Standard S0 with a spending cap is the fix if that happens.
 - Still open: forgotten teacher PIN reset (M10), progress between phone and Chromebook (DESIGN.md 15, item 0).
 
