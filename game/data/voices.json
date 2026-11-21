@@ -1,0 +1,7 @@
+{
+  "_note": "Azure voice assigned to each role. Change a voice here without touching game code. null = not chosen yet.",
+  "narrator": { "en": "en-US-GuyNeural", "es": "es-MX-JorgeNeural" },
+  "readingGuideOptions": { "en": [], "es": [] },
+  "encouragementRotation": { "en": [], "es": [] },
+  "characters": {}
+}
