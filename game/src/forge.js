@@ -79,7 +79,11 @@ window.RF = window.RF || {};
     // Speak first (DESIGN.md 6, item 2): a real word hides its tap choices until the student has
     // made this many voice tries. Off when the mic cannot work, so tap mode always works.
     function speakFirst() { return Math.max(0, Math.min(3, +RF.settings.speakFirst || 0)); }
-    function micOn() { return F.cur && F.cur.kind === 'real' && RF.mic && RF.mic.usable(); }
+    // Speak mode skips some words (DESIGN.md 6, Speak mode word rule): short i or short e before
+    // m or n (pin, pen, ten, win), since Gulf Coast speech says them alike and Chrome returns no
+    // word for them, plus any word marked "noSpeak" in the word list. Those stay tap only, like runes.
+    function speakable(w) { return !w.noSpeak && !/[ie][mn]/.test(w.w); }
+    function micOn() { return F.cur && F.cur.kind === 'real' && speakable(F.cur) && RF.mic && RF.mic.usable(); }
     function choicesHidden() { return micOn() && !F.revealed && F.speakTries < speakFirst(); }
     function renderMode() {
       const hide = choicesHidden();

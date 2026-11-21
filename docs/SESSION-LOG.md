@@ -32,6 +32,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Fix 2 (Mr. Scott's report, v0.5.2):** "ten," "pen" and "pin" got "The mic caught no word," meaning Chrome sent back nothing at all. The Forge now listens the same way the microphone test does (keeps listening through short pauses, up to 6 seconds, and waits a moment after a wrong guess in case a better one follows). Test mode now also shows what the mic noticed on a miss: whether the mic turned on, heard sound, heard speech, and any error. If these words still fail, that readout tells us whether Chrome is hearing the voice and refusing the word, which would point to Azure pronunciation checking for short -en and -in words.
 
+**Fix 3 (v0.5.3):** the readout showed mic yes, sound yes, speech yes, heard nothing, on win, ten and pen. Chrome hears the voice but will not name these words. Decision: short i or short e before m or n is tap only in speak mode (DESIGN.md 6). The words stay in the game. Mr. Scott asked whether this blocks later levels: it does not. Most short words work in Chrome (zip, rob, jet, jab, top, log). Any other word that fails can be marked `noSpeak`. A stronger checker (Azure pronunciation checking through a small key-holding server) is the long-term option, and it would also let runes be spoken; planned as an M5b decision after classroom mic testing.
+
 **Next up**
 - If the mic test goes well: M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
 - If the mic is too loose or too slow on Chromebooks, fix that first.
