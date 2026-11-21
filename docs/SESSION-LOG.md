@@ -28,6 +28,8 @@ Newest entry at the top. Each session adds one entry.
 5. Turn Test mode Off before students play.
 6. Tell me: does the mic catch the words quickly enough, and does it ever take a wrong read as right?
 
+**Fix (Mr. Scott's report):** speak mode would not take "win" or "ten." Chrome writes some words with another spelling for the same sound: "10" for ten, and "when" for win (they sound alike in Southern speech). Each word in `world1.json` can now list those spellings in `sayAlso` (win: when, ten: 10, sun: son, mix: mics, wet: whet, bus: buss). In Test mode, a speak miss also shows what Chrome heard, so any other stuck word can be reported and added.
+
 **Next up**
 - If the mic test goes well: M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
 - If the mic is too loose or too slow on Chromebooks, fix that first.

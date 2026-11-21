@@ -113,7 +113,10 @@
         "ton",
         "tun"
       ],
-      "es": "diez"
+      "es": "diez",
+      "sayAlso": [
+        "10"
+      ]
     },
     {
       "w": "vet",
@@ -130,7 +133,10 @@
         "wot",
         "wut"
       ],
-      "es": "mojado"
+      "es": "mojado",
+      "sayAlso": [
+        "whet"
+      ]
     },
     {
       "w": "beg",
@@ -186,7 +192,10 @@
         "wan",
         "wun"
       ],
-      "es": "ganar"
+      "es": "ganar",
+      "sayAlso": [
+        "when"
+      ]
     },
     {
       "w": "pin",
@@ -204,7 +213,10 @@
         "mux"
       ],
       "es": "mezclar",
-      "cognate": true
+      "cognate": true,
+      "sayAlso": [
+        "mics"
+      ]
     },
     {
       "w": "hot",
@@ -309,7 +321,10 @@
         "sin",
         "sen"
       ],
-      "es": "sol"
+      "es": "sol",
+      "sayAlso": [
+        "son"
+      ]
     },
     {
       "w": "cup",
@@ -326,7 +341,10 @@
         "bes"
       ],
       "es": "autobús",
-      "cognate": true
+      "cognate": true,
+      "sayAlso": [
+        "buss"
+      ]
     },
     {
       "w": "hut",

@@ -163,6 +163,11 @@ window.RF = window.RF || {};
     };
 
     // ---- Speak mode ----
+    function testHeard(text) {
+      const n = D.el('div', null, D.esc(RF.t('mic.heard')) + ' "' + D.esc(text) + '"');
+      n.style.cssText = 'font-size:14px;color:#ffb89a';
+      return n;
+    }
     function showTiles() {
       wordEl.className = 'tiles';
       wordEl.innerHTML = F.cur.w.split('').map(function (ch, k) { return '<span class="' + (k === 1 ? 'v' : '') + '">' + D.esc(ch) + '</span>'; }).join('');
@@ -190,21 +195,23 @@ window.RF = window.RF || {};
         F.stats.misses++;
         F.lastAction = performance.now();
         RF.sfx('soft');
+        // Test mode only: show what Chrome heard, so misses can be reported and fixed.
+        const heardNote = RF.unlocks.testMode() && res.heard ? testHeard(res.heard) : null;
         if (F.tries === 1) {
           showTiles();
-          say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true);
+          say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true, heardNote);
         } else if (!F.revealed) {
           F.revealed = true;
           optEls.forEach(function (o, k) { if (F.choices[k].ok) o.classList.add('glow'); });
-          say('forge.revealSay', false);
+          say('forge.revealSay', false, heardNote);
           RF.speakSeq([{ id: 'forge.revealSay' }, { word: w.w }]);
         } else {
-          say('forge.revealSay', false);
+          say('forge.revealSay', false, heardNote);
           RF.speakSeq([{ id: 'forge.revealSay' }, { word: w.w }]);
         }
         renderForgeBtn();
         renderMode();
-      }, { onStart: function () { RF.metrics.support('micPress'); } });
+      }, { also: w.sayAlso, onStart: function () { RF.metrics.support('micPress'); } });
     };
 
     F.pick = function (i) {

@@ -17,14 +17,16 @@ window.RF = window.RF || {};
   MIC.markDown = function (reasonId) { MIC.state = 'down'; MIC.reason = reasonId; };
   MIC.retry = function () { if (MIC.supported) { MIC.state = 'ok'; MIC.reason = null; } };
 
-  function norm(s) { return String(s || '').toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter(Boolean); }
+  function norm(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9' ]/g, ' ').split(/\s+/).filter(Boolean); }
 
   // Words that count as the target. Gulf Coast speech says short i and short e the same before
   // m or n (pin/pen, him/hem), so Chrome may hear either one. That is dialect, not a decoding
   // error, so both spellings count there (DESIGN.md 6, Speak mode matching).
-  MIC.accepts = function (target) {
+  // Chrome also writes some words with a different spelling for the same sound (when for win,
+  // 10 for ten, son for sun). Those come from each word's "sayAlso" list in game/data/world1.json.
+  MIC.accepts = function (target, also) {
     const t = String(target).toLowerCase();
-    const out = [t];
+    const out = [t].concat((also || []).map(function (a) { return String(a).toLowerCase(); }));
     for (let i = 0; i < t.length - 1; i++) {
       if ((t[i] === 'i' || t[i] === 'e') && (t[i + 1] === 'm' || t[i + 1] === 'n')) {
         out.push(t.slice(0, i) + (t[i] === 'i' ? 'e' : 'i') + t.slice(i + 1));
@@ -33,8 +35,8 @@ window.RF = window.RF || {};
     return out;
   };
   // Did any of Chrome's guesses contain the target word on its own?
-  MIC.matches = function (target, transcripts) {
-    const ok = MIC.accepts(target);
+  MIC.matches = function (target, transcripts, also) {
+    const ok = MIC.accepts(target, also);
     return transcripts.some(function (tx) { return norm(tx).some(function (w) { return ok.indexOf(w) >= 0; }); });
   };
 
@@ -50,6 +52,7 @@ window.RF = window.RF || {};
   // 'match', 'miss' (heard a different word), 'nothing' (heard no word) or 'down' (mic cannot work).
   MIC.listen = function (target, cb, opts) {
     opts = opts || {};
+    const also = opts.also || [];
     if (!MIC.usable()) { cb({ matched: false, heard: '', outcome: 'down' }); return; }
     MIC.stop();
     const rec = new Rec();
@@ -76,7 +79,7 @@ window.RF = window.RF || {};
         for (let k = 0; k < r.length; k++) if (r[k].transcript) heard.push(r[k].transcript);
       }
       // Stop as soon as the word is caught, so the student does not wait.
-      if (MIC.matches(target, heard)) finish({ matched: true, heard: heard[0] || '', outcome: 'match' });
+      if (MIC.matches(target, heard, also)) finish({ matched: true, heard: heard[0] || '', outcome: 'match' });
     };
     rec.onerror = function (ev) { error = ev.error; };
     rec.onend = function () {
@@ -89,7 +92,7 @@ window.RF = window.RF || {};
         MIC.markDown('mic.offline');
         return finish({ matched: false, heard: '', outcome: 'down' });
       }
-      if (MIC.matches(target, heard)) return finish({ matched: true, heard: heard[0], outcome: 'match' });
+      if (MIC.matches(target, heard, also)) return finish({ matched: true, heard: heard[0], outcome: 'match' });
       finish({ matched: false, heard: heard[0] || '', outcome: heard.length ? 'miss' : 'nothing' });
     };
     const timer = setTimeout(function () { try { rec.stop(); } catch (e) { /* ignore */ } }, opts.maxMs || 5000);
