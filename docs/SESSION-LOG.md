@@ -34,8 +34,11 @@ Newest entry at the top. Each session adds one entry.
 
 **Fix 3 (v0.5.3):** the readout showed mic yes, sound yes, speech yes, heard nothing, on win, ten and pen. Chrome hears the voice but will not name these words. Decision: short i or short e before m or n is tap only in speak mode (DESIGN.md 6). The words stay in the game. Mr. Scott asked whether this blocks later levels: it does not. Most short words work in Chrome (zip, rob, jet, jab, top, log). Any other word that fails can be marked `noSpeak`. A stronger checker (Azure pronunciation checking through a small key-holding server) is the long-term option, and it would also let runes be spoken; planned as an M5b decision after classroom mic testing.
 
+**Decided (Mr. Scott, end of Session 10):** make Azure pronunciation checking the default for speak mode, with Chrome as the fallback when Azure is blocked, over its free hours, or busy. His Speech resource (reading-fluency-speech, East US) is Free F0, so it costs nothing; when the 5 free audio hours a month run out or too many students speak at once, the game falls back to Chrome. Moving to Standard S0 with a spending cap is a later option if class use needs it.
+
 **Next up**
-- If the mic test goes well: M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
+- **M5b: Azure pronunciation check** (start with Opus). The key must never be in the public repo, so build a small Cloudflare Worker (free) that holds the key and forwards a short recording to Azure Pronunciation Assessment. Walk Mr. Scott through putting the key into the Worker. Game: record the word, send to the Worker, score by phonemes (this should bring back pin, pen, ten, win and allow spoken runes); fall back to Chrome on any error or slow answer. Test on the school network early.
+- Then M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
 - If the mic is too loose or too slow on Chromebooks, fix that first.
 
 **Open questions**
