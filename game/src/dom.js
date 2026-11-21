@@ -6,6 +6,7 @@ window.RF = window.RF || {};
   RF.dom = D;
 
   D.SPK = '<svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" stroke="#ffe9a8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+  D.MIC = '<svg viewBox="0 0 24 24" width="26" height="26" style="flex:none"><rect x="8.5" y="2" width="7" height="12" rx="3.5" fill="#ffe9a8"/><path d="M5 11a7 7 0 0014 0M12 18v4M8 22h8" stroke="#ffe9a8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
   D.CRYSTAL = function (s) {
     return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" style="flex:none"><path d="M12 1l7 7-7 15L5 8z" fill="#7ef3ff"/><path d="M12 1l7 7h-14z" fill="#d9fbff"/><path d="M12 23L5 8h14z" fill="#3fc6e0" opacity=".7"/></svg>';
   };

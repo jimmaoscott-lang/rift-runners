@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.4.0';
+  RF.VERSION = 'v0.5.0';
   RF.W = 1280;
   RF.H = 720;
 
@@ -39,7 +39,7 @@ window.RF = window.RF || {};
   // ---------- Settings ----------
   const SETTINGS_KEY = 'riftrunners.settings.v1';
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, music: 6, effects: 8, reducedMotion: prefersReduced, focus: false };
+  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, music: 6, effects: 8, reducedMotion: prefersReduced, focus: false, speakFirst: 0, speakLock: false, pinHash: null, testAll: false };
   RF.settings = Object.assign({}, DEFAULTS);
   RF.loadSettings = function () {
     try {
@@ -48,6 +48,14 @@ window.RF = window.RF || {};
     } catch (e) {
       RF.settings = Object.assign({}, DEFAULTS);
     }
+  };
+  // Teacher PIN: kept only on this device as a scrambled code. It keeps students from changing
+  // a teacher setting; it is not a password for anything else.
+  RF.pinHash = function (pin) {
+    let h = 5381;
+    const str = 'rift-runners:' + pin;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
+    return h.toString(36);
   };
   RF.saveSettings = function () {
     RF.store.set(SETTINGS_KEY, JSON.stringify(RF.settings));

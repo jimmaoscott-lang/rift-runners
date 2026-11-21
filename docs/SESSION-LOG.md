@@ -4,6 +4,40 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 10: November 21, 2026 (M5 speak mode, teacher PIN, test mode)
+
+**Built**
+- Speak mode in the Rune Forge. Real words get a green **Say it** button (or the M key). Read the word into the mic: a match pays +15 crystals (tap pays +10) and counts toward the rift locks. Runes stay tap only.
+- Speak misses: first miss breaks the word into letter tiles, second miss says "Listen, then say it" with the word and lights the right choice. Battle sound drops while the mic listens.
+- If the mic is blocked or offline, choices show right away and the game says why. Tap mode always works.
+- **Speak first** setting (0 to 3): the tap choices stay hidden until the student has made that many voice tries on a word. "Tries until the sound choices show" counts down.
+- **Teacher** button in Settings with a 4-digit PIN (made the first time, typed twice). Inside: Speak first, Lock Speak first, Test mode, Change PIN. Locked, students see Speak first with a lock and "Your teacher set this one."
+- **Test mode** (Mr. Scott's request): opens every level and defender for testing. The map shows an orange "Test mode: all levels open" tag. Levels 4, 5 and the boss still say "coming soon."
+- Reading decision: before m or n, "pin" and "pen" both count as a match in speak mode (Gulf Coast speech), so dialect is never scored as a decoding miss.
+
+**Tested (by Claude, headless Chrome with a fake mic)**
+- PIN setup by keys and by taps, wrong PIN, lock, test mode opening all 6 stones, Level 3 started from test mode.
+- Speak first at 2: choices hidden, a match pays +15 and logs a first-try read in speak mode, two misses bring the choices back, a later match pays the small amount, a blocked mic shows the choices at once. No console errors. Decodability check passes.
+- Not testable here: a real microphone. That needs Mr. Scott.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes after this push (new voice lines), then open https://jimmaoscott-lang.github.io/rift-runners/ on a Chromebook.
+2. Settings, Teacher. Make a PIN you will remember, type it twice. Turn Test mode On. Set Speak first to 1. Back out.
+3. On the map, every level is open. Play any level. Press Say it and read the word. Chrome will ask to use the mic the first time: press Allow.
+4. Try reading a word right, reading it wrong, and saying nothing. Check the crystals and messages make sense.
+5. Turn Test mode Off before students play.
+6. Tell me: does the mic catch the words quickly enough, and does it ever take a wrong read as right?
+
+**Next up**
+- If the mic test goes well: M6, full arsenal (Vine Snare, Ballista, Healing Shrine, Barricade, upgrades, hero, Armory). Start the chat with Opus for the plan, which hands the new defenders to Sonnet.
+- If the mic is too loose or too slow on Chromebooks, fix that first.
+
+**Open questions**
+- Forgotten teacher PIN: today the only reset is clearing site data, which also clears progress. A reset that keeps progress could come with teacher reports (M10).
+- Still open: moving progress between phone and Chromebook (DESIGN.md section 15, item 0).
+
+---
+
 ## Session 9b: November 21, 2026 (battle sound and music)
 
 **Asked by Mr. Scott:** weapon sounds and music during attacks. He listened to the sample page (https://jimmaoscott-lang.github.io/rift-runners/sound-samples.html) and approved it as is.

@@ -3,6 +3,7 @@
   "forge": {
     "real": 10,
     "rune": 20,
+    "speak": 15,
     "helpShare": 0.5,
     "shown": 3,
     "mega": 100,

@@ -134,11 +134,129 @@ window.RF = window.RF || {};
     row('settings.focus', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.focus; }, function (v) { st.focus = v; if (v) RF.metrics.support('focusOn'); });
     D.el('div', null, null, grid);
     D.line('settings.focusHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#aab6ff';
+    // Speak first: 0 to 3 voice tries before the tap choices show. A teacher can lock it.
+    if (st.speakLock) {
+      D.line('settings.speakFirst', '', grid);
+      const lk = D.el('div', null, null, grid);
+      lk.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+      D.el('div', 'chip', S.LOCK + ' ' + D.esc(String(st.speakFirst || 0)), lk).style.cssText = 'gap:8px';
+      D.line('settings.locked', '', lk).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';
+    } else {
+      row('settings.speakFirst', [0, 1, 2, 3].map(function (n) { return { v: n, id: 'num.' + n }; }), function () { return +st.speakFirst || 0; }, function (v) { st.speakFirst = v; });
+    }
+    D.el('div', null, null, grid);
+    D.line('settings.speakFirstHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#aab6ff';
     const bottom = D.el('div', null, null, p);
     bottom.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin-top:6px';
     D.button('settings.mic', function () { RF.sfx('open'); S.micTest(function () { S.settings(onBack); }); }, '', bottom);
+    D.button('settings.teacher', function () { RF.sfx('open'); S.teacher(function () { S.settings(onBack); }); }, '', bottom, { icon: S.LOCK + ' ' });
     D.button('settings.back', function () { RF.sfx('back'); S.close(); onBack(); }, 'go', bottom).btn.dataset.first = '1';
     D.nav(box, function () { S.close(); onBack(); });
+  };
+
+  S.LOCK = '<svg width="20" height="20" viewBox="0 0 24 24" style="flex:none;vertical-align:-3px"><rect x="5" y="10" width="14" height="11" rx="2" fill="#ffd76a"/><path d="M8 10V7a4 4 0 018 0v3" stroke="#ffd76a" stroke-width="2.5" fill="none"/></svg>';
+
+  // ---------- Teacher settings (behind a 4-digit PIN kept on this device) ----------
+  // First visit: make a PIN (typed twice). After that: type the PIN to open.
+  S.teacher = function (onBack) {
+    const st = RF.settings;
+    if (!st.pinHash) return S.pinPad('teacher.makePin', function (pin) {
+      S.pinPad('teacher.confirmPin', function (pin2) {
+        if (pin2 !== pin) { RF.speak('teacher.noMatch'); return S.teacher(onBack); }
+        st.pinHash = RF.pinHash(pin); RF.saveSettings(); RF.sfx('win');
+        S.teacherPanel(onBack);
+      }, onBack);
+    }, onBack);
+    S.pinPad('teacher.enterPin', function (pin) {
+      if (RF.pinHash(pin) === st.pinHash) { RF.sfx('select'); return S.teacherPanel(onBack); }
+      return false; // wrong: the pad clears and asks again
+    }, onBack);
+  };
+
+  // Number keys go to whichever PIN pad is open (one shared listener).
+  let padPress = null;
+  window.addEventListener('keydown', function (ev) {
+    if (!padPress) return;
+    if (/^[0-9]$/.test(ev.key)) { padPress(ev.key); ev.preventDefault(); }
+    else if (ev.key === 'Backspace') { padPress('del'); ev.preventDefault(); }
+  });
+  // A number pad. onDone(pin) gets the 4 digits; returning false means "wrong, try again".
+  S.pinPad = function (promptId, onDone, onBack) {
+    const box = open(true);
+    const p = panel(box, 520);
+    p.style.alignItems = 'center';
+    p.style.gap = '12px';
+    D.line('teacher.title', '', p).querySelector('.txt').style.cssText = 'font-size:calc(28px * var(--ts));font-weight:700;color:#ffd76a';
+    const msg = D.el('div', null, null, p);
+    function setMsg(id, speakIt) { D.clear(msg); D.line(id, '', msg).querySelector('.txt').style.fontSize = 'calc(20px * var(--ts))'; if (speakIt) RF.speak(id); }
+    setMsg(promptId, true);
+    const dots = D.el('div', null, '', p);
+    dots.style.cssText = 'display:flex;gap:14px;margin:4px 0';
+    let pin = '';
+    function renderDots() {
+      dots.innerHTML = [0, 1, 2, 3].map(function (i) { return '<span style="width:22px;height:22px;border-radius:50%;border:3px solid #7d89d8;background:' + (i < pin.length ? '#ffd76a' : 'transparent') + '"></span>'; }).join('');
+    }
+    renderDots();
+    const pad = D.el('div', null, null, p);
+    pad.style.cssText = 'display:grid;grid-template-columns:repeat(3,84px);gap:10px';
+    function press(k) {
+      if (k === 'del') { pin = pin.slice(0, -1); RF.sfx('back'); renderDots(); return; }
+      if (pin.length >= 4) return;
+      pin += k; RF.sfx('tap'); renderDots();
+      if (pin.length === 4) {
+        const got = pin;
+        setTimeout(function () {
+          if (onDone(got) === false) { pin = ''; renderDots(); setMsg('teacher.wrongPin', true); RF.sfx('soft'); }
+        }, 150);
+      }
+    }
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0'].forEach(function (k) {
+      const b = D.el('button', 'btn', k === 'del' ? '&#9003;' : k, pad);
+      b.style.cssText = 'height:64px;font-size:28px;justify-content:center';
+      if (k === 'del') b.setAttribute('aria-label', 'Delete');
+      b.addEventListener('click', function () { press(k); });
+    });
+    padPress = function (k) { if (document.body.contains(box)) press(k); };
+    const back = function () { padPress = null; RF.sfx('back'); onBack(); };
+    D.button('settings.back', back, '', p);
+    D.nav(box, back);
+  };
+
+  S.teacherPanel = function (onBack) {
+    padPress = null;
+    const st = RF.settings;
+    const box = open(true);
+    const p = panel(box, 760);
+    p.style.gap = '12px';
+    D.line('teacher.title', '', p).querySelector('.txt').style.cssText = 'font-size:calc(30px * var(--ts));font-weight:700;color:#ffd76a';
+    D.line('teacher.hint', '', p).querySelector('.txt').style.color = '#aab6ff';
+    const grid = D.el('div', null, null, p);
+    grid.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:12px 18px;align-items:center';
+    function row(labelId, options, getter, setter) {
+      D.line(labelId, '', grid);
+      const opts = D.el('div', null, null, grid);
+      opts.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+      options.forEach(function (o) {
+        const b = D.el('button', 'btn' + (getter() === o.v ? ' on' : ''), D.esc(RF.t(o.id)), opts);
+        b.addEventListener('click', function () {
+          setter(o.v); RF.saveSettings(); RF.sfx('select');
+          S.teacherPanel(onBack);
+          RF.speak(o.id);
+        });
+      });
+    }
+    row('settings.speakFirst', [0, 1, 2, 3].map(function (n) { return { v: n, id: 'num.' + n }; }), function () { return +st.speakFirst || 0; }, function (v) { st.speakFirst = v; });
+    row('teacher.lock', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.speakLock; }, function (v) { st.speakLock = v; });
+    D.el('div', null, null, grid);
+    D.line('teacher.lockHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';
+    row('teacher.testAll', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.testAll; }, function (v) { st.testAll = v; });
+    D.el('div', null, null, grid);
+    D.line('teacher.testHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';
+    const bottom = D.el('div', null, null, p);
+    bottom.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin-top:6px';
+    D.button('teacher.changePin', function () { st.pinHash = null; RF.saveSettings(); S.teacher(onBack); }, '', bottom);
+    D.button('settings.back', function () { RF.sfx('back'); onBack(); }, 'go', bottom).btn.dataset.first = '1';
+    D.nav(box, onBack);
   };
 
   // ---------- Microphone test (speak mode arrives in M5) ----------
@@ -215,7 +333,7 @@ window.RF = window.RF || {};
         if (!words) return;
         st.words = words;
         heard.textContent = RF.t('mic.heard') + ' "' + words + '"';
-        if (ev.results[ev.results.length - 1].isFinal && !done) { done = true; finish('mic.ok'); try { rec.stop(); } catch (e) { /* ignore */ } }
+        if (ev.results[ev.results.length - 1].isFinal && !done) { done = true; if (RF.mic) RF.mic.retry(); finish('mic.ok'); try { rec.stop(); } catch (e) { /* ignore */ } }
       };
       rec.onerror = function (ev) { seen.error = ev.error; };
       rec.onend = function () {
@@ -223,7 +341,7 @@ window.RF = window.RF || {};
         diag.textContent = 'Mic on: ' + yn(seen.audio) + '   Sound: ' + yn(seen.sound) + '   Speech: ' + yn(seen.speech) + '   Level: ' + Math.round(st.peak * 1000) + '   Error: ' + (seen.error || 'none') + '   ' + RF.VERSION;
         if (done) return;
         done = true;
-        if (st.words) return finish('mic.ok');
+        if (st.words) { if (RF.mic) RF.mic.retry(); return finish('mic.ok'); }
         const e = seen.error;
         if (e === 'not-allowed' || e === 'service-not-allowed' || e === 'audio-capture') finish('mic.blocked');
         else if (e === 'network') finish('mic.offline');

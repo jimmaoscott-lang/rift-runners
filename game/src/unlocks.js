@@ -18,7 +18,10 @@ window.RF = window.RF || {};
   // The map stones for this world, in order (levels-w1.json "map.stones").
   UN.stones = function () { return (RF.data.levels.map || {}).stones || []; };
   // A stone is open when it is the first one or the stone before it has been won.
+  // Test mode (teacher settings): every level and defender is open, for trying any level.
+  UN.testMode = function () { return !!RF.settings.testAll; };
   UN.stoneOpen = function (i) {
+    if (UN.testMode()) return i < UN.stones().length;
     const st = UN.stones();
     return i === 0 || (i > 0 && !!st[i - 1] && UN.won(st[i - 1].id));
   };
@@ -33,6 +36,7 @@ window.RF = window.RF || {};
   // units.json: defenders[id].unlockBy = null or a level id like "w1-l1".
   UN.defenderOpen = function (id) {
     const d = RF.data.units.defenders[id];
+    if (UN.testMode()) return !!d;
     return !!d && (!d.unlockBy || UN.won(d.unlockBy));
   };
   // What a first win of this level opens: the next stone and any defenders.

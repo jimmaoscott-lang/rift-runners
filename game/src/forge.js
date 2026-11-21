@@ -1,4 +1,5 @@
-// The Rune Forge: where the reading happens (DESIGN.md section 6). Tap mode.
+// The Rune Forge: where the reading happens (DESIGN.md section 6). Speak mode and tap mode.
+// Speak mode: press the mic and read the word out loud (real words only; runes stay tap).
 // A word appears. Three speaker buttons each say a word: the real one and two with a different vowel.
 // The student picks the one that matches and presses Forge. Every forge pays crystals right away.
 window.RF = window.RF || {};
@@ -52,6 +53,8 @@ window.RF = window.RF || {};
     const wordEl = D.el('div', 'w', '', wordBox);
 
     const prompt = D.el('div', null, null, root);
+    const micBtn = D.el('button', 'btn micBtn', '', root);
+    micBtn.addEventListener('click', function () { F.listen(); });
     const optsRow = D.el('div', 'opts', null, root);
     const optEls = [0, 1, 2].map(function (i) {
       const b = D.el('button', 'opt', D.SPK + '<div>' + (i + 1) + '</div>', optsRow);
@@ -73,10 +76,34 @@ window.RF = window.RF || {};
       const row = D.lineParts([{ id: 'num.' + left }, { id: 'forge.megaHint' }], '', megaHint);
       row.querySelector('.txt').style.cssText = 'font-size:13px;color:#c9c3ff;font-family:Lexend,sans-serif';
     }
-    function payout() {
-      const base = F.cur.kind === 'rune' ? cfg.rune : cfg.real;
+    // Speak first (DESIGN.md 6, item 2): a real word hides its tap choices until the student has
+    // made this many voice tries. Off when the mic cannot work, so tap mode always works.
+    function speakFirst() { return Math.max(0, Math.min(3, +RF.settings.speakFirst || 0)); }
+    function micOn() { return F.cur && F.cur.kind === 'real' && RF.mic && RF.mic.usable(); }
+    function choicesHidden() { return micOn() && !F.revealed && F.speakTries < speakFirst(); }
+    function renderMode() {
+      const hide = choicesHidden();
+      optsRow.style.display = hide ? 'none' : '';
+      forgeBtn.style.display = hide ? 'none' : '';
+      micBtn.style.display = micOn() ? '' : 'none';
+      D.clear(prompt);
+      const id = F.cur.kind === 'rune' ? 'forge.whichRune' : hide ? 'forge.sayIt' : micOn() ? 'forge.whichOrSay' : 'forge.which';
+      D.line(id, '', prompt);
+      if (hide && F.speakTries > 0) {
+        const left = speakFirst() - F.speakTries;
+        D.lineParts([{ id: 'forge.choicesIn' }, { id: 'num.' + left }], '', prompt).querySelector('.txt').style.cssText = 'font-size:calc(13px * var(--ts));color:#aab6ff';
+      }
+      renderMic();
+    }
+    function renderMic(listening) {
+      micBtn.classList.toggle('listening', !!listening);
+      micBtn.innerHTML = D.MIC + '<span>' + D.esc(RF.t(listening ? 'forge.listening' : 'forge.say')).toUpperCase() + '</span>' +
+        (listening ? '' : ' ' + D.CRYSTAL(20) + ' +' + payout('speak'));
+    }
+    function payout(mode) {
+      const base = F.cur.kind === 'rune' ? cfg.rune : mode === 'speak' ? cfg.speak : cfg.real;
       if (F.revealed) return cfg.shown;
-      if (F.tries > 0 || F.help) return Math.round(base * cfg.helpShare);
+      if (F.tries > 0 || F.help) return Math.round((F.cur.kind === 'rune' ? cfg.rune : cfg.real) * cfg.helpShare);
       return base;
     }
     function renderForgeBtn() {
@@ -117,26 +144,71 @@ window.RF = window.RF || {};
       F.cur = w;
       F.recentWords = [w.w].concat(F.recentWords).slice(0, 5);
       F.choices = shuffle([{ w: w.w, ok: true }, { w: w.options[0], ok: false }, { w: w.options[1], ok: false }]);
-      F.sel = -1; F.tries = 0; F.help = false; F.revealed = false;
+      F.sel = -1; F.tries = 0; F.speakTries = 0; F.help = false; F.revealed = false;
+      if (RF.mic) RF.mic.stop();
       F.shownAt = F.lastAction = performance.now();
       wordBox.classList.toggle('rune', w.kind === 'rune');
       runeTag.textContent = w.kind === 'rune' ? RF.t('forge.rune').toUpperCase() + ' · x2' : '';
       wordEl.className = 'w';
       wordEl.textContent = w.w;
       wordEl.onclick = function () { F.hearWord(); };
-      D.clear(prompt);
-      D.line(w.kind === 'rune' ? 'forge.whichRune' : 'forge.which', '', prompt);
       optEls.forEach(function (b) { b.className = 'opt'; b.disabled = false; });
       renderForgeBtn();
+      renderMode();
     };
 
     F.hearWord = function () {
       RF.speakWord(F.cur.w);
-      if (!F.help) { F.help = true; RF.metrics.support('hearWord'); renderForgeBtn(); }
+      if (!F.help) { F.help = true; RF.metrics.support('hearWord'); renderForgeBtn(); renderMic(); }
+    };
+
+    // ---- Speak mode ----
+    function showTiles() {
+      wordEl.className = 'tiles';
+      wordEl.innerHTML = F.cur.w.split('').map(function (ch, k) { return '<span class="' + (k === 1 ? 'v' : '') + '">' + D.esc(ch) + '</span>'; }).join('');
+    }
+    F.listen = function () {
+      if (performance.now() < F.heatUntil || !micOn() || RF.mic.busy) return;
+      const w = F.cur;
+      RF.stopSpeaking();
+      if (RF.audio) RF.audio.duck(2); // keep game sound out of the mic
+      renderMic(true);
+      RF.sfx('tap');
+      RF.mic.listen(w.w, function (res) {
+        if (RF.audio) RF.audio.duck(0);
+        if (F.cur !== w || !root.parentNode) return;
+        renderMic(false);
+        if (res.outcome === 'match') return F.success(performance.now(), 'speak');
+        if (res.outcome === 'down') {
+          // The mic cannot work here: show the choices now and say why. Not counted as a try.
+          renderMode();
+          say(RF.mic.reason || 'mic.blocked', true);
+          return;
+        }
+        // Any real try counts, even if no word was caught (DESIGN.md 6, item 2).
+        F.tries++; F.speakTries++;
+        F.stats.misses++;
+        F.lastAction = performance.now();
+        RF.sfx('soft');
+        if (F.tries === 1) {
+          showTiles();
+          say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true);
+        } else if (!F.revealed) {
+          F.revealed = true;
+          optEls.forEach(function (o, k) { if (F.choices[k].ok) o.classList.add('glow'); });
+          say('forge.revealSay', false);
+          RF.speakSeq([{ id: 'forge.revealSay' }, { word: w.w }]);
+        } else {
+          say('forge.revealSay', false);
+          RF.speakSeq([{ id: 'forge.revealSay' }, { word: w.w }]);
+        }
+        renderForgeBtn();
+        renderMode();
+      }, { onStart: function () { RF.metrics.support('micPress'); } });
     };
 
     F.pick = function (i) {
-      if (performance.now() < F.heatUntil) return;
+      if (performance.now() < F.heatUntil || choicesHidden()) return;
       const b = optEls[i];
       if (b.disabled) return;
       F.sel = i;
@@ -145,7 +217,7 @@ window.RF = window.RF || {};
     };
 
     F.forge = function () {
-      if (performance.now() < F.heatUntil) return;
+      if (performance.now() < F.heatUntil || choicesHidden()) return;
       if (F.sel < 0) { say('battle.pickFirst', true); RF.sfx('soft'); return; }
       const now = performance.now();
       const choice = F.choices[F.sel];
@@ -166,8 +238,7 @@ window.RF = window.RF || {};
         F.overheat();
       }
       if (F.tries === 1) {
-        wordEl.className = 'tiles';
-        wordEl.innerHTML = F.cur.w.split('').map(function (ch, k) { return '<span class="' + (k === 1 ? 'v' : '') + '">' + D.esc(ch) + '</span>'; }).join('');
+        showTiles();
         if (!F.heatShowing) say('battle.breakUp', true);
       } else {
         F.revealed = true;
@@ -175,18 +246,21 @@ window.RF = window.RF || {};
         if (!F.heatShowing) say('forge.reveal', true);
       }
       renderForgeBtn();
+      renderMic();
     };
 
-    F.success = function (now) {
+    F.success = function (now, mode) {
+      mode = mode || 'tap';
+      if (RF.mic) RF.mic.stop();
       const w = F.cur;
       const first = F.tries === 0 && !F.help && !F.revealed;
-      let amount = payout();
+      let amount = payout(mode);
       let mega = false;
       F.guesses = [];
       F.streak = first ? F.streak + 1 : 0;
       if (F.streak >= cfg.megaPips) { mega = true; amount += cfg.mega; F.streak = 0; }
       RF.metrics.attempt({
-        battle: L.id, w: w.w, kind: w.kind, pattern: 'cvc-' + w.w[1], mode: 'tap',
+        battle: L.id, w: w.w, kind: w.kind, pattern: 'cvc-' + w.w[1], mode: mode,
         tries: F.tries + 1, help: F.help, revealed: F.revealed, ms: Math.round(now - F.shownAt)
       });
       F.stats.forged++;
@@ -199,7 +273,7 @@ window.RF = window.RF || {};
       if (!first && F.stats.practice.indexOf(w.w) < 0) F.stats.practice.push(w.w);
       if (opts.onRead) opts.onRead();
       F.stats.crystals += amount;
-      const how = F.revealed ? 'forge.r.shown' : F.tries > 0 ? 'forge.r.second' : F.help ? 'forge.r.heard' : w.kind === 'rune' ? 'forge.r.rune' : 'forge.r.first';
+      const how = F.revealed ? 'forge.r.shown' : F.tries > 0 ? 'forge.r.second' : F.help ? 'forge.r.heard' : w.kind === 'rune' ? 'forge.r.rune' : mode === 'speak' ? 'forge.r.said' : 'forge.r.first';
       F.recent.unshift({ w: w.w, how: how, amount: amount });
       renderRecent();
       if (!mega) RF.sfx(first ? 'hit' : 'select');
@@ -260,6 +334,7 @@ window.RF = window.RF || {};
     F.key = function (ev) {
       if (ev.key === '1' || ev.key === '2' || ev.key === '3') { F.pick(+ev.key - 1); return true; }
       if (ev.key === 'f' || ev.key === 'F') { F.forge(); return true; }
+      if (ev.key === 'm' || ev.key === 'M') { F.listen(); return true; }
       if (ev.key === 'h' || ev.key === 'H') { F.hearWord(); return true; }
       if (ev.key === 'Enter') {
         const a = document.activeElement;
@@ -269,7 +344,7 @@ window.RF = window.RF || {};
       return false;
     };
     F.state = function () { return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats }; };
-    F.destroy = function () { if (root.parentNode) root.parentNode.removeChild(root); };
+    F.destroy = function () { if (RF.mic) RF.mic.stop(); if (root.parentNode) root.parentNode.removeChild(root); };
 
     if (opts.restore) {
       F.stats = opts.restore.stats; F.streak = opts.restore.streak; F.recent = opts.restore.recent; F.overheats = opts.restore.overheats;
@@ -277,6 +352,6 @@ window.RF = window.RF || {};
     renderStreak();
     renderRecent();
     F.next();
-    say('forge.start', false);
+    say(!micOn() ? 'forge.start' : speakFirst() > 0 ? 'forge.startSpeakFirst' : 'forge.startSpeak', false);
   };
 })(window.RF);

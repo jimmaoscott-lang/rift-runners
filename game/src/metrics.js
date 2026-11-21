@@ -72,6 +72,7 @@ window.RF = window.RF || {};
     data.totals.wordsRead++;
     if (firstTry) data.totals.firstTry++;
     if (rec.mode === 'tap') data.support.tapMode++;
+    if (rec.mode === 'speak') data.support.speakMode++;
     M.save();
     return entry;
   };

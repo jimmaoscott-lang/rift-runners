@@ -256,6 +256,12 @@ window.RF = window.RF || {};
     const sc = D.el('div', 'chip', null, top);
     sc.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'map.stars' }, D.num(total), { id: 'res.of' }, D.num(max)]); }, true));
     D.el('div', null, '<span class="gold">&#9733; ' + total + '</span> / ' + max, sc).style.fontSize = '22px';
+    if (RF.unlocks.testMode()) {
+      const tm = D.el('div', 'chip', null, top);
+      tm.style.cssText += ';border-color:#ff8a5a;color:#ffb89a';
+      tm.appendChild(D.speaker(function () { RF.speak('map.testMode'); }, true));
+      D.el('div', 'read', D.esc(RF.t('map.testMode')), tm).style.fontSize = '18px';
+    }
 
     // Stone name buttons (they follow the stones).
     MP.labels = stones.map(function (s, i) {
