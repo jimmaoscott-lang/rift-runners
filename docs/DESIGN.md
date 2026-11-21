@@ -1,7 +1,7 @@
 # Game Design Document
 
 **Title:** Rift Runners (chosen November 21, 2026). Tagline: "The worlds are breaking. Run."
-**Status:** Draft 2, November 21, 2026 (gameplay redesigned as Hold the Rift)
+**Status:** Draft 2, November 21, 2026 (gameplay redesigned as Hold the Rift; M3 built)
 **Owner:** Mr. Scott
 
 ---
@@ -136,16 +136,20 @@ Always on screen in a level, on the right side.
    - Real word, first try: +10. Rune, first try: +20.
    - Hearing the word first (speaker on the word) or second try: about half.
    - After the answer is shown: a small amount, so the student is never stuck.
-4. **Streak meter:** first-try reads in a row fill 8 pips. A full meter is a **Mega Forge**: +100 crystals and a burst of light over the battlefield.
+4. **Streak meter:** first-try reads in a row fill 8 pips. A full meter is a **Mega Forge**: +100 crystals and a burst of light over the battlefield that hits every creature for 25 damage (built in M3, so a strong read streak is felt on the field).
 5. **Hero charge:** forging also charges the hero's powers.
 6. **Misses:** no lost crystals. Letter tiles with the vowel in gold, "Let's break it up," then try again. The word comes back sooner next time.
 7. **Recent forges list:** the last few words with what each one earned, so students see the reward and the words again.
 
-**No timers on reading, even in battle.** The battle never waits on a timer to read a word, and Pause is always one tap away; the Forge stays open while paused. Students with extended time (and anyone who turns on Focus in Settings) get automatic slow motion while a word is up.
+**No timers on reading, even in battle.** The battle never waits on a timer to read a word, and Pause is always one tap away; the Forge stays open while paused. Students with extended time (and anyone who turns on Focus in Settings) get slow motion. **Built in M3:** Focus in Settings runs the whole battle at half speed (a word is always up in the Forge).
 
 **Guessing (same rule as Mr. Scott's other games):** 3 wrong in a row that are each very fast, or 3 wrong in a row on the same button position. The Forge cools down for 5 seconds the first time and 10 seconds after that ("The forge is overheating. Read each one."). Correct answers are never flagged.
 
+**Keyboard (built in M3):** 1, 2, 3 pick a sound; Enter or F forges; H hears the word; S starts the next wave; P or Esc pauses; after picking a defender, arrow keys move between glowing spots and Enter builds.
+
 **Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
+
+**Level 1 balance (M3, tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. A slow reader (5 words a minute, 70% first try) wins with the Anchor untouched. A stronger reader wins with spare crystals. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.
 
 ---
 
@@ -168,6 +172,8 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Rift Mine (World 2+) | One-time blast on the trail | World 2 |
 | Hawk Nest (World 2+) | Hawks hunt fliers anywhere on the map | World 2 |
 
+**Built in M3:** Archer Tower, Spike Pit, Stone Golem and Frost Totem, each with 3 levels (upgrade adds a gold band; tier 3 specialties come in M6). The Golem holds up to 3 creatures (4 at level 3), and if it falls it rebuilds itself after 10 seconds. Selling returns 60% of what was spent. Build two ways: pick a card in the build bar and tap a glowing spot, or tap an empty spot and pick from the menu. Level 1 offers all four for the demo; the unlock order above takes over with the map in M4. Locked defenders show in the bar with the level that opens them.
+
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 
 **Between levels:** the **Armory** spends banked crystals on permanent upgrades (stronger arrows, cheaper golems) and skins.
@@ -178,8 +184,8 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 
 | Creature | Trait | First seen |
 |---|---|---|
-| Thornback | Tough, slow | World 1, Level 1 |
-| Rift Wisp | Fast and fragile, comes in packs | Level 1 |
+| Thornback | Tough, slow (built in M3) | World 1, Level 1 |
+| Rift Wisp | Fast and fragile, comes in packs (built in M3) | Level 1 |
 | Bramble Swarm | Many tiny creatures at once | Level 2 |
 | Shield Brute | Shield blocks most damage until lightning or a cannon breaks it | Level 3 |
 | Rift Bat | Flies over traps and blockers | Level 4 |
@@ -228,7 +234,7 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
 - Reduced motion option and volume controls
 - Full keyboard play: arrow keys and Tab move, Enter or Space picks, Left and Right change a setting, Esc goes back
 - Read-aloud in menus: every line and button has its own speaker button. Picking an option in Settings also reads it aloud. Tapping single words inside a line arrives with the battle words in M2.
-- Settings save on the device right away: language, text size (Normal, Large, Extra large), font (Lexend or OpenDyslexic), volume, motion (Full or Reduced). Motion starts at Reduced if the Chromebook's own reduced motion setting is on.
+- Settings save on the device right away: language, text size (Normal, Large, Extra large), font (Lexend or OpenDyslexic), volume, motion (Full or Reduced), and Focus (battles at half speed, added in M3). Motion starts at Reduced if the Chromebook's own reduced motion setting is on.
 - Short sessions with a natural stopping point every few minutes
 - Works with keyboard, mouse or touch
 
@@ -236,7 +242,7 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
 
 ## 10. Speech and audio
 
-- **Speech recognition finding (Nov 21 mic tests):** Chrome's built-in recognizer catches single short words like "sun" right away, at low volume, a foot or two from a laptop mic, and also catches longer phrases. An early test failed only because the game opened a second copy of the mic with Chrome's audio cleanup turned on, which spoiled the sound the recognizer got. Rule for M3: when speak mode is listening, any other use of the mic (like a sound meter) must turn off echo cancellation, noise suppression and auto gain. Azure Pronunciation Assessment stays a later option if Chrome's matching proves too loose for checking decoding.
+- **Speech recognition finding (Nov 21 mic tests):** Chrome's built-in recognizer catches single short words like "sun" right away, at low volume, a foot or two from a laptop mic, and also catches longer phrases. An early test failed only because the game opened a second copy of the mic with Chrome's audio cleanup turned on, which spoiled the sound the recognizer got. Rule for speak mode (M5): when it is listening, any other use of the mic (like a sound meter) must turn off echo cancellation, noise suppression and auto gain. Azure Pronunciation Assessment stays a later option if Chrome's matching proves too loose for checking decoding.
 - **Speech recognition:** browser Web Speech API in Chrome to start. It sends audio to Google's servers, so district approval is needed before classroom use (see Open Questions). Possible later option: an on-device speech model so no audio leaves the Chromebook.
 - **Read-aloud voice: pre-made audio files.** Every word, sentence, passage and menu line is turned into an audio file ahead of time with a high-quality neural voice (Azure AI Speech, free tier), and the game plays those files. The Chromebook's built-in voice is used only as a last-resort backup if a file is missing.
   - Why pre-made: better sound, instant playback, works offline, no API key inside the game, and no ongoing cost. All game text is known ahead of time, so live voice generation is unnecessary.
@@ -331,7 +337,9 @@ If a number drops (common when a new world brings harder words), the screen show
 
 ## 13. Technology
 
-- **Engine:** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and is retired with the redesign.
+- **Engine:** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and was removed in M3.
+- **Speed on Chromebooks (M3):** all still scenery (trees, rocks, camp) is merged into a few big meshes, so a battle draws in about 125 calls. On machines with 4 or fewer cores the game also uses smaller shadows, fewer trees and no antialiasing. Add `?low` or `?high` to the address to force either mode.
+- **Code files (M3):** `game/src/models.js` (3D models), `level.js` (map), `battle.js` (tower defense), `forge.js` (Rune Forge), `screens.js` (menus), `dom.js` (page helpers), `app.js` (start-up and frame loop), `core.js` (data, settings, voice), `metrics.js` (progress record).
 - **Hosting:** GitHub Pages from this repo
 - **Target:** Chrome on school Chromebooks, at 1366 x 768 and smaller
 - **Content as data:** word banks, passages, creatures and world layouts in JSON under `game/data/`
@@ -360,7 +368,7 @@ Each milestone is a playable, testable step.
 | M0 | Project docs | CLAUDE.md, this design doc, session log (done) |
 | M1 | Game skeleton | Title screen, Lexend font, settings menu (done) |
 | M2 | First reading check | Turn-based tap battle with World 1 words (done, replaced by the redesign; its words, voices, checker and record carry over) |
-| M3 | Hold the Rift core | 3D Thornwood map, trail, waves, Rune Forge, 4 defenders, 2 creatures, one playable level |
+| M3 | Hold the Rift core | 3D Thornwood map, trail, waves, Rune Forge, 4 defenders, 2 creatures, one playable level (done Nov 21) |
 | M4 | World map and Level 1 to 3 | World 1 map with locked levels, stars, Level Clear growth screen |
 | M5 | Speak mode | Forge words read aloud for a bonus |
 | M6 | Full arsenal | All World 1 defenders, upgrades, hero powers, Armory |
@@ -370,18 +378,6 @@ Each milestone is a playable, testable step.
 | M10 | Teacher reports | Google Sheet + Apps Script reports, class overview, on-device teacher screen |
 | M11 | Polish | Story, music, balance and classroom testing |
 
----|---|---|
-| M0 | Project docs | CLAUDE.md, this design doc, session log |
-| M1 | Game skeleton | Title screen running on GitHub Pages; Lexend font; settings menu (done Nov 21) |
-| M2 | First battle (tap mode) | One battle using World 1 words, read-aloud on every word (done Nov 21) |
-| M3 | Speak mode | Same battle playable by reading aloud |
-| M4 | World 1 slice | One overworld area, a skill shrine, the first ability gate |
-| M5 | Creatures and saving | Catch and level creatures; progress saves; save code |
-| M6 | First rhythm boss | World 1 boss with WCPM tracking |
-| M7 | Placement mission | Opening mission that places students into the right world |
-| M8 | Worlds 2 to 8 | Content and areas for the rest of the sequence |
-| M9 | Teacher reports | Google Sheet + Apps Script reports, class overview, on-device teacher screen |
-| M10 | Polish | Story, music, balance and classroom testing |
 
 ---
 
@@ -389,7 +385,7 @@ Each milestone is a playable, testable step.
 
 1. ~~Final game title~~ Decided: Rift Runners
 2. Story and setting: who is the player, and what are they fighting? Starting idea from the title: rifts are tearing the worlds apart and the player runs through each world to seal its rift.
-3. District approval for speech recognition in Chrome on student Chromebooks (and for Azure Pronunciation Assessment if M3 picks it)
+3. District approval for speech recognition in Chrome on student Chromebooks (and for Azure Pronunciation Assessment if M5 picks it)
 4. Azure Speech account setup and voice choice (English and Spanish); confirm Azure terms allow the generated audio in a public classroom game; source for any phoneme clips that need recording
 5. Art source: CC0 pixel art packs (for example Kenney or OpenGameArt), AI-generated art, or a mix
 6. District approval to send student-code progress data to a teacher-owned Google Sheet

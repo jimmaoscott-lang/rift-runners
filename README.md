@@ -8,6 +8,6 @@ Students play a retro adventure game where reading is their power. Across 8 worl
 
 Play: https://jimmaoscott-lang.github.io/rift-runners/
 
-Status: Redesigned as Hold the Rift, a 3D tower defense powered by the Rune Forge. Mockups in mockups/. Building the first playable level next.
+Status: Hold the Rift, a 3D tower defense powered by the Rune Forge. Level 1 (Thornwood Edge) is playable. The World 1 map is next.
 
 Build progress: https://jimmaoscott-lang.github.io/rift-runners/progress.html

@@ -47,7 +47,7 @@ If a session is running long, stop at a clean point, update the log and push. Un
 
 ## Tech
 
-- Phaser 3 (JavaScript), plain static files, no build step if we can avoid one.
+- three.js (JavaScript) for the 3D game, with menus and the Rune Forge as regular web page parts. Plain static files, no build step if we can avoid one.
 - Hosted on GitHub Pages from this repo. Must run in Chrome on school Chromebooks.
 - Content (word banks, passages, creature data) lives in JSON files under `game/data/`, separate from code, so content can grow without touching game logic.
 

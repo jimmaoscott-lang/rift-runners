@@ -1,6 +1,6 @@
 """Build the all-in-one game file.
 
-Packs the game code, Phaser, fonts, text and voice files into ONE html file that runs
+Packs the game code, three.js, fonts, text and voice files into ONE html file that runs
 with no other files and no internet (tap mode). Outputs:
 
 - dist/rift-runners-offline.html  (open straight from a laptop or flash drive)

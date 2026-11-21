@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.2.0';
+  RF.VERSION = 'v0.3.0';
   RF.W = 1280;
   RF.H = 720;
 
@@ -39,7 +39,7 @@ window.RF = window.RF || {};
   // ---------- Settings ----------
   const SETTINGS_KEY = 'riftrunners.settings.v1';
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, reducedMotion: prefersReduced };
+  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, reducedMotion: prefersReduced, focus: false };
   RF.settings = Object.assign({}, DEFAULTS);
   RF.loadSettings = function () {
     try {
@@ -67,17 +67,6 @@ window.RF = window.RF || {};
   RF.textScale = function () { return RF.TEXT_SCALES[RF.settings.textSize] || 1; };
   RF.fontFamily = function () {
     return RF.settings.font === 'dyslexic' ? 'OpenDyslexic, Lexend, sans-serif' : 'Lexend, sans-serif';
-  };
-  // Style for any text a student reads: reading font, large, high contrast.
-  RF.textStyle = function (basePx, extra) {
-    const px = Math.round(basePx * RF.textScale());
-    return Object.assign({
-      fontFamily: RF.fontFamily(),
-      fontSize: px + 'px',
-      color: '#ffffff',
-      align: 'center',
-      resolution: 2
-    }, extra || {});
   };
 
   // ---------- Read-aloud ----------
@@ -155,6 +144,7 @@ window.RF = window.RF || {};
     return run(items.map(function (it) {
       if (it.word) return wordJob(it.word, 'en');
       if (it.es) return wordJob(it.es, 'es');
+      if (it.text != null) return function (token) { return speakNow(String(it.text), it.lang || RF.lang(), token); };
       return lineJob(it.id, it.lang);
     }));
   };

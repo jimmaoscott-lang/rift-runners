@@ -7,28 +7,109 @@
   <link rel="icon" href="data:,">
   <style>
     @font-face { font-family: 'Lexend'; font-weight: 400; font-display: block; src: url('../assets/fonts/lexend-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Lexend'; font-weight: 600; font-display: block; src: url('../assets/fonts/lexend-latin-600-normal.woff2') format('woff2'); }
     @font-face { font-family: 'Lexend'; font-weight: 700; font-display: block; src: url('../assets/fonts/lexend-latin-700-normal.woff2') format('woff2'); }
     @font-face { font-family: 'OpenDyslexic'; font-weight: 400; font-display: block; src: url('../assets/fonts/opendyslexic-latin-400-normal.woff2') format('woff2'); }
     @font-face { font-family: 'OpenDyslexic'; font-weight: 700; font-display: block; src: url('../assets/fonts/opendyslexic-latin-700-normal.woff2') format('woff2'); }
-    html, body { margin: 0; padding: 0; height: 100%; background: #05070f; overflow: hidden; }
-    #game { width: 100vw; height: 100vh; }
+    :root { --rf: Lexend, sans-serif; --ts: 1; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; background: #070912; overflow: hidden; font-family: Lexend, sans-serif; color: #fff; user-select: none; -webkit-user-select: none; }
+    #view { position: fixed; inset: 0; }
+    #view canvas { display: block; }
+    #ui { position: fixed; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; }
+    #ui > * { pointer-events: auto; }
+    #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .read { font-family: var(--rf); }
+    button { font-family: Lexend, sans-serif; cursor: pointer; }
+    button:focus-visible, .card:focus-visible { outline: 4px solid #ffe066; outline-offset: 2px; }
+    .gold { color: #ffd76a; } .cyan { color: #7ef3ff; } .lav { color: #f0c8ff; }
+    .chip { background: rgba(14,16,34,.9); border: 2px solid #4b4f9c; border-radius: 12px; padding: 6px 14px; display: flex; align-items: center; gap: 10px; font-weight: 700; box-shadow: 0 4px 0 rgba(0,0,0,.45); }
+    .btn { background: #232a63; border: 2px solid #9aa6ff; color: #fff; font: 700 17px Lexend, sans-serif; border-radius: 10px; padding: 8px 14px; box-shadow: 0 4px 0 #090b1c; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:hover { background: #2f3880; }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #090b1c; }
+    .btn.on { background: #ffc94a; color: #1a1300; border-color: #fff; }
+    .btn.big { font-size: 26px; padding: 12px 30px; }
+    .btn.go { background: linear-gradient(#2bb3c9, #1a7d93); border-color: #c8fbff; }
+    .btn.go:hover { background: linear-gradient(#35c4db, #1f8ca4); }
+    .btn.start { background: linear-gradient(#ffcf55, #e59b1d); color: #1a1300; border-color: #fff4c8; font-size: 20px; }
+    .btn.start.pulse { animation: pulse 1.2s ease-in-out infinite; }
+    .btn[disabled] { opacity: .45; cursor: default; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 4px 0 #090b1c, 0 0 0 rgba(255,215,106,0); } 50% { box-shadow: 0 4px 0 #090b1c, 0 0 22px rgba(255,215,106,.9); } }
+    .spk { width: 40px; height: 40px; min-width: 40px; border-radius: 10px; background: #1b2150; border: 2px solid #7d89d8; display: inline-flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 3px 0 #090b1c; }
+    .spk:hover { background: #26307a; }
+    .spk svg { width: 22px; height: 22px; fill: #ffe9a8; }
+    .spk.sm { width: 32px; height: 32px; min-width: 32px; }
+    .spk.sm svg { width: 18px; height: 18px; }
+    .line { display: flex; align-items: center; gap: 10px; }
+    .line .txt { font-size: calc(18px * var(--ts)); line-height: 1.3; }
+    .panel { background: linear-gradient(#17153a, #0e1026); border: 3px solid #5ff0ff; border-radius: 16px; box-shadow: 0 0 28px rgba(95,240,255,.25), 0 6px 0 #05060f; padding: 22px 26px; }
+    .screen { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .screen.dim { background: rgba(5,6,15,.55); }
+    .label { position: absolute; left: 0; top: 0; text-align: center; font-weight: 700; text-shadow: 0 2px 0 #000, 0 0 6px #000; white-space: nowrap; will-change: transform; }
+    .bar { width: 46px; height: 7px; background: #120a10; border: 1px solid #000; border-radius: 3px; overflow: hidden; margin: 0 auto; }
+    .bar i { display: block; height: 100%; background: #ff5d6c; }
+    .tag { font-size: 12px; }
+    .float { position: absolute; font-weight: 700; pointer-events: none; text-shadow: 0 3px 0 #000, 0 0 10px #000; animation: floatUp 1s ease-out forwards; white-space: nowrap; }
+    @keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -46px); } }
+    .reduced .float { animation: fadeOut 1s linear forwards; }
+    @keyframes fadeOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 0); } }
+    .reduced .btn.start.pulse { animation: none; box-shadow: 0 4px 0 #090b1c, 0 0 16px rgba(255,215,106,.9); }
+    /* Rune Forge */
+    .forge { position: absolute; right: 12px; top: 12px; width: 350px; bottom: 148px; background: linear-gradient(#17153a, #0e1026); border: 3px solid #c04dff; border-radius: 16px; box-shadow: 0 0 28px rgba(192,77,255,.45), 0 6px 0 #05060f; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; }
+    .forge .line .txt { font-size: calc(15px * var(--ts)); }
+    .forge .word { position: relative; background: #1d1a46; border: 3px solid #7d89d8; border-radius: 14px; padding: 24px 50px 10px; text-align: center; min-height: 112px; flex: none; display: flex; align-items: center; justify-content: center; }
+    .forge .word.rune { background: #2b1550; border-color: #ffd76a; }
+    .forge .word .w { font-family: var(--rf); font-size: min(calc(76px * var(--ts)), 96px); font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: 1px; }
+    .forge .word.rune .w { color: #ffe9a8; text-shadow: 0 0 18px rgba(255,215,106,.5); }
+    .forge .tiles { display: flex; gap: 8px; justify-content: center; }
+    .forge .tiles span { font-family: var(--rf); font-size: min(calc(50px * var(--ts)), 62px); font-weight: 700; background: #0b0d20; border: 3px solid #7d89d8; border-radius: 10px; width: min(calc(58px * var(--ts)), 72px); text-align: center; line-height: 1.25; }
+    .forge .tiles span.v { color: #ffd76a; border-color: #ffd76a; }
+    .forge .opts { display: flex; gap: 10px; flex: none; }
+    .forge .opt { flex: 1; height: 74px; flex-shrink: 0; border-radius: 12px; background: #1d2550; border: 3px solid #7d89d8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #fff; font-weight: 700; font-size: 18px; box-shadow: 0 4px 0 #090b1c; }
+    .forge .opt svg { width: 38px; height: 38px; fill: #ffe9a8; }
+    .forge .opt.sel { background: #ffc94a; border-color: #fff; color: #1a1300; }
+    .forge .opt.sel svg { fill: #1a1300; }
+    .forge .opt.sel svg path { stroke: #1a1300; }
+    .forge .opt.out { opacity: .3; }
+    .forge .opt.glow { border-color: #7dff9c; box-shadow: 0 0 18px #7dff9c, 0 4px 0 #090b1c; }
+    .forge .forgeBtn { width: 100%; flex: none; font-size: 24px; background: linear-gradient(#7a2ac0, #4b1a85); border-color: #f0c8ff; padding: 12px; }
+    .forge .forgeBtn:hover { background: linear-gradient(#8a36d4, #5a2299); }
+    .forge .msg { min-height: 40px; color: #e6e9ff; flex: none; }
+    .forge .recent { flex: none; margin-top: auto; background: #0b0d20; border-radius: 10px; padding: 8px 10px; font-size: 14px; color: #c9c3ff; line-height: 1.55; min-height: 40px; }
+    .forge .recent b { font-family: var(--rf); color: #ffd76a; cursor: pointer; font-size: calc(15px * var(--ts)); }
+    .forge .heat { position: absolute; inset: 0; background: rgba(34,8,10,.96); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; text-align: center; border-radius: 13px; }
+    .forge .heat.show { display: flex; }
+    .forge .heat .hb { width: 80%; height: 14px; background: #2a0a0a; border: 2px solid #ff8a5a; border-radius: 7px; overflow: hidden; }
+    .forge .heat .hb i { display: block; height: 100%; background: #ff8a5a; }
+    /* Build bar */
+    .buildbar { position: absolute; left: 0; right: 0; bottom: 0; height: 136px; background: linear-gradient(#141833, #0a0c1c); border-top: 3px solid #4b4f9c; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+    .card { width: 108px; height: 118px; min-width: 96px; border-radius: 12px; background: #1c2250; border: 2px solid #4b4f9c; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; color: #fff; padding: 0; }
+    .card img { width: 70px; height: 70px; pointer-events: none; }
+    .card .n { font-size: 12px; font-weight: 700; text-align: center; line-height: 1.1; }
+    .card .c { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 3px; }
+    .card.sel { border-color: #ffd76a; box-shadow: 0 0 14px rgba(255,215,106,.7); background: #262d66; }
+    .card.locked { background: #11142a; opacity: .55; cursor: default; }
+    .card.locked img { filter: grayscale(1) brightness(.6); }
+    .info { position: absolute; bottom: 146px; left: 12px; width: 380px; }
+    .popup { position: absolute; transform: translate(-50%, -100%); }
+    .toast { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); }
   </style>
 </head>
 <body>
-  <div id="game"></div>
+  <div id="view"></div>
+  <div id="labels"></div>
+  <div id="ui"></div>
   <!-- BUILD:SCRIPTS -->
-  <script src="lib/phaser.min.js"></script>
+  <script src="lib/three.min.js"></script>
   <script src="src/core.js"></script>
-  <script src="src/ui.js"></script>
   <script src="src/metrics.js"></script>
-  <script src="src/scenes/BootScene.js"></script>
-  <script src="src/scenes/LanguageScene.js"></script>
-  <script src="src/scenes/TitleScene.js"></script>
-  <script src="src/scenes/SettingsScene.js"></script>
-  <script src="src/scenes/MessageScene.js"></script>
-  <script src="src/scenes/MicTestScene.js"></script>
-  <script src="src/scenes/BattleScene.js"></script>
-  <script src="src/main.js"></script>
+  <script src="src/dom.js"></script>
+  <script src="src/models.js"></script>
+  <script src="src/level.js"></script>
+  <script src="src/forge.js"></script>
+  <script src="src/battle.js"></script>
+  <script src="src/screens.js"></script>
+  <script src="src/app.js"></script>
   <!-- /BUILD:SCRIPTS -->
 </body>
 </html>

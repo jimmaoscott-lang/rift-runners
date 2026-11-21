@@ -1,0 +1,209 @@
+{
+  "_note": "World 1 level layouts for Hold the Rift. 'path' is the trail from the rift to the camp (x, z points). 'towerPads' are stone pads beside the trail: t = how far along the trail (0 to 1), side = which side (1 or -1). 'trailPads' are marked spots on the trail for traps and golems. Waves: each group sends 'count' creatures of 'type', 'gap' seconds apart, starting 'delay' seconds into the wave. 'vowels' and 'runeRate' control the Forge words (DESIGN.md section 5 level ramp).",
+  "world": 1,
+  "levels": [
+    {
+      "id": "w1-l1",
+      "num": 1,
+      "name": "level.w1l1",
+      "enemies": "level.w1l1.enemies",
+      "words": "level.w1l1.words",
+      "reward": "level.w1l1.reward",
+      "vowels": [
+        "a",
+        "i"
+      ],
+      "runeRate": 0.25,
+      "startCrystals": 100,
+      "anchor": 20,
+      "defenders": [
+        "archer",
+        "spike",
+        "golem",
+        "frost"
+      ],
+      "path": [
+        [
+          -30,
+          -15
+        ],
+        [
+          -22,
+          -14
+        ],
+        [
+          -17,
+          -6
+        ],
+        [
+          -21,
+          2
+        ],
+        [
+          -14,
+          8
+        ],
+        [
+          -4,
+          5
+        ],
+        [
+          0,
+          -4
+        ],
+        [
+          8,
+          -6
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          2.5,
+          12
+        ]
+      ],
+      "camp": [
+        3,
+        13.5
+      ],
+      "rift": [
+        -31,
+        -15.5
+      ],
+      "towerPads": [
+        {
+          "t": 0.13,
+          "side": 1
+        },
+        {
+          "t": 0.25,
+          "side": -1
+        },
+        {
+          "t": 0.36,
+          "side": 1
+        },
+        {
+          "t": 0.47,
+          "side": -1
+        },
+        {
+          "t": 0.56,
+          "side": 1
+        },
+        {
+          "t": 0.68,
+          "side": -1
+        },
+        {
+          "t": 0.79,
+          "side": 1
+        },
+        {
+          "t": 0.9,
+          "side": -1
+        }
+      ],
+      "trailPads": [
+        0.2,
+        0.42,
+        0.62,
+        0.84
+      ],
+      "waves": [
+        {
+          "hp": 1.0,
+          "groups": [
+            {
+              "type": "wisp",
+              "count": 8,
+              "gap": 1.6
+            },
+            {
+              "type": "thornback",
+              "count": 3,
+              "gap": 4,
+              "delay": 8
+            }
+          ]
+        },
+        {
+          "hp": 1.1,
+          "groups": [
+            {
+              "type": "thornback",
+              "count": 6,
+              "gap": 3.5
+            },
+            {
+              "type": "wisp",
+              "count": 8,
+              "gap": 1.2,
+              "delay": 10
+            }
+          ]
+        },
+        {
+          "hp": 1.2,
+          "groups": [
+            {
+              "type": "wisp",
+              "count": 14,
+              "gap": 0.9
+            },
+            {
+              "type": "thornback",
+              "count": 6,
+              "gap": 3,
+              "delay": 6
+            }
+          ]
+        },
+        {
+          "hp": 1.35,
+          "groups": [
+            {
+              "type": "thornback",
+              "count": 10,
+              "gap": 2.6
+            },
+            {
+              "type": "wisp",
+              "count": 12,
+              "gap": 0.9,
+              "delay": 12
+            }
+          ]
+        },
+        {
+          "hp": 1.5,
+          "groups": [
+            {
+              "type": "thornback",
+              "count": 14,
+              "gap": 2.2
+            },
+            {
+              "type": "wisp",
+              "count": 16,
+              "gap": 1.0,
+              "delay": 4
+            },
+            {
+              "type": "wisp",
+              "count": 8,
+              "gap": 0.6,
+              "delay": 28
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

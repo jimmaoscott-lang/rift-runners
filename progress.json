@@ -1,7 +1,7 @@
 {
   "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
   "updated": "2026-11-21",
-  "sessionsSoFar": 4,
+  "sessionsSoFar": 5,
   "milestones": [
     {
       "id": "M0",
@@ -43,10 +43,10 @@
       "id": "M3",
       "name": "Hold the Rift core: one playable level",
       "sessions": [
-        3,
-        4
+        1,
+        1
       ],
-      "done": false,
+      "done": true,
       "demo": true
     },
     {

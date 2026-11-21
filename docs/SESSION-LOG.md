@@ -4,6 +4,47 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 5: November 21, 2026 (M3 Hold the Rift core)
+
+**Built**
+- The game now runs on three.js in 3D. Phaser and the old turn-based battle are gone.
+- Title screen over a slowly circling Thornwood, language pick, Settings and the microphone test, all rebuilt with a speaker on every line and button.
+- Play opens the Level 1 card (Thornwood Edge: 5 waves, Thornbacks and Rift Wisps, short a and short i plus runes, win reward), then the battle.
+- Battle, matching the mockup: crystal counter, wave counter, level name, Start wave, Pause, x2 speed, the Rift and Rift Anchor labels, health bars, damage numbers, crystal pickups.
+- Rune Forge in tap mode: the word, 3 sound buttons, Forge button that shows the payout, streak meter with 8 pips, Mega Forge (+100 and a light blast that hits every creature), recent forges list (tap a word to hear it). Misses: letter tiles with the vowel in gold, then the right sound glows. No crystals lost. Guessing guard: 3 fast wrong answers, or 3 on the same button, cools the forge for 5 seconds (10 after that). Spanish on: each forged word shows its Spanish meaning with a speaker, and cognates get the "you already know this one" line.
+- Defenders: Archer Tower, Spike Pit, Stone Golem, Frost Totem, each with 3 levels plus Sell. Build from the bar (pick, then tap a glowing spot) or tap an empty spot to get a build menu. Locked defenders show in the bar with the level that opens them.
+- Creatures: Thornbacks and Rift Wisps in 5 waves that get bigger and tougher. Win shows 1 to 3 stars. Lose gives a calm tip and Try again.
+- Focus setting: battles run at half speed. Pausing stops the battle but the Forge stays open, so a student can always read their way out.
+- Every forge and every level result is saved in the progress record on the device.
+- Level and balance numbers live in `game/data/levels-w1.json` and `game/data/units.json`.
+
+**Tested (by Claude, headless Chrome)**
+- Full flow in English and Spanish: language, title, level card, building by bar and by tapping a spot, upgrade, sell, forging by mouse and keyboard, both miss steps, Mega Forge, the guessing cooldown, pause, Settings during a battle (Extra large text and OpenDyslexic), win screen, lose screen, Try again. No console errors.
+- Balance with a simulated player: never reading loses in wave 3; a slow reader (5 words a minute, 70% first try) wins; stronger readers win with crystals to spare. A level takes about 5 to 8 minutes.
+- New voice lines could not be heard here. GitHub voices them after this push; until then the Chromebook voice fills in.
+
+**To test (Mr. Scott)**
+1. Wait about 5 minutes after this push, then open https://jimmaoscott-lang.github.io/rift-runners/ and press Play, then Play again on the level card.
+2. Read a few words in the Forge, build an Archer Tower, then press Start wave 1.
+3. Try both ways to build: tap a card in the bottom bar then a glowing spot, or tap an empty stone pad.
+4. Tap a tower you built to upgrade or sell it.
+5. Play the whole level. Tell me if it feels too easy, too hard, too long or too short, and whether the screen is too busy for your students.
+6. Turn on Español in Settings and forge a few words to see the Spanish meanings.
+7. If you have a Chromebook at home, check whether it runs smoothly. If it stutters, add ?low to the end of the address and tell me if that helps.
+
+**Not done yet**
+- World map and level unlocks (M4). Level 1 lets you build all four defenders for now.
+- Hero powers, upgrade specialties, Armory (M6). Speak mode (M5).
+- Spanish lines still need a quick check by a Spanish speaker.
+
+**Next up**
+- M4: World 1 map (like the map mockup) with every level shown, locks, stars, and the Level Clear growth screen. Levels 2 and 3 with Bramble Swarm and Shield Brute, the unlock order from DESIGN.md 6A, and the vowel ramp (Level 2 adds short o, Level 3 adds short e).
+
+**Open questions**
+- None blocking.
+
+---
+
 ## Session 4: November 21, 2026 (redesign: Hold the Rift)
 
 **What happened**
