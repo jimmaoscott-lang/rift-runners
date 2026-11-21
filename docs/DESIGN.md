@@ -179,7 +179,7 @@ Turn-based, one-on-one, Pokémon style.
     - **Word help and single sounds:** one steady "reading guide" voice, so students hear sounds and words the same way every time while they are learning them. In settings, the student can pick their guide from 3 or 4 approved voices.
     - **Spanish:** the same approach with the Spanish voices.
     - Character-to-voice assignments live in `game/data/voices.json`, so voices can be swapped without changing code.
-    - Candidate voices from the first samples: English Andrew, Brian, Guy, Davis, Ava, Emma, Jenny, Aria; Spanish Dalia, Jorge, Alonso (Paloma to retry). Mr. Scott approves the final cast.
+    - Candidate voices from the first samples: English Andrew, Brian, Guy, Davis, Ava, Emma, Jenny, Aria; Spanish Dalia, Jorge, Alonso, Paloma. Mr. Scott approves the final cast.
   - Free tier is 0.5 million characters per month, far more than the game's full text. Free tier usage is throttled rather than billed when the limit is reached.
   - Backup option with no account: an open-source voice (Kokoro or Piper) run by the same GitHub Action.
 - **Phoneme sounds:** single sounds (like /b/ or short /i/) are generated with Azure's pronunciation tags and checked by ear. Any that sound wrong get recorded clips instead.
