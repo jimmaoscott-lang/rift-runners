@@ -59,27 +59,46 @@ window.RF = window.RF || {};
     current = rec;
     MIC.busy = true;
     rec.lang = 'en-US';
+    // Same setup as the microphone test, which catches short single words: keep listening
+    // through short pauses and report partial guesses as they come.
     rec.interimResults = true;
-    rec.continuous = false;
+    rec.continuous = true;
     rec.maxAlternatives = 5;
     const heard = [];
-    let error = null, done = false;
+    const seen = { audio: false, sound: false, speech: false };
+    let error = null, done = false, settle = 0;
+    const diag = function () {
+      const yn = function (v) { return v ? 'yes' : 'no'; };
+      return 'mic ' + yn(seen.audio) + ', sound ' + yn(seen.sound) + ', speech ' + yn(seen.speech) + (error ? ', ' + error : '');
+    };
     const finish = function (res) {
       if (done) return;
       done = true;
       if (current === rec) current = null;
       MIC.busy = false;
-      clearTimeout(timer);
+      clearTimeout(timer); clearTimeout(settle);
       try { rec.abort(); } catch (e) { /* ignore */ }
+      res.diag = diag();
       cb(res);
     };
+    const finishMiss = function () {
+      if (MIC.matches(target, heard, also)) return finish({ matched: true, heard: heard[0], outcome: 'match' });
+      finish({ matched: false, heard: heard[0] || '', outcome: heard.length ? 'miss' : 'nothing' });
+    };
+    rec.onaudiostart = function () { seen.audio = true; };
+    rec.onsoundstart = function () { seen.sound = true; };
+    rec.onspeechstart = function () { seen.speech = true; };
     rec.onresult = function (ev) {
-      for (let i = 0; i < ev.results.length; i++) {
+      let final = false;
+      for (let i = ev.resultIndex || 0; i < ev.results.length; i++) {
         const r = ev.results[i];
-        for (let k = 0; k < r.length; k++) if (r[k].transcript) heard.push(r[k].transcript);
+        if (r.isFinal) final = true;
+        for (let k = 0; k < r.length; k++) if (r[k].transcript && heard.indexOf(r[k].transcript.trim()) < 0) heard.push(r[k].transcript.trim());
       }
       // Stop as soon as the word is caught, so the student does not wait.
-      if (MIC.matches(target, heard, also)) finish({ matched: true, heard: heard[0] || '', outcome: 'match' });
+      if (MIC.matches(target, heard, also)) return finish({ matched: true, heard: heard[0] || '', outcome: 'match' });
+      // A finished guess that is not the word: wait a moment in case a better guess follows.
+      if (final) { clearTimeout(settle); settle = setTimeout(finishMiss, 900); }
     };
     rec.onerror = function (ev) { error = ev.error; };
     rec.onend = function () {
@@ -92,10 +111,9 @@ window.RF = window.RF || {};
         MIC.markDown('mic.offline');
         return finish({ matched: false, heard: '', outcome: 'down' });
       }
-      if (MIC.matches(target, heard, also)) return finish({ matched: true, heard: heard[0], outcome: 'match' });
-      finish({ matched: false, heard: heard[0] || '', outcome: heard.length ? 'miss' : 'nothing' });
+      finishMiss();
     };
-    const timer = setTimeout(function () { try { rec.stop(); } catch (e) { /* ignore */ } }, opts.maxMs || 5000);
+    const timer = setTimeout(function () { try { rec.stop(); } catch (e) { /* ignore */ } }, opts.maxMs || 6000);
     try {
       rec.start();
       if (opts.onStart) opts.onStart();

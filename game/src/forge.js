@@ -163,8 +163,8 @@ window.RF = window.RF || {};
     };
 
     // ---- Speak mode ----
-    function testHeard(text) {
-      const n = D.el('div', null, D.esc(RF.t('mic.heard')) + ' "' + D.esc(text) + '"');
+    function testHeard(text, diag) {
+      const n = D.el('div', null, D.esc(RF.t('mic.heard')) + ' "' + D.esc(text || '') + '"' + (diag ? '<br>' + D.esc(diag) : ''));
       n.style.cssText = 'font-size:14px;color:#ffb89a';
       return n;
     }
@@ -196,7 +196,7 @@ window.RF = window.RF || {};
         F.lastAction = performance.now();
         RF.sfx('soft');
         // Test mode only: show what Chrome heard, so misses can be reported and fixed.
-        const heardNote = RF.unlocks.testMode() && res.heard ? testHeard(res.heard) : null;
+        const heardNote = RF.unlocks.testMode() ? testHeard(res.heard, res.diag) : null;
         if (F.tries === 1) {
           showTiles();
           say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true, heardNote);
