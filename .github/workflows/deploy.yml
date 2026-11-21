@@ -48,7 +48,7 @@ jobs:
       - name: Put the website together
         run: |
           mkdir -p _site
-          cp index.html progress.html progress.json sound-check.html _site/
+          cp index.html progress.html progress.json sound-check.html sound-samples.html _site/
           cp -r game _site/game
           mkdir -p _site/assets
           cp -r assets/fonts _site/assets/fonts
