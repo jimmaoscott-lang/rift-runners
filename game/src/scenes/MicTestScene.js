@@ -49,36 +49,106 @@ class MicTestScene extends Phaser.Scene {
     if (!Rec) { this.setStatus('mic.unsupported'); return; }
     if (this.rec) { try { this.rec.abort(); } catch (e) { /* ignore */ } }
     RF.stopSpeaking();
+    this.startMeter();
     const rec = new Rec();
     this.rec = rec;
     rec.lang = 'en-US';
-    rec.interimResults = false;
+    rec.interimResults = true;
+    rec.continuous = false;
     rec.maxAlternatives = 3;
-    let gotResult = false;
+    // What happened, step by step. Used to explain a miss in plain words.
+    const seen = { audio: false, sound: false, speech: false, error: null };
+    let done = false;
+    rec.onaudiostart = () => { seen.audio = true; };
+    rec.onsoundstart = () => { seen.sound = true; };
+    rec.onspeechstart = () => { seen.speech = true; };
     rec.onresult = (ev) => {
-      gotResult = true;
-      const words = ev.results[0][0].transcript;
+      let words = '';
+      for (let i = 0; i < ev.results.length; i++) words += ev.results[i][0].transcript;
+      words = words.trim();
+      if (!words) return;
       this.heardWords = words;
       this.heard.setText(RF.t('mic.heard') + ' "' + words + '"');
-      this.setStatus('mic.ok');
-      console.info('Mic test heard:', words);
+      const isFinal = ev.results[ev.results.length - 1].isFinal;
+      if (isFinal && !done) { done = true; this.finish('mic.ok'); }
     };
     rec.onerror = (ev) => {
-      gotResult = true;
+      seen.error = ev.error;
       console.warn('Mic test error:', ev.error);
-      if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed' || ev.error === 'audio-capture') this.setStatus('mic.blocked');
-      else if (ev.error === 'network') this.setStatus('mic.offline');
-      else if (ev.error === 'no-speech') this.setStatus('mic.nothing');
-      else { this.setStatus('mic.blocked'); this.heard.setText('(' + ev.error + ')'); }
     };
-    rec.onend = () => { if (!gotResult) this.setStatus('mic.nothing'); };
+    rec.onend = () => {
+      console.info('Mic test steps:', JSON.stringify(seen), 'loudest level:', this.peak.toFixed(3));
+      if (done) return;
+      done = true;
+      if (this.heardWords) { this.finish('mic.ok'); return; }
+      const e = seen.error;
+      if (e === 'not-allowed' || e === 'service-not-allowed' || e === 'audio-capture') this.finish('mic.blocked');
+      else if (e === 'network') this.finish('mic.offline');
+      else if (!seen.audio && !this.meterOn) this.finish('mic.notOn');
+      else if (this.peak < 0.02) this.finish('mic.silent');
+      else this.finish('mic.nothing');
+    };
     try {
       rec.start();
       this.setStatusSilent('mic.listening');
     } catch (e) {
       console.warn('Mic test could not start:', e);
-      this.setStatus('mic.blocked');
+      this.finish('mic.blocked');
     }
+  }
+
+  finish(id) {
+    this.stopMeter();
+    this.setStatus(id);
+  }
+
+  // Live sound meter, so you can see whether the microphone hears anything at all.
+  startMeter() {
+    this.stopMeter();
+    this.peak = 0;
+    this.meterOn = false;
+    if (!this.meterBar) {
+      const y = this.heard.y + 70;
+      this.add.rectangle(RF.W / 2, y, 604, 34, 0x05070f).setStrokeStyle(3, RF.ui.COLORS.chipEdge);
+      this.meterBar = this.add.rectangle(RF.W / 2 - 300, y, 0, 26, 0x9cf2c0).setOrigin(0, 0.5);
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    const token = this.meterToken = (this.meterToken || 0) + 1;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      if (token !== this.meterToken || !this.scene.isActive()) {
+        // The test already ended before the microphone opened.
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      this.stream = stream;
+      this.meterOn = true;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      this.meterCtx = new Ctx();
+      const src = this.meterCtx.createMediaStreamSource(stream);
+      const an = this.meterCtx.createAnalyser();
+      an.fftSize = 1024;
+      src.connect(an);
+      const buf = new Float32Array(an.fftSize);
+      this.meterTick = () => {
+        an.getFloatTimeDomainData(buf);
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        const level = Math.sqrt(sum / buf.length);
+        this.peak = Math.max(this.peak, level);
+        this.meterBar.width = Math.min(600, level * 3000);
+      };
+      this.events.on('update', this.meterTick);
+    }).catch((err) => {
+      console.warn('Sound meter could not start:', err && err.name);
+    });
+  }
+
+  stopMeter() {
+    this.meterToken = (this.meterToken || 0) + 1;
+    if (this.meterTick) { this.events.off('update', this.meterTick); this.meterTick = null; }
+    if (this.stream) { this.stream.getTracks().forEach((t) => t.stop()); this.stream = null; }
+    if (this.meterCtx) { this.meterCtx.close(); this.meterCtx = null; }
+    if (this.meterBar) this.meterBar.width = 0;
   }
 
   setStatusSilent(id) {
@@ -91,6 +161,7 @@ class MicTestScene extends Phaser.Scene {
 
   close() {
     if (this.rec) { try { this.rec.abort(); } catch (e) { /* ignore */ } }
+    this.stopMeter();
     RF.stopSpeaking();
     RF.sfx('back');
     this.scene.stop();

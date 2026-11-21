@@ -33,9 +33,11 @@
     "mic.ok": "Your microphone works. Speak mode is ready.",
     "mic.blocked": "The microphone is blocked here. Tap mode still works for everything.",
     "mic.unsupported": "This browser cannot use speak mode. Tap mode still works for everything.",
-    "mic.nothing": "No words came through. Try again a little closer to the mic.",
+    "mic.nothing": "The microphone hears sound but caught no words. Press Start and say the word right away.",
     "mic.offline": "Speak mode needs the internet. Tap mode still works for everything.",
-    "common.ok": "Got it"
+    "common.ok": "Got it",
+    "mic.notOn": "The microphone did not turn on. Check that one is plugged in and allowed for this site.",
+    "mic.silent": "The microphone is on but hears no sound. Check that the right microphone is picked and not muted."
   },
   "es": {
     "title.name": "Rift Runners",
@@ -70,8 +72,10 @@
     "mic.ok": "Tu micrófono funciona. El modo de voz está listo.",
     "mic.blocked": "El micrófono está bloqueado aquí. El modo de tocar funciona para todo.",
     "mic.unsupported": "Este navegador no puede usar el modo de voz. El modo de tocar funciona para todo.",
-    "mic.nothing": "No llegó ninguna palabra. Intenta otra vez más cerca del micrófono.",
+    "mic.nothing": "El micrófono oye sonido pero no captó palabras. Presiona Empezar y di la palabra enseguida.",
     "mic.offline": "El modo de voz necesita internet. El modo de tocar funciona para todo.",
-    "common.ok": "Entendido"
+    "common.ok": "Entendido",
+    "mic.notOn": "El micrófono no se encendió. Revisa que esté conectado y permitido para este sitio.",
+    "mic.silent": "El micrófono está encendido pero no oye ningún sonido. Revisa que esté elegido el micrófono correcto y que no esté silenciado."
   }
 }

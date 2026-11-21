@@ -32,6 +32,11 @@ Newest entry at the top. Each session adds one entry.
 4. Download the offline copy from the link on https://jimmaoscott-lang.github.io/reading-fluency/ and open it from your laptop with Wi-Fi off. The file is named rift-runners-offline.html. Keep it for the December 2 backup. Download a fresh copy after each session.
 5. At school (after Thanksgiving): try the play link on a student Chromebook.
 
+**Mic test fix (same session)**
+- First real test: the mic test said no words came through.
+- Added a live sound meter and a step-by-step check. The result now tells apart: mic never turned on, mic on but silent (wrong mic or muted), or sound heard with no words caught. Partial words now count too.
+- Waiting on Mr. Scott's retest to see which one it is.
+
 **Not done yet**
 - The Apps Script version is built but not set up in a Google account. That needs 5 minutes together in a session (copy two files into a new Apps Script project and deploy). Then run the mic test inside it.
 - Spanish menu lines need a quick check by a Spanish speaker.
