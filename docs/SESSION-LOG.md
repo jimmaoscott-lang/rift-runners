@@ -32,6 +32,8 @@ Newest entry at the top. Each session adds one entry.
 4. Turn on Test mode and play the Final level preview the same way.
 5. Tell me: does it feel harder now? Does 10 words per wave feel right, or should it be 8 or 12?
 
+**Fix after the session (Mr. Scott, Nov 21):** Pause now stops the music; Resume brings back the calm or battle music. Changing the music volume in Settings while paused no longer restarts it. v0.9.2.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.

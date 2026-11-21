@@ -125,7 +125,7 @@ window.RF = window.RF || {};
           if (RF.audio) RF.audio.applyVolumes();
           if (key === 'effects') RF.audio.fx('arrowHit');
           else RF.sfx('select');
-          if (key === 'music' && RF.battle && RF.battle.active && st.music > 0) RF.audio.music(RF.battle.phase === 'wave' ? 'attack' : 'calm');
+          if (key === 'music' && RF.battle && RF.battle.active && !RF.battle.paused && st.music > 0) RF.audio.music(RF.battle.phase === 'wave' ? 'attack' : 'calm');
           RF.speak('num.' + st[key]);
         });
       });

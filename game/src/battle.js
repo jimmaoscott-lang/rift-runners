@@ -707,7 +707,8 @@ window.RF = window.RF || {};
     if (B.phase === 'done') return;
     B.paused = on;
     RF.sfx(on ? 'back' : 'select');
-    RF.audio.music(on || B.phase !== 'wave' ? 'calm' : 'attack');
+    // Pause stops the music; it comes back in the right mood on Resume.
+    RF.audio.music(on ? null : B.phase !== 'wave' ? 'calm' : 'attack');
     B.renderTop();
     const box = B.pausePanel;
     D.clear(box);
