@@ -4,6 +4,14 @@ class MicTestScene extends Phaser.Scene {
   constructor() { super('MicTest'); }
 
   create(data) {
+    // The game reuses this screen, so forget pieces left from the last visit.
+    this.meterBar = null;
+    this.diag = null;
+    this.rec = null;
+    this.stream = null;
+    this.meterCtx = null;
+    this.meterTick = null;
+    this.peak = 0;
     this.from = data.from;
     this.add.rectangle(RF.W / 2, RF.H / 2, RF.W, RF.H, 0x000000, 0.6).setInteractive();
     const cx = RF.W / 2;
@@ -47,7 +55,7 @@ class MicTestScene extends Phaser.Scene {
     this.heard.setText('');
     this.heardWords = '';
     if (!Rec) { this.setStatus('mic.unsupported'); return; }
-    if (this.rec) { try { this.rec.abort(); } catch (e) { /* ignore */ } }
+    this.dropRec();
     RF.stopSpeaking();
     this.startMeter();
     const rec = new Rec();
@@ -100,6 +108,15 @@ class MicTestScene extends Phaser.Scene {
       console.warn('Mic test could not start:', e);
       this.finish('mic.blocked');
     }
+  }
+
+  // Stop listening and ignore anything the old listener reports afterward.
+  dropRec() {
+    const r = this.rec;
+    this.rec = null;
+    if (!r) return;
+    r.onresult = r.onerror = r.onend = r.onaudiostart = r.onsoundstart = r.onspeechstart = null;
+    try { r.abort(); } catch (e) { /* ignore */ }
   }
 
   finish(id) {
@@ -166,7 +183,7 @@ class MicTestScene extends Phaser.Scene {
   }
 
   close() {
-    if (this.rec) { try { this.rec.abort(); } catch (e) { /* ignore */ } }
+    this.dropRec();
     this.stopMeter();
     RF.stopSpeaking();
     RF.sfx('back');
