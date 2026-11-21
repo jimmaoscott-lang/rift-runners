@@ -179,18 +179,73 @@ Turn-based, one-on-one, Pokémon style.
 
 ## 11. Saving and privacy
 
-- No accounts, no names, no data sent to any server by the game itself.
-- Progress saves in the browser on the student's device.
-- **Save code:** the game can show a short code the student writes down or the teacher keeps, to restore progress if the browser data is cleared or the student changes Chromebooks.
+- No accounts and no student names anywhere in the game or this repo.
+- Progress saves in the browser on the student's device first, so the game works even with no internet.
+- **Student code:** the teacher gives each student a short code (example: `SCOTT-07`). The game knows students only by this code. The list that matches codes to real names stays with the teacher, outside the game and outside this repo.
+- **Save code:** the game can show a short code to restore progress if browser data is cleared or the student changes Chromebooks.
 - Students pick a nickname inside the game. Nicknames never leave the device.
+- Progress data for teacher reports is sent only to the teacher's own Google Sheet (section 12). It contains the student code and game metrics, never names.
 
 ---
 
-## 12. Teacher view (later phase)
+## 12. Teacher reports
 
-- A teacher screen, opened with a teacher code, shows the current student's progress: worlds cleared, patterns mastered, patterns still weak, WCPM trend on boss passages
-- An export button produces a simple progress report the teacher can save for IEP progress monitoring
-- How data gets from many student devices to the teacher is to be decided (see Open Questions)
+### 12.1 How data reaches the teacher
+
+1. The game saves progress on the device during play.
+2. At the end of each level, and when the student quits, the game sends a small progress record to a **Google Sheet owned by the teacher's district Google account**. A Google Apps Script attached to that sheet receives it.
+3. If the device is offline, records wait on the device and send the next time it connects.
+4. A **Reports** tab in the sheet (built by the script) turns the raw records into readable reports.
+
+Why this approach: the data stays inside the district's Google account, which the district already manages. There is no outside database or company account to approve, and nothing about students is stored in this public repo. The web address for the Apps Script is entered on the game's teacher settings screen, so it is not stored in the code either.
+
+Fallback: a teacher screen on the device itself (opened with a teacher PIN) can show and download that student's report, for use without the sheet.
+
+### 12.2 Metrics collected
+
+| Metric | What it shows |
+|---|---|
+| Starting level | Placement results for each pattern, the world the student started in, and the date |
+| Play frequency | Dates played, number of sessions, minutes per session, minutes per week |
+| Progress | Current world and area, patterns mastered with date of mastery |
+| Accuracy by pattern | Percent of words read correctly for each pattern, over time |
+| Fluency | Words correct per minute (WCPM) on boss passages, every attempt, with personal best |
+| Words read | Total words read, per session and overall |
+| Trouble words | The words and patterns missed most often |
+| Nonsense word accuracy | True decoding skill, separate from words the student may have memorized |
+| Support use | Hints, read-aloud taps, Spanish toggle use, speak mode vs. tap mode |
+| Replays | Which levels and bosses the student replayed (repeated reading practice) |
+
+### 12.3 Reports
+
+- **Student report:** one page per student code with starting level vs. current level, a WCPM line graph, an accuracy-by-pattern chart, play frequency and trouble words. Includes a plain-language progress summary the teacher can adapt for IEP progress reports (example: "Since placement on 9/2, he has mastered 3 of 8 patterns. WCPM on boss passages rose from 48 to 71.").
+- **Class overview:** every student code on one table, with current world, minutes played this week, last played date and a flag for students who have not played in 7 days or are stuck on one pattern.
+- **Date range filter** for grading periods and progress report windows.
+
+---
+
+## 12A. Encouragement and showing growth to students
+
+### 12A.1 Encouragement
+
+- **Frequent and specific.** Praise names what the student did: "You read 'construction' on the first try," "12 words in a row," "That's the fastest you've read this passage."
+- **Effort and growth, never ability labels.** Praise practice and improvement. The game never says a student is "smart," "low" or "behind."
+- **Teen tone.** Short, confident lines in the voice of the game's characters. No baby talk, no gold stars.
+- **Compare only to themselves.** No reading-level leaderboards. Any leaderboards cover game things only (creatures caught, boss ranks).
+- **Missed words get calm support:** "Let's break it up" plus a replay, never a failure sound.
+- **Streaks and milestones:** play-day streaks, words-read milestones (100, 500, 1,000 and more), and first-try badges.
+
+### 12A.2 Growth screen between levels
+
+After every level, the student sees a short **Level Clear** screen:
+
+- One big headline number and one simple graph. No clutter.
+- **Then vs. Now bars:** the student's first try on this world's words compared with today
+- **Fluency line:** WCPM across boss attempts, with personal bests marked
+- An arrow and short line when something improved: "+14 words per minute since your first try"
+- Large Lexend text, and every label can be read aloud. A Spanish label option is available.
+
+If a number drops (common when a new world brings harder words), the screen shows something that did improve instead, such as accuracy on earlier patterns or words read this week. Students should leave every Level Clear screen with a reason to keep going.
 
 ---
 
@@ -209,6 +264,8 @@ Turn-based, one-on-one, Pokémon style.
 
 Each milestone is a playable, testable step.
 
+**Build note:** every feature records the metrics in section 12.2 from the first battle onward (M2), saved on the device. Then the reports in M9 will have real history to show. The Level Clear growth screen (section 12A.2) arrives with M4 and gains the fluency line at M6.
+
 | # | Milestone | Playable result |
 |---|---|---|
 | M0 | Project docs | CLAUDE.md, this design doc, session log |
@@ -220,7 +277,7 @@ Each milestone is a playable, testable step.
 | M6 | First rhythm boss | World 1 boss with WCPM tracking |
 | M7 | Placement mission | Opening mission that places students into the right world |
 | M8 | Worlds 2 to 8 | Content and areas for the rest of the sequence |
-| M9 | Teacher view | Progress screen and export |
+| M9 | Teacher reports | Google Sheet + Apps Script reports, class overview, on-device teacher screen |
 | M10 | Polish | Story, music, balance and classroom testing |
 
 ---
@@ -232,6 +289,6 @@ Each milestone is a playable, testable step.
 3. District approval for speech recognition in Chrome on student Chromebooks
 4. Source of recorded phoneme audio (Mr. Scott records them, or a CC0 set)
 5. Art source: CC0 pixel art packs (for example Kenney or OpenGameArt), AI-generated art, or a mix
-6. How teacher progress data is collected across many devices
+6. District approval to send student-code progress data to a teacher-owned Google Sheet
 7. Mastery threshold and how many words per battle
 8. Fluency goal on boss passages (use published oral reading fluency norms to set it)

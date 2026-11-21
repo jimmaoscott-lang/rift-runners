@@ -18,6 +18,9 @@ Newest entry at the top. Each session adds one entry.
 - EB accommodations are built in.
 - All project files live in this public repo. No student data goes in it.
 - Browser game built with Phaser, hosted on GitHub Pages, aimed at school Chromebooks.
+- Teacher reports: the game sends progress (by student code, no names) to a Google Sheet on Mr. Scott's district account through Apps Script. Reports cover starting level, play frequency, progress, accuracy by pattern, WCPM, trouble words and support use. See DESIGN.md section 12.
+- Students get frequent, specific, growth-based encouragement and a simple growth graph on a Level Clear screen after every level. See DESIGN.md section 12A.
+- Metrics are recorded from the first battle onward.
 
 **To review (Mr. Scott)**
 - Read `docs/DESIGN.md` and mark anything to change, especially the skill sequence in section 5 and the open questions in section 15.
