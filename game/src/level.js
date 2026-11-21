@@ -42,7 +42,11 @@ window.RF = window.RF || {};
         return out;
       }
     };
-    const riverX = function (z) { return 22 + Math.sin(z * 0.2) * 3; };
+    // The river comes from the level file (optional "river": {"x": 22, "amp": 3}) so layouts can move it.
+    const rv0 = Object.assign({ x: 22, amp: 3 }, L.river || {});
+    const riverX = function (z) { return rv0.x + Math.sin(z * 0.2) * rv0.amp; };
+    // Optional "hill": [x, z] puts the big hill somewhere else (default is the old spot).
+    const hill = L.hill || [-8, -18];
     const camp = { x: L.camp[0], z: L.camp[1] };
     const rift = { x: L.rift[0], z: L.rift[1] };
 
@@ -73,7 +77,7 @@ window.RF = window.RF || {};
       if (dp < 2.6) h *= dp / 2.6 * 0.6;
       const rv = Math.abs(x - riverX(z));
       if (rv < 3.2) h = -1.2 + rv * 0.15;
-      if (Math.hypot(x + 8, z + 18) < 7) h += (7 - Math.hypot(x + 8, z + 18)) * 0.7;
+      if (Math.hypot(x - hill[0], z - hill[1]) < 7) h += (7 - Math.hypot(x - hill[0], z - hill[1])) * 0.7;
       pads.forEach(function (p) { if (p.kind === 'tower') { const d = Math.hypot(x - p.x, z - p.z); if (d < 2.2) h = Math.min(h, 0.15 + d * 0.1); } });
       if (Math.hypot(x - camp.x, z - camp.z) < 5) h = Math.min(h, 0.2);
       return h;
@@ -90,7 +94,7 @@ window.RF = window.RF || {};
       if (riftNear > 0) col.lerp(new THREE.Color(0x3a2a55), riftNear * 0.85);
     }, scene);
     const water = new THREE.Mesh(new THREE.PlaneGeometry(8, 90, 1, 1), new THREE.MeshStandardMaterial({ color: 0x3fa9d6, transparent: true, opacity: 0.8, roughness: 0.15, metalness: 0.2 }));
-    water.rotation.x = -Math.PI / 2; water.position.set(22, -0.55, 0); scene.add(water);
+    water.rotation.x = -Math.PI / 2; water.position.set(rv0.x, -0.55, 0); scene.add(water);
 
     // ---- Still scenery (merged) ----
     const still = new THREE.Group();

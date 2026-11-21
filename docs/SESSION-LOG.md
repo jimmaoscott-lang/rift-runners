@@ -4,6 +4,37 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 9: November 21, 2026 (M4 World 1 map, Levels 2 and 3, growth screen)
+
+**Built**
+- World 1 map. Play on the title screen now opens it. Six stones on a trail: Thornwood Edge, Bramble Crossing, The Hollow Trail, Wisp Hollow, Old Watch Ruins, and the Thorn King. Beaten stones turn gold with their best stars, the next one glows, the rest are chained. Star count out of 18 at the top. The Dunes (World 2) and Frostfang Pass (World 3) sit under fog. Tap a stone or its name for its card, then Play. Every line has a speaker.
+- Level 2, Bramble Crossing: short a, i and o. New creature: Bramble Swarm (tiny, fast, big packs).
+- Level 3, The Hollow Trail: short a, i, o and e. New creature: Shield Brute (its shield blocks most damage until broken).
+- Ember Cannon (lobs fire shells, splash damage, breaks shields) opens after Level 1. Lightning Spire (jumps between creatures, breaks shields) opens after Level 2. Every defender shows in the build bar; locked ones say which level opens them.
+- The first time a new creature shows up, a short line says what beats it.
+- End screen: a "Then and now" box with each sound's first tries ever compared with now, a big headline for the biggest gain, and an Unlocked box on a first win. Win buttons: Continue (back to the map) and Play again. Lose: Try again and World map. Pause menu now goes back to the map.
+- Reading decision: once a rift lock fills during a try, it stays full for that try. Strong readers were stuck waiting for 3 or 4 locks to all be full at the same moment.
+
+**Tested (by Claude, headless Chrome)**
+- Fresh start to map, Level 1 win, unlock box, Continue to map with Level 2 open, Level 2 and 3 battles, pause to map, Spanish map and battle. No console errors. Decodability check passes.
+- Simulated players: 90% readers win Level 2 in 6 to 11 minutes and Level 3 in 7 to 11. A player who never reads loses by wave 3 or 4. 80% readers usually win Level 2 and fall around wave 15 on Level 3 with a practice summary. 70% readers survive at least 6 waves on every level.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes after this push (new voice lines), then open https://jimmaoscott-lang.github.io/rift-runners/ and press Play. You land on the map.
+2. Your saved progress carries over. If you already won Level 1, Bramble Crossing is open and Ember Cannon is in your build bar.
+3. Play Level 2. Watch the Bramble Swarms and try an Ember Cannon on them.
+4. Win Level 2, read the end screen (Then and now, Unlocked), press Continue, and play Level 3 with Lightning Spires against the Shield Brutes.
+5. Tell me: does the map look good enough for the December 2 demo, and are Levels 2 and 3 fun, too hard or too easy?
+
+**Next up**
+- M5: speak mode in the Forge (read the word into the mic for a bonus; tap mode stays). Start the chat with Opus (mic matching rules and plan), which hands the screens to Sonnet.
+- Or, if the map or Levels 2 and 3 need changes after playtesting, do those first.
+
+**Open questions**
+- Still open: moving progress between phone and Chromebook (DESIGN.md section 15, item 0).
+
+---
+
 ## Session 8: November 21, 2026 (word voice, build manager)
 
 **Decided (Mr. Scott)**

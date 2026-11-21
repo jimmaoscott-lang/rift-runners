@@ -105,6 +105,20 @@ window.RF = window.RF || {};
     }
     return out;
   };
+  // The first n reads ever of one pattern, oldest first (same true/false as patternRecent).
+  // Used for the "Then and now" growth graph on the Level Clear screen.
+  M.patternFirst = function (pattern, n) {
+    const out = [];
+    for (let i = 0; i < data.attempts.length && out.length < n; i++) {
+      const a = data.attempts[i];
+      if (a.pattern === pattern) out.push(!!a.firstTry);
+    }
+    return out;
+  };
+  M.patternCount = function (pattern) {
+    return data.attempts.reduce(function (n, a) { return n + (a.pattern === pattern ? 1 : 0); }, 0);
+  };
+
   // The most recent finished level record for this level id, if any.
   M.lastBattle = function (id) {
     for (let i = data.battles.length - 1; i >= 0; i--) if (data.battles[i].id === id) return data.battles[i];

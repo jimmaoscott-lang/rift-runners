@@ -38,7 +38,8 @@
           "range": 10.5,
           "rate": 1.3
         }
-      ]
+      ],
+      "unlockBy": null
     },
     "spike": {
       "name": "def.spike",
@@ -62,7 +63,8 @@
           "dps": 25,
           "radius": 2.1
         }
-      ]
+      ],
+      "unlockBy": null
     },
     "golem": {
       "name": "def.golem",
@@ -94,7 +96,8 @@
           "rate": 1.2,
           "hold": 4
         }
-      ]
+      ],
+      "unlockBy": null
     },
     "frost": {
       "name": "def.frost",
@@ -118,45 +121,108 @@
           "slow": 0.35,
           "range": 6.0
         }
+      ],
+      "unlockBy": null
+    },
+    "ember": {
+      "name": "def.ember",
+      "desc": "def.ember.desc",
+      "kind": "tower",
+      "cost": 120,
+      "up": [
+        90,
+        130
+      ],
+      "unlockBy": "w1-l1",
+      "unlock": "level.n1",
+      "shell": {
+        "speed": 9,
+        "arc": 3.2
+      },
+      "levels": [
+        {
+          "dmg": 30,
+          "radius": 2.2,
+          "range": 9.0,
+          "rate": 0.45
+        },
+        {
+          "dmg": 44,
+          "radius": 2.5,
+          "range": 10.0,
+          "rate": 0.5
+        },
+        {
+          "dmg": 62,
+          "radius": 2.8,
+          "range": 11.0,
+          "rate": 0.55
+        }
+      ]
+    },
+    "lightning": {
+      "name": "def.lightning",
+      "desc": "def.lightning.desc",
+      "kind": "tower",
+      "cost": 150,
+      "up": [
+        100,
+        140
+      ],
+      "unlockBy": "w1-l2",
+      "unlock": "level.n2",
+      "chainRange": 3.5,
+      "falloff": 0.75,
+      "levels": [
+        {
+          "dmg": 22,
+          "range": 7.0,
+          "rate": 0.8,
+          "chain": 2
+        },
+        {
+          "dmg": 30,
+          "range": 7.5,
+          "rate": 0.9,
+          "chain": 3
+        },
+        {
+          "dmg": 40,
+          "range": 8.0,
+          "rate": 1.0,
+          "chain": 4
+        }
       ]
     }
   },
   "locked": [
     {
-      "id": "ember",
-      "name": "def.ember",
-      "cost": 120,
-      "unlock": "level.n2"
-    },
-    {
-      "id": "lightning",
-      "name": "def.lightning",
-      "cost": 150,
-      "unlock": "level.n3"
-    },
-    {
       "id": "vine",
       "name": "def.vine",
       "cost": 70,
-      "unlock": "level.n3"
+      "unlock": "level.n3",
+      "unlockBy": "w1-l3"
     },
     {
       "id": "ballista",
       "name": "def.ballista",
       "cost": 110,
-      "unlock": "level.n4"
+      "unlock": "level.n4",
+      "unlockBy": "w1-l4"
     },
     {
       "id": "shrine",
       "name": "def.shrine",
       "cost": 90,
-      "unlock": "level.n4"
+      "unlock": "level.n4",
+      "unlockBy": "w1-l4"
     },
     {
       "id": "barricade",
       "name": "def.barricade",
       "cost": 30,
-      "unlock": "level.n5"
+      "unlock": "level.n5",
+      "unlockBy": "w1-l5"
     }
   ],
   "creatures": {
@@ -177,6 +243,25 @@
       "shards": 1,
       "hit": 6,
       "size": 1.0
+    },
+    "bramble": {
+      "name": "foe.bramble",
+      "hp": 9,
+      "speed": 2.7,
+      "anchor": 1,
+      "shards": 1,
+      "hit": 3,
+      "size": 0.45
+    },
+    "brute": {
+      "name": "foe.brute",
+      "hp": 140,
+      "speed": 1.5,
+      "anchor": 3,
+      "shards": 4,
+      "hit": 22,
+      "size": 1.2,
+      "shieldCut": 0.8
     }
   }
 }

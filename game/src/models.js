@@ -240,7 +240,38 @@ function shieldBrute(x, z, parent, rot) {
   mesh(new THREE.BoxGeometry(0.1, 0.06, 0.05), M.eye, -0.12, 2.3, -0.36, g);
   mesh(new THREE.BoxGeometry(0.1, 0.06, 0.05), M.eye, 0.12, 2.3, -0.36, g);
   const sh = mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.15, 6), M.crystalP, -0.4, 1.4, -0.75, g); sh.rotation.x = Math.PI / 2;
-  sprite(TEX.purple, 1.4, -0.4, 1.4, -0.85, g, 0.4);
+  const shGlow = sprite(TEX.purple, 1.4, -0.4, 1.4, -0.85, g, 0.4);
+  g.userData.shield = [sh, shGlow]; // the battle hides these when the shield breaks
+  return g;
+}
+// A tangle of small thorny vine balls with a faint rift glow. About 0.45 the size of a Thornback.
+function bramble(x, z, parent, s, rot) {
+  s = s || 1;
+  const g = group(x, 0, z, parent); g.scale.setScalar(s); g.rotation.y = rot || 0;
+  const vineDark = mat(0x2c5a2a);
+  const core = mesh(new THREE.DodecahedronGeometry(0.3, 0), M.thornDark, 0, 0.38, 0, g);
+  core.rotation.set(R(0, 3), R(0, 3), 0);
+  const balls = [[-0.3, 0.3, 0.12, 0.2], [0.3, 0.32, 0.1, 0.19], [0.05, 0.3, 0.3, 0.18], [-0.1, 0.55, -0.12, 0.17], [0.22, 0.52, -0.1, 0.15], [-0.28, 0.5, 0.2, 0.14]];
+  balls.forEach(function (b, i) {
+    const m = mesh(new THREE.IcosahedronGeometry(b[3], 0), i % 2 ? M.thornBody : M.leaf3, b[0], b[1], b[2], g);
+    m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
+  });
+  // thorns poking out all around
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2 + R(-0.2, 0.2), up = R(0.15, 0.6);
+    const th = mesh(new THREE.ConeGeometry(0.05, 0.26, 4), M.thornSpike, Math.cos(a) * 0.42, 0.3 + up * 0.6, Math.sin(a) * 0.42, g);
+    th.rotation.set(Math.sin(a) * 1.2, 0, -Math.cos(a) * 1.2);
+  }
+  // loose vine loops tying the clump together
+  for (let i = 0; i < 1; i++) {
+    const v = mesh(new THREE.TorusGeometry(0.34, 0.035, 4, 10), M.vine, 0, 0.4, 0, g);
+    v.rotation.set(R(0.3, 1.2), R(0, 3), R(0, 1));
+  }
+  mesh(new THREE.SphereGeometry(0.05, 6, 4), M.eye, -0.1, 0.42, -0.34, g);
+  mesh(new THREE.SphereGeometry(0.05, 6, 4), M.eye, 0.1, 0.42, -0.34, g);
+  // a few rift buds glowing between the vines
+  [[0.12, 0.62, 0.05, 0.1], [-0.2, 0.3, -0.25, 0.08], [0.28, 0.25, 0.22, 0.08]].forEach(function (b) { mesh(new THREE.OctahedronGeometry(b[3], 0), M.rift, b[0], b[1], b[2], g).scale.y = 1.6; });
+  sprite(TEX.purple, 1.5, 0, 0.45, 0, g, 0.55);
   return g;
 }
 function hero(x, z, parent) {
@@ -426,6 +457,6 @@ const CRYSTAL = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><pat
 
   RF.G = { rnd, R, mat, glow, mesh, group, glowTex, TEX, sprite, M, tree, roundTree, rock,
     archerTower, frostTotem, lightningSpire, emberCannon, golem, spikePit, vineSnare, ballista, healShrine, barricade,
-    thornback, wisp, riftBat, shieldBrute, hero, camp, riftGate, boltLine, arrow, noise, terrain, pathDistance,
+    thornback, bramble, wisp, riftBat, shieldBrute, hero, camp, riftGate, boltLine, arrow, noise, terrain, pathDistance,
     SPK, CRYSTAL, mergeStatic, iconOf, reseed };
 })(window.RF);

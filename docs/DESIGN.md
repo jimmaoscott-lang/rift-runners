@@ -59,6 +59,8 @@ Students should experience it as a game they want to beat. The reading instructi
 - Each world: 5 levels plus a boss level (6 total). 8 worlds, 48 levels.
 - Level card on the map: name, waves, new enemy, which word patterns, and the reward for winning. Every line has a speaker.
 
+**Built in M4 (Session 9):** `game/src/map.js` draws the World 1 map in 3D (Thornwood open, the Dunes and Frostfang under fog). Six stones: Levels 1 to 5 and the Thorn King. States come from the progress record on the device (`game/src/unlocks.js`): a stone opens when the stone before it has been won; beaten stones turn gold with the best stars; the stepping stones between beaten levels turn gold; the Rift Warden stands at the stone the student is up to. Tap a stone or its name to open its card on the right, then Play. Stones whose level is not built yet say they open in a coming update. Stone places live in `levels-w1.json` under `map.stones`. Title screen Play now opens the map. The star count shows total stars out of 18.
+
 ### 4.1A Naming rule
 
 No name the student sees may point at reading or at a reading problem. The game, worlds, levels, abilities and rewards are named for the adventure, like a movie title (example: "Escape from Witch Mountain"). Words like read, word, letter, spell, phonics, level or fluency stay out of names. Reading is the power inside the game, never what the game is called. ("Level" appears only as a small label, like "Level 3", never as a name.)
@@ -102,6 +104,8 @@ A structured literacy sequence built for older readers. Each world adds to every
 ### 5.1 Mastery
 
 **Rift locks (built in Session 6, decided by Claude):** a lock fills from the student's last 10 reads of that pattern, counting only reads that are right on the first try with no speaker help. 9 of the last 10 fills it (90%). Runes count toward their vowel's lock, since they are pure decoding. The count uses the student's whole history on the device, so a lost level still moves the locks forward, and a pattern mastered in one level stays mastered in the next unless new misses pull it down. Settings per level: `mastery`, `minWaves`, `endless` and `finalBoost` in `game/data/levels-w1.json`. Simulated players: 90% readers close the rift in about 4 to 9 waves; a reader who never reaches 90% falls around wave 13 (about 15 minutes), which ends the session with a summary of what to practice.
+
+**Locks hold once full (Session 9, decided by Claude):** during one try at a level, a lock that has filled stays full even if a later miss drops the last 10 below 9. The student showed mastery; the end screen still shows the real last 10 reads, and the next try starts from the real record. Without this, a strong reader had to hold 3 or 4 patterns at 9 of 10 at the same moment, and Level 3 ran past 20 minutes. Simulated 90% readers with locks that hold: Level 2 wins in 6 to 11 minutes, Level 3 in 7 to 11 minutes. 80% readers usually win Level 2 and fall around wave 15 on Level 3, which ends with a practice summary.
 
 - A pattern is mastered when the student reads pattern words with about 90% accuracy across at least two separate play sessions.
 - Missed words come back more often (spaced review). Mastered words still appear occasionally so skills stay sharp.
@@ -164,10 +168,10 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 |---|---|---|
 | Archer Tower | Steady single-target damage, hits fliers | Start |
 | Spike Pit | Trap on the trail, damages everything that walks over | Start |
-| Stone Golem | Blocks the trail and holds creatures in place | Level 1 win |
-| Frost Totem | Slows everything in its ring; tier 3 can freeze | Level 2 win |
-| Ember Cannon | Splash damage on groups | Level 2 win |
-| Lightning Spire | Chains between creatures; breaks shields | Level 3 win |
+| Stone Golem | Blocks the trail and holds creatures in place | Start |
+| Frost Totem | Slows everything in its ring; tier 3 can freeze | Start |
+| Ember Cannon | Splash damage on groups; breaks shields | Level 1 win |
+| Lightning Spire | Chains between creatures; breaks shields | Level 2 win |
 | Vine Snare | Roots creatures in place for a few seconds | Level 3 win |
 | Ballista | Long range, extra damage to fliers and big creatures | Level 4 win |
 | Healing Shrine | Repairs golems and barricades; slowly heals the Anchor | Level 4 win |
@@ -176,6 +180,10 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Hawk Nest (World 2+) | Hawks hunt fliers anywhere on the map | World 2 |
 
 **Built in M3:** Archer Tower, Spike Pit, Stone Golem and Frost Totem, each with 3 levels (upgrade adds a gold band; tier 3 specialties come in M6). The Golem holds up to 3 creatures (4 at level 3). Session 6: Mr. Scott found it felt unbreakable, so its health dropped (150, 210, 290 by level), Thornbacks and Wisps hit it harder, it barely heals, and it rebuilds 14 seconds after it falls. Selling returns 60% of what was spent. Build two ways: pick a card in the build bar and tap a glowing spot, or tap an empty spot and pick from the menu. Level 1 offers all four for the demo; the unlock order above takes over with the map in M4. Locked defenders show in the bar with the level that opens them.
+
+**Unlock order revised in M4 (Session 9, Claude):** Golem and Frost Totem stay open from the start because Level 1 balance was playtested with all four. Ember Cannon opens after Level 1 (it answers the Bramble Swarms in Level 2) and Lightning Spire after Level 2, so both shield breakers are in hand before Shield Brutes arrive in Level 3. Unlocks are worked out from the wins saved on the device (`unlockBy` in `units.json`). Every defender shows in the build bar; locked ones say which level opens them, and ones not built yet say "Coming soon" once their level is won.
+
+**Built in M4:** Ember Cannon (lobbed shell, splash on landing, cost 120) and Lightning Spire (zaps the creature furthest along, then jumps to 2, 3 or 4 more with less damage each jump, cost 150). Both break shields.
 
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 
@@ -194,6 +202,8 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Rift Bat | Flies over traps and blockers | Level 4 |
 | Splitter | Splits in two when defeated | Level 5 |
 | The Thorn King | World 1 boss: summons thorns, roots defenders | Boss |
+
+**Built in M4:** Bramble Swarm (hp 9, fast, tight packs) and Shield Brute (hp 140, slow; its shield cuts archer, spike and golem damage by 80% until an Ember Cannon, a Lightning Spire or a Mega Forge breaks it). The first time a new creature appears in a battle, a short line says what beats it.
 
 Every later world adds its own creatures with new tricks (burrowers, healers, invisible stalkers, armored sky ships).
 
@@ -337,6 +347,8 @@ After every level, the student sees a short **Level Clear** screen:
 
 **Built in Session 6 (win or lose):** headline, stars or a tip, each rift lock with its last 10 reads as colored blocks and this try's first-try count, runes on their own line (true decoding), "Words to practice" (every word missed or helped this try, tap to hear), words forged, first-try percent, waves survived, and first-try percent compared with the last try of the same level. Every line has a speaker. The full Then vs. Now graph comes with M4.
 
+**Built in M4 (Session 9), decided by Claude:** a "Then and now" box on the end screen, one row per pattern in the level. Then = first-try rate on the student's first 10 reads of that pattern ever; Now = the last 10. A pattern needs 15 reads before Then and Now are shown apart, so the two windows mostly do not overlap; before that it shows Now only with "New this level." The headline is the biggest gain ("short a: up 50 points since your first tries"). If nothing has gone up, the headline is "Holding strong" with total words forged all time, so the student always leaves with a reason to keep going. A first win also shows an Unlocked box (next stone, new defender with its picture). Win buttons: Continue (back to the map on the next stone) and Play again. Lose buttons: Try again and World map. The WCPM fluency line arrives with M7.
+
 If a number drops (common when a new world brings harder words), the screen shows something that did improve instead, such as accuracy on earlier patterns or words read this week. Students should leave every Level Clear screen with a reason to keep going.
 
 ---
@@ -375,7 +387,7 @@ Each milestone is a playable, testable step.
 | M1 | Game skeleton | Title screen, Lexend font, settings menu (done) |
 | M2 | First reading check | Turn-based tap battle with World 1 words (done, replaced by the redesign; its words, voices, checker and record carry over) |
 | M3 | Hold the Rift core | 3D Thornwood map, trail, waves, Rune Forge, 4 defenders, 2 creatures, one playable level (done Nov 21) |
-| M4 | World map and Level 1 to 3 | World 1 map with locked levels, stars, Level Clear growth screen |
+| M4 | World map and Level 1 to 3 | World 1 map with locked levels, stars, Level Clear growth screen (done Nov 21) |
 | M5 | Speak mode | Forge words read aloud for a bonus |
 | M6 | Full arsenal | All World 1 defenders, upgrades, hero powers, Armory |
 | M7 | Boss and Rift Seal | Thorn King, Rift Seal fluency passage with WCPM |

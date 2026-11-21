@@ -3,7 +3,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const app = {};
   RF.app = app;
-  RF.VERSION = 'v0.3.0';
+  RF.VERSION = 'v0.4.0';
 
   function guessLowPower() {
     const cores = navigator.hardwareConcurrency || 4;
@@ -50,11 +50,17 @@ window.RF = window.RF || {};
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       app.time = (app.time || 0) + dt;
-      if (RF.battle && RF.battle.active) RF.battle.update(dt);
-      else app.titleCam(dt);
-      app.animateWorld(dt);
-      renderer.render(app.world.scene, app.world.camera);
-      if (RF.battle && RF.battle.active) RF.battle.afterRender();
+      if (app.mode === 'map' && RF.map.scene && !(RF.battle && RF.battle.active)) {
+        RF.map.update(dt);
+        renderer.render(RF.map.scene, RF.map.camera);
+        RF.map.afterRender();
+      } else {
+        if (RF.battle && RF.battle.active) RF.battle.update(dt);
+        else app.titleCam(dt);
+        app.animateWorld(dt);
+        renderer.render(app.world.scene, app.world.camera);
+        if (RF.battle && RF.battle.active) RF.battle.afterRender();
+      }
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -62,6 +68,15 @@ window.RF = window.RF || {};
 
     if (!RF.settings.lang) RF.screens.language();
     else RF.screens.title();
+  };
+
+  // Swap in the 3D world for another level (each level has its own trail and layout).
+  app.useLevel = function (i) {
+    const L = RF.data.levels.levels[i];
+    if (app.world && app.world.L === L) return;
+    if (app.world) app.world.scene.traverse(function (o) { if (o.geometry) o.geometry.dispose(); });
+    app.world = RF.buildLevel(L);
+    app.resize();
   };
 
   // Shift the picture so the trail sits in the open space left of the Rune Forge and above the build bar.
@@ -84,6 +99,7 @@ window.RF = window.RF || {};
       cam.clearViewOffset();
     }
     cam.updateProjectionMatrix();
+    if (RF.map) RF.map.resize();
   };
 
   // Slow circle around the Thornwood behind the title and menus.

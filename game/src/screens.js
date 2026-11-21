@@ -49,6 +49,8 @@ window.RF = window.RF || {};
   // ---------- Title ----------
   S.title = function () {
     if (RF.battle && RF.battle.active) RF.battle.cleanup();
+    if (RF.map) RF.map.hide();
+    RF.app.mode = 'title';
     const box = open(false);
     box.style.background = 'radial-gradient(ellipse at center, rgba(5,6,15,.15), rgba(5,6,15,.7))';
     const col = D.el('div', null, null, box);
@@ -59,43 +61,11 @@ window.RF = window.RF || {};
     tag.querySelector('.txt').style.fontSize = 'calc(22px * var(--ts))';
     const btns = D.el('div', null, null, col);
     btns.style.cssText = 'display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:12px';
-    D.button('title.play', function () { RF.sfx('select'); S.levelCard(0); }, 'big go', btns).btn.dataset.first = '1';
+    D.button('title.play', function () { RF.sfx('select'); RF.map.show(); }, 'big go', btns).btn.dataset.first = '1';
     D.button('title.settings', function () { RF.sfx('open'); S.settings(function () { S.title(); }); }, '', btns);
     const ver = D.el('div', null, RF.VERSION, box);
     ver.style.cssText = 'position:absolute;right:14px;bottom:10px;font-size:13px;color:#8890c8';
     D.nav(box);
-  };
-
-  // ---------- Level card (the World 1 map comes in M4) ----------
-  S.levelCard = function (i) {
-    const L = RF.data.levels.levels[i];
-    const box = open(true);
-    const p = panel(box, 560);
-    D.el('div', 'cyan', D.esc(RF.t('level.n' + L.num) + ' · ' + RF.t('level.open')).toUpperCase(), p).style.cssText = 'font-weight:700;font-size:16px;margin-bottom:-10px';
-    const nm = D.line(L.name, '', p);
-    nm.querySelector('.txt').style.cssText = 'font-size:calc(34px * var(--ts));font-weight:700';
-    const rows = [
-      ['level.card.waves', 'level.wavesUntil', null, null, '#fff'],
-      ['level.card.enemies', L.enemies, null, null, '#d9a8ff'],
-      ['level.card.words', L.words, null, null, '#fff'],
-      ['level.card.reward', L.reward, null, null, '#ffd76a']
-    ];
-    const grid = D.el('div', null, null, p);
-    grid.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:center';
-    rows.forEach(function (r) {
-      const parts = [{ id: r[0] }, r[1] ? { id: r[1] } : r[2]];
-      const lab = D.el('div', 'line', null, grid);
-      lab.appendChild(D.speaker(function () { RF.speakSeq(parts); }, true));
-      D.el('span', 'txt', D.esc(RF.t(r[0])), lab).style.color = '#aab6ff';
-      D.el('div', 'read', D.esc(r[1] ? RF.t(r[1]) : r[3]), grid).style.cssText = 'font-size:calc(18px * var(--ts));color:' + r[4];
-    });
-    D.line('level.goal', '', p).querySelector('.txt').style.color = '#9cf2c0';
-    const row = D.el('div', null, null, p);
-    row.style.cssText = 'display:flex;gap:14px;align-items:center;flex-wrap:wrap';
-    D.button('title.play', function () { S.close(); RF.sfx('open'); RF.startBattle(i); }, 'big go', row).btn.dataset.first = '1';
-    D.button('settings.back', function () { RF.sfx('back'); S.title(); }, '', row);
-    RF.speakSeq([{ id: 'level.n' + L.num }, { id: L.name }]);
-    D.nav(box, function () { S.title(); });
   };
 
   // ---------- Settings ----------
@@ -266,6 +236,64 @@ window.RF = window.RF || {};
     D.nav(box, back);
   };
 
+  // ---------- Growth graph (DESIGN.md 12A.2) ----------
+  // One bar pair per pattern in this level: Then = first 10 reads ever, Now = last 10.
+  // A pattern needs 15 reads before Then and Now are shown apart; until then it shows Now only.
+  S.growth = function (r, parent) {
+    const M = RF.metrics;
+    const pct = function (a) { return a.length ? Math.round(a.filter(Boolean).length / a.length * 100) : 0; };
+    const rows = r.L.vowels.map(function (v) {
+      const pat = 'cvc-' + v;
+      const n = M.patternCount(pat);
+      const then = pct(M.patternFirst(pat, 10)), now = pct(M.patternRecent(pat, 10));
+      return { pat: pat, n: n, then: then, now: now, apart: n >= 15, gain: n >= 15 ? now - then : 0 };
+    });
+    const best = rows.filter(function (x) { return x.gain > 0; }).sort(function (a, b) { return b.gain - a.gain; })[0];
+    const sec = D.el('div', null, null, parent);
+    sec.style.cssText = 'background:#0b0d20;border:2px solid #7ef3ff;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:8px';
+    const head = D.el('div', null, null, sec);
+    head.style.cssText = 'display:flex;align-items:center;gap:14px;flex-wrap:wrap';
+    D.line('grow.title', '', head).querySelector('.txt').style.cssText = 'font-weight:700;color:#7ef3ff;font-size:calc(17px * var(--ts))';
+    // Headline: the biggest gain, or (if nothing went up yet) total words forged.
+    const hl = D.el('div', null, null, head);
+    hl.style.cssText = 'display:flex;align-items:center;gap:10px;margin-left:auto';
+    let parts, html;
+    if (best) {
+      parts = [{ id: 'pat.' + best.pat }, { id: 'grow.up' }, D.num(best.gain), { id: 'grow.points' }];
+      html = '<b style="color:#e6e9ff">' + D.esc(RF.t('pat.' + best.pat)) + ':</b> <span style="font-size:34px;color:#7dff9c;font-weight:700">&#9650; ' + best.gain + '</span> <span style="color:#e6e9ff">' + D.esc(RF.t('grow.points')) + '</span>';
+    } else {
+      const total = M.data().totals.wordsRead;
+      parts = [{ id: 'grow.steady' }, { id: 'grow.total' }, D.num(total)];
+      html = '<span style="color:#9cf2c0;font-weight:700">' + D.esc(RF.t('grow.steady')) + '</span> &nbsp; <span style="color:#e6e9ff">' + D.esc(RF.t('grow.total')) + ':</span> <span style="font-size:30px;color:#7ef3ff;font-weight:700">' + total + '</span>';
+    }
+    hl.appendChild(D.speaker(function () { RF.speakSeq(parts); }, true));
+    D.el('div', 'read', html, hl).style.cssText = 'font-size:calc(15px * var(--ts));display:flex;align-items:center;gap:6px';
+    // Bars
+    const grid = D.el('div', null, null, sec);
+    grid.style.cssText = 'display:grid;grid-template-columns:auto 90px 1fr;gap:4px 10px;align-items:center';
+    const bar = function (cell, val, color, label) {
+      const wrap = D.el('div', null, null, cell);
+      wrap.style.cssText = 'display:flex;align-items:center;gap:8px;height:18px';
+      D.el('span', null, D.esc(label), wrap).style.cssText = 'width:110px;font-size:calc(12px * var(--ts));color:#aab6ff;text-align:right;flex:none';
+      const track = D.el('div', null, null, wrap);
+      track.style.cssText = 'flex:1;height:14px;background:#22264a;border-radius:7px;overflow:hidden';
+      D.el('i', null, null, track).style.cssText = 'display:block;height:100%;width:' + val + '%;background:' + color + ';border-radius:7px';
+      D.el('b', null, val + '%', wrap).style.cssText = 'width:44px;font-size:14px;color:' + color;
+    };
+    rows.forEach(function (x) {
+      const sp = x.apart
+        ? [{ id: 'pat.' + x.pat }, { id: 'grow.then' }, { text: x.then + '%' }, { id: 'grow.now' }, { text: x.now + '%' }]
+        : [{ id: 'pat.' + x.pat }, { id: 'grow.newPat' }, { id: 'grow.now' }, { text: x.now + '%' }];
+      grid.appendChild(D.speaker(function () { RF.speakSeq(sp); }, true));
+      D.el('div', 'read', D.esc(RF.t('pat.' + x.pat)), grid).style.cssText = 'font-size:calc(16px * var(--ts));font-weight:700';
+      const cell = D.el('div', null, null, grid);
+      cell.style.cssText = 'display:flex;flex-direction:column;gap:3px';
+      if (x.apart) bar(cell, x.then, '#8a7ad0', RF.t('grow.then'));
+      bar(cell, x.now, x.apart && x.now > x.then ? '#7dff9c' : '#7ef3ff', RF.t('grow.now'));
+    });
+    if (rows.some(function (x) { return !x.apart; })) D.line('grow.newPat', '', sec).querySelector('.txt').style.cssText = 'font-size:calc(13px * var(--ts));color:#aab6ff';
+  };
+
   // ---------- End of level: what happened, and the mastery summary (win or lose) ----------
   S.results = function (r) {
     const box = open(true);
@@ -281,6 +309,27 @@ window.RF = window.RF || {};
     } else {
       D.line('res.loseTip', '', p).querySelector('.txt').style.color = '#e6e9ff';
     }
+
+    // Unlocked on a first win: the next stone and any new defenders.
+    const wins = RF.metrics.data().battles.filter(function (b) { return b.id === r.L.id && b.result === 'win'; }).length;
+    if (r.win && wins === 1) {
+      const rw = RF.unlocks.rewardsFor(r.L.id);
+      if (rw.stone || rw.defenders.length) {
+        const ub = D.el('div', null, null, p);
+        ub.style.cssText = 'background:linear-gradient(#2a2150,#1a1538);border:2px solid #ffd76a;border-radius:12px;padding:10px 14px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:0 0 18px rgba(255,215,106,.35)';
+        D.el('div', null, '&#128275; ' + D.esc(RF.t('unlock.title')).toUpperCase(), ub).style.cssText = 'font-weight:700;color:#ffd76a;font-size:18px';
+        if (rw.stone) D.lineParts([{ id: 'unlock.stone' }, { id: rw.stone.name }], '', ub, D.esc(RF.t('unlock.stone')) + ' <b class="cyan">' + D.esc(RF.t(rw.stone.name)) + '</b>').querySelector('.txt').style.fontSize = 'calc(17px * var(--ts))';
+        rw.defenders.forEach(function (id) {
+          const dn = RF.data.units.defenders[id].name;
+          const l = D.lineParts([{ id: 'unlock.def' }, { id: dn }], '', ub, D.esc(RF.t('unlock.def')) + ' <b class="gold">' + D.esc(RF.t(dn)) + '</b>');
+          l.querySelector('.txt').style.fontSize = 'calc(17px * var(--ts))';
+          if (RF.icons && RF.icons[id]) { const im = D.el('img', null, null, l); im.src = RF.icons[id]; im.style.cssText = 'width:48px;height:48px'; }
+        });
+      }
+    }
+
+    // Then and now: first-try rate on the student's first 10 reads of each pattern ever, compared with the last 10.
+    S.growth(r, p);
 
     // Rift locks: one row per pattern, plus runes.
     const sec = D.el('div', null, null, p);
@@ -348,8 +397,15 @@ window.RF = window.RF || {};
 
     const row = D.el('div', null, null, p);
     row.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:4px';
-    D.button(r.win ? 'res.again' : 'res.tryAgain', function () { S.close(); RF.startBattle(r.levelIndex); }, 'big go', row).btn.dataset.first = '1';
-    D.button('battle.toTitle', function () { S.title(); }, '', row);
+    const stoneIdx = RF.unlocks.stones().findIndex(function (s) { return s.id === r.L.id; });
+    const again = function () { S.close(); RF.startBattle(r.levelIndex); };
+    if (r.win) {
+      D.button('res.continue', function () { RF.sfx('select'); RF.map.show(RF.map.defaultStone()); }, 'big go', row).btn.dataset.first = '1';
+      D.button('res.again', again, '', row);
+    } else {
+      D.button('res.tryAgain', again, 'big go', row).btn.dataset.first = '1';
+      D.button('res.toMap', function () { RF.sfx('back'); RF.map.show(stoneIdx); }, '', row);
+    }
     RF.speak(r.win ? 'res.win' : 'res.lose');
     D.nav(box);
   };
