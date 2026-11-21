@@ -3,7 +3,6 @@ window.RF = window.RF || {};
 (function (RF) {
   const app = {};
   RF.app = app;
-  RF.VERSION = 'v0.4.0';
 
   function guessLowPower() {
     const cores = navigator.hardwareConcurrency || 4;
