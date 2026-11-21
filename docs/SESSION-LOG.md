@@ -35,5 +35,10 @@ Newest entry at the top. Each session adds one entry.
 - M1: game skeleton. Title screen, Lexend font, settings menu (language, text size, font toggle, volume). Publish as the website AND as the single-file Apps Script version, and test the microphone inside Apps Script early.
 - GitHub Pages is ON with Source set to GitHub Actions (done 11/21). M1 must add the deploy workflow. Mr. Scott: check whether github.io sites load on a student Chromebook at school.
 
+**Demo plan for December 2**
+- Mr. Scott is off Thanksgiving week, so there will be no Chromebook check at school before the meeting. Demo from the website.
+- Backup if github.io is blocked on the district network: open the all-in-one HTML file straight from his laptop (works with no internet in tap mode; speak mode needs internet), or use a phone hotspot.
+- Every M1 to M4 session must keep the all-in-one HTML file working so the backup stays ready.
+
 **Open questions**
 - See DESIGN.md section 15.
