@@ -4,6 +4,35 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 12: November 21, 2026 (M6 part 1: four new defenders; level ramp for all worlds)
+
+**Built**
+- M6 split into four sessions: (1) the last four World 1 defenders, (2) tier 3 specialties, (3) Rift Warden hero powers, (4) the Armory.
+- Vine Snare (trail, 70): roots 2 to 4 ground creatures for about 2 seconds with a little damage, then regrows (shrinks while regrowing). Wisps float over it; Shield Brutes break free twice as fast. Creatures show ROOTED in green.
+- Ballista (tower, 110): longest reach, a heavy bolt about every 2 seconds at the toughest creature, 1.5 times damage on Thornbacks, Shield Brutes and (later) Rift Bats. It does not break shields, and it passes over shielded Brutes when a better target is in range.
+- Healing Shrine (tower, 90): repairs golems and barricades in its ring; during waves it mends the Rift Anchor by 1 every 30, 24 or 18 seconds, never above full.
+- Barricade (trail, 30): holds creatures like a golem, never hits back, and is gone when it breaks (the spot opens again).
+- English and Spanish lines for all four. Version v0.7.0.
+- Design: level-by-level reading ramp for all 8 worlds (DESIGN.md 5). Worlds 4 and 7 get 7 levels plus the boss, so the game has 52 levels.
+
+**Tested (by Claude, headless Chrome)**
+- All four built and upgraded to level 3 on Level 3 in Test mode beside golems, archers and a spire. Vines rooted creatures and regrew, a barricade held 4 creatures and broke and freed its spot, the shrine healed a hurt golem and mended the Anchor, ballistas fired. Selling a vine or barricade mid-hold frees the creatures. No game errors. Decodability check passes.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes after this push (new voice lines), then open https://jimmaoscott-lang.github.io/rift-runners/ and check the title says v0.7.0.
+2. Settings, Teacher, Test mode On. Play Level 3.
+3. Build one of each new defender: Vine Snare and Barricade on the purple trail spots, Ballista and Healing Shrine on the stone pads. Upgrade a couple.
+4. Tell me: does each one feel worth its price? Is the Vine Snare hold long enough to matter? Does the Ballista feel strong enough for how slowly it fires?
+
+**Next up**
+- M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus for the specialty choices, which hands the coding to Sonnet.
+
+**Open questions**
+- Ballista, Shrine and Barricade open on Level 4 and 5 wins. Those levels come with Rift Bats and Splitters; until then students only see them in Test mode.
+- Still open from Session 11: forgotten teacher PIN reset (M10), progress between phone and Chromebook (DESIGN.md 15, item 0).
+
+---
+
 ## Session 11: November 21, 2026 (M5b Azure pronunciation check)
 
 **Built**

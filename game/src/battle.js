@@ -51,7 +51,7 @@ window.RF = window.RF || {};
     B.paused = false; B.speed = 1; B.shake = 0;
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
-    B.sealReady = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.seenFoes = {};
+    B.sealReady = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
     world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; });
     world.anchorFlash = 0;
 
@@ -158,7 +158,7 @@ window.RF = window.RF || {};
     B.anchorLabel = D.el('div', 'label', '', labels);
     B.riftLabel = D.el('div', 'label', '', labels);
     B.creatures.forEach(function (c) { c.label = makeBar(false); labels.appendChild(c.label); });
-    B.defenders.forEach(function (d) { if (d.type === 'golem') { d.label = makeBar(true); labels.appendChild(d.label); } });
+    B.defenders.forEach(function (d) { if (d.type === 'golem' || d.type === 'barricade') { d.label = makeBar(true); labels.appendChild(d.label); } });
     B.renderTop();
     B.renderCards();
     if (B.locks) B.renderLocks();
@@ -369,6 +369,13 @@ window.RF = window.RF || {};
     else if (type === 'spike') g = G.spikePit(pad.x, pad.z, B.world.dyn);
     else if (type === 'ember') g = G.emberCannon(pad.x, pad.z, B.world.dyn);
     else if (type === 'lightning') g = G.lightningSpire(pad.x, pad.z, B.world.dyn);
+    else if (type === 'vine') g = G.vineSnare(pad.x, pad.z, B.world.dyn);
+    else if (type === 'ballista') {
+      g = G.ballista(pad.x, pad.z, B.world.dyn);
+      g.children[1].rotation.order = 'YXZ'; // turn first, then tilt up, so it can aim any way
+    }
+    else if (type === 'shrine') g = G.healShrine(pad.x, pad.z, B.world.dyn);
+    else if (type === 'barricade') g = G.barricade(pad.x, pad.z, B.world.dyn, pad.rot); // wall faces across the trail
     else {
       g = G.golem(pad.x, pad.z, B.world.dyn, 0.8);
       g.rotation.y = pad.rot - Math.PI;
@@ -387,6 +394,13 @@ window.RF = window.RF || {};
       def.label = makeBar(true);
       document.getElementById('labels').appendChild(def.label);
     }
+    if (type === 'barricade') {
+      def.hp = d.levels[0].hp; def.max = def.hp; def.held = [];
+      def.label = makeBar(true);
+      document.getElementById('labels').appendChild(def.label);
+    }
+    if (type === 'vine') { def.held = []; def.regrow = 0; }
+    if (type === 'shrine') def.anchorT = 0;
     if (type === 'frost') scaleFrost(def);
     pad.def = def;
     B.defenders.push(def);
@@ -402,6 +416,11 @@ window.RF = window.RF || {};
     const kids = def.obj.children;
     [kids[kids.length - 1], kids[kids.length - 2]].forEach(function (m) { m.scale.set(r / 3.7, r / 3.7, 1); });
   }
+  // A defender's size: grows a little with each level. A vine shrinks while it regrows.
+  function applyScale(def) {
+    const base = (def.type === 'golem' ? 0.8 : 1) * (1 + 0.08 * (def.lv - 1));
+    def.obj.scale.setScalar(base * (def.regrow > 0 ? 0.55 : 1));
+  }
   function popIn(obj) {
     if (RF.settings.reducedMotion) return;
     const target = obj.scale.x;
@@ -416,12 +435,12 @@ window.RF = window.RF || {};
     B.crystals -= cost;
     def.spent += cost;
     def.lv++;
-    const s = 1 + 0.08 * (def.lv - 1);
-    def.obj.scale.setScalar(def.type === 'golem' ? 0.8 * s : s);
-    const rr = def.type === 'archer' ? [1.15, 1.72, 0.12] : def.type === 'ember' ? [1.3, 0.12, 0.15] : def.type === 'lightning' ? [1.05, 0.2, 0.15] : [0.9, 0.45, 0.15];
+    applyScale(def);
+    const RR = { archer: [1.15, 1.72, 0.12], ember: [1.3, 0.12, 0.15], lightning: [1.05, 0.2, 0.15], vine: [1.05, 0.15, 0.12], ballista: [1.3, 0.3, 0.15], shrine: [1.2, 0.2, 0.15], barricade: [1.15, 0.12, 0.1] };
+    const rr = RR[def.type] || [0.9, 0.45, 0.15];
     const ring = RF.G.mesh(new THREE.TorusGeometry(rr[0], 0.07, 4, 16), RF.G.M.gold, 0, rr[1] + (def.lv - 2) * rr[2], 0, def.obj);
     ring.rotation.x = Math.PI / 2;
-    if (def.type === 'golem') { const nl = d.levels[def.lv - 1]; def.max = nl.hp; def.hp = nl.hp; }
+    if (def.type === 'golem' || def.type === 'barricade') { const nl = d.levels[def.lv - 1]; def.max = nl.hp; def.hp = nl.hp; }
     if (def.type === 'frost') scaleFrost(def);
     RF.audio.fx('upgrade');
     RF.metrics.support('upgrade');
@@ -433,8 +452,10 @@ window.RF = window.RF || {};
     B.crystals += refund;
     B.world.dyn.remove(def.obj);
     if (def.label) def.label.remove();
-    if (def.held) def.held.forEach(function (c) { c.held = null; });
+    if (def.held) def.held.forEach(function (c) { c.held = null; c.rooted = 0; c.rootedBy = null; });
+    def.held = [];
     def.pad.def = null;
+    if (B.selDef === def) B.selDef = null;
     B.defenders.splice(B.defenders.indexOf(def), 1);
     RF.sfx('back');
     B.closePopup();
@@ -597,7 +618,7 @@ window.RF = window.RF || {};
     }
     B.rangeRing.scale.set(r, r, 1);
     B.rangeRing.position.set(def.pad.x, 0.15, def.pad.z);
-    B.rangeRing.visible = def.type !== 'golem';
+    B.rangeRing.visible = def.type !== 'golem' && def.type !== 'barricade';
     RF.speakSeq([{ id: d.name }, { id: 'hud.lv' }, { id: 'num.' + def.lv }]);
   };
 
@@ -707,6 +728,7 @@ window.RF = window.RF || {};
     B.world.dyn.remove(c.obj);
     c.label.remove();
     if (c.held) { const h = c.held.held; const i = h.indexOf(c); if (i >= 0) h.splice(i, 1); c.held = null; }
+    if (c.rootedBy) { const h = c.rootedBy.held; const i = h.indexOf(c); if (i >= 0) h.splice(i, 1); c.rootedBy = null; c.rooted = 0; }
     B.creatures.splice(B.creatures.indexOf(c), 1);
     if (byDefense) {
       const cd = B.U.creatures[c.type];
@@ -771,7 +793,7 @@ window.RF = window.RF || {};
         return;
       }
       B.creatures.forEach(function (c) {
-        if (c.held || d.held.length >= lv.hold) return;
+        if (c.held || c.rooted > 0 || d.held.length >= lv.hold) return;
         if (c.s >= d.pad.s - 1.6 && c.s <= d.pad.s - 0.4) { c.held = d; d.held.push(c); }
       });
       // Held creatures hit the golem; the golem hits back.
@@ -796,6 +818,86 @@ window.RF = window.RF || {};
         RF.sfx('soft');
       }
     });
+    // Barricades hold creatures like a golem, but never hit back, never heal and never come back.
+    B.defenders.slice().forEach(function (d) {
+      if (d.type !== 'barricade') return;
+      const lv = U.defenders.barricade.levels[d.lv - 1];
+      B.creatures.forEach(function (c) {
+        if (c.held || c.rooted > 0 || d.held.length >= lv.hold) return;
+        if (c.s >= d.pad.s - 1.6 && c.s <= d.pad.s - 0.4) { c.held = d; d.held.push(c); }
+      });
+      let incoming = 0;
+      d.held.forEach(function (c) { incoming += U.creatures[c.type].hit; });
+      d.hp -= incoming * dt;
+      if (d.hp <= 0) {
+        d.held.forEach(function (c) { c.held = null; });
+        d.held = [];
+        burst(d.pad.x, 1.0, d.pad.z, RF.G.TEX.orange, 6);
+        B.world.dyn.remove(d.obj);
+        if (d.label) d.label.remove();
+        if (B.selDef === d) B.closePopup();
+        d.pad.def = null;
+        B.defenders.splice(B.defenders.indexOf(d), 1);
+        B.barricadeFalls++;
+        RF.sfx('soft');
+        B.updatePads();
+      }
+    });
+    // Vine Snares root ground creatures that step into the ring, then regrow.
+    B.defenders.forEach(function (d) {
+      if (d.type !== 'vine') return;
+      const spec = U.defenders.vine;
+      const lv = spec.levels[d.lv - 1];
+      if (d.regrow > 0) {
+        d.regrow -= dt;
+        if (d.regrow <= 0) { d.regrow = 0; applyScale(d); }
+        return;
+      }
+      if (!d.held.length) {
+        B.creatures.forEach(function (c) {
+          if (d.held.length >= lv.hold || c.type === 'wisp' || c.held || c.rooted > 0) return;
+          if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) > lv.radius) return;
+          c.rooted = lv.root / (c.type === 'brute' ? spec.bruteBreak : 1);
+          c.rootedBy = d;
+          d.held.push(c);
+          burst(c.x, 0.6, c.z, RF.G.TEX.cyan, 2);
+        });
+        if (d.held.length) RF.audio.fxEvery('spike', d.pad.id, 0.7);
+        return;
+      }
+      d.held.slice().forEach(function (c) {
+        c.rooted -= dt;
+        hurt(c, lv.dps * dt); // a kill takes it off d.held
+        if (c.alive && c.rooted <= 0) { c.rooted = 0; c.rootedBy = null; d.held.splice(d.held.indexOf(c), 1); }
+      });
+      if (!d.held.length) { d.regrow = lv.regrow; applyScale(d); }
+    });
+    // Healing Shrines repair golems and barricades, and slowly mend the Rift Anchor during a wave.
+    B.defenders.forEach(function (d) {
+      if (d.type !== 'shrine') return;
+      const lv = U.defenders.shrine.levels[d.lv - 1];
+      d.fxT = (d.fxT || 0) - dt;
+      B.defenders.forEach(function (o) {
+        if ((o.type !== 'golem' && o.type !== 'barricade') || o.down > 0 || o.hp >= o.max) return;
+        if (Math.hypot(o.pad.x - d.pad.x, o.pad.z - d.pad.z) > lv.range) return;
+        o.hp = Math.min(o.max, o.hp + lv.heal * dt);
+        if (d.fxT <= 0) burst(o.pad.x, 1.4, o.pad.z, RF.G.TEX.cyan, 2);
+      });
+      if (d.fxT <= 0) d.fxT = 0.8;
+      if (B.phase === 'wave') {
+        d.anchorT += dt;
+        if (d.anchorT >= lv.anchorEvery) {
+          d.anchorT = 0;
+          if (B.anchor < B.anchorMax) {
+            B.anchor++;
+            B.renderTop();
+            const p = screenOf(B.world.camp.x, 5.4, B.world.camp.z);
+            B.floatText('+1', p.x, p.y, '#7dff9c', 24);
+            RF.audio.fx('upgrade');
+          }
+        }
+      }
+    });
     // Spike pits
     B.defenders.forEach(function (d) {
       if (d.type !== 'spike') return;
@@ -813,6 +915,8 @@ window.RF = window.RF || {};
       if (c.held) {
         c.tag = 'tag.held';
         c.s = Math.min(c.s, c.held.pad.s - 0.9 - c.held.held.indexOf(c) * 0.5);
+      } else if (c.rooted > 0) {
+        c.tag = 'tag.rooted';
       } else c.s += c.speed * c.slow * dt;
       placeCreature(c);
       if (c.s >= world.path.len) {
@@ -842,6 +946,28 @@ window.RF = window.RF || {};
       const a = RF.G.arrow(d.pad.x, 3.2, d.pad.z, world.dyn);
       RF.audio.fxEvery('archer', d.pad.id, 0.3);
       B.shots.push({ obj: a, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
+    });
+    // Ballistas fire a heavy bolt at the toughest creature in range.
+    B.defenders.forEach(function (d) {
+      if (d.type !== 'ballista') return;
+      const spec = U.defenders.ballista;
+      const lv = spec.levels[d.lv - 1];
+      d.cd -= dt;
+      if (d.cd > 0) return;
+      // Toughest first, but a shield soaks most of a bolt, so shielded ones count for less.
+      const worth = function (c) { return c.hp * (c.shield ? 1 - (U.creatures[c.type].shieldCut || 0.8) : 1); };
+      let best = null;
+      B.creatures.forEach(function (c) {
+        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range && (!best || worth(c) > worth(best))) best = c;
+      });
+      if (!best) return;
+      d.cd = 1 / lv.rate;
+      const top = d.obj.children[1];
+      top.rotation.set(0.2, Math.atan2(-(best.x - d.pad.x), -(best.z - d.pad.z)), 0);
+      const a = RF.G.arrow(d.pad.x, 1.9 * (1 + 0.08 * (d.lv - 1)), d.pad.z, world.dyn);
+      a.scale.setScalar(2.2);
+      RF.audio.fxEvery('archer', d.pad.id, 0.3);
+      B.shots.push({ obj: a, target: best, dmg: lv.dmg * (spec.big.indexOf(best.type) >= 0 ? spec.bigBonus : 1), speed: spec.boltSpeed, tx: best.x, tz: best.z });
     });
     // Ember Cannons lob a slow shell at the creature furthest along the trail.
     B.defenders.forEach(function (d) {
@@ -967,7 +1093,7 @@ window.RF = window.RF || {};
       const t = c.shield ? RF.t('tag.shield') + (c.tag ? ' · ' + RF.t(c.tag) : '') : c.tag ? RF.t(c.tag) : '';
       if (c.label.firstChild.textContent !== t) {
         c.label.firstChild.textContent = t;
-        c.label.firstChild.style.color = c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' ? '#bff3ff' : '#ffd76a';
+        c.label.firstChild.style.color = c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' ? '#bff3ff' : c.tag === 'tag.rooted' ? '#9cf2c0' : '#ffd76a';
       }
     });
     B.defenders.forEach(function (d) {

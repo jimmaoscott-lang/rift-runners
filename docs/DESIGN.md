@@ -56,7 +56,7 @@ Students should experience it as a game they want to beat. The reading instructi
 
 - One big 3D map per world. Every level of the world sits on it as a stone on a trail, all visible from the start.
 - Beaten levels turn gold and show 1 to 3 stars. The next level glows. Later levels are chained and locked until the one before is beaten. The next world sits under fog in the distance with its own rift.
-- Each world: 5 levels plus a boss level (6 total). 8 worlds, 48 levels.
+- Each world: 5 levels plus a boss level (6 total); Worlds 4 and 7 have 7 levels plus the boss. 8 worlds, 52 levels.
 - Level card on the map: name, waves, new enemy, which word patterns, and the reward for winning. Every line has a speaker.
 
 **Built in M4 (Session 9):** `game/src/map.js` draws the World 1 map in 3D (Thornwood open, the Dunes and Frostfang under fog). Six stones: Levels 1 to 5 and the Thorn King. States come from the progress record on the device (`game/src/unlocks.js`): a stone opens when the stone before it has been won; beaten stones turn gold with the best stars; the stepping stones between beaten levels turn gold; the Rift Warden stands at the stone the student is up to. Tap a stone or its name to open its card on the right, then Play. Stones whose level is not built yet say they open in a coming update. Stone places live in `levels-w1.json` under `map.stones`. Title screen Play now opens the map. The star count shows total stars out of 18.
@@ -94,6 +94,19 @@ A structured literacy sequence built for older readers. Each world adds to every
 | 8 | Fluent reading of full passages; prosody and expression | Mixed text using all patterns | Final form |
 
 **World 1 level ramp (decided by Claude, Nov 21):** Level 1 short a and i only (two vowels far apart in sound). Level 2 adds short o (a/o is a hard pair for Spanish speakers). Level 3 adds short e (i/e is the hardest pair). Level 4 adds short u. Level 5 mixes all five with more runes. Boss: short phrases and a short passage made only of World 1 words and heart words. Every later world follows the same shape: introduce the new pattern in small steps, then mix it with everything before.
+
+**Level ramp for every world (decided by Claude, Session 12; Mr. Scott agreed):** Levels bring in the new pattern a little at a time, the last regular level mixes it with everything before, and the boss is a fluency check on connected text. Rune share grows from about a quarter to about a third inside each world. Worlds 4 and 7 carry the most patterns, so they get 7 levels plus the boss instead of 5 (52 levels in all). Eight worlds stay: two longer worlds reuse their map, creatures and defenders, while a ninth world would cost several build sessions.
+
+| World | L1 | L2 | L3 | L4 | L5 | L6 | L7 | Boss |
+|---|---|---|---|---|---|---|---|---|
+| 1 Short vowels | a, i | + o | + e | + u | all mixed | | | Phrases, short passage |
+| 2 Blends and digraphs | sh, ch, th | wh, ck, ng, nk | l and r blends (flag, crab) | s blends, final blends (spin, best) | 3-letter blends, tch, floss ff ll ss, mixed | | | Sentences |
+| 3 Silent e | a_e, i_e | o_e | u_e, e_e | pairs: hop/hope, cap/cape | with blends, soft c and g (ice, page), mixed | | | Short paragraph |
+| 4 Vowel teams | ee, ea | ai, ay | oa, ow (snow) | oi, oy | ou, ow (cow) | oo (moon, book), ew | aw, au, all mixed | Paragraph |
+| 5 R-controlled | ar | or, ore | er, ir, ur | air, are, ear (bear) | all mixed | | | Longer paragraph |
+| 6 Syllables | compound words | VC/CV (basket) | open V/CV (robot) and flexing (camel) | consonant-le (candle) | long words with teams and r-control, 3 syllables | | | Story passage with questions |
+| 7 Word parts | -s, -es, -ed (3 sounds), -ing | doubling and drop e (hopping, baking) | -er, -est, -ly, -ful, -less, -ness | un-, re-, pre-, dis-, mis- | -tion, -sion | -ment, -able | roots port, struct, ject, rupt, spect | Passage with vocabulary questions |
+| 8 Fluency | phrase reading | punctuation | dialogue and expression | short timed passages | longer passages with questions | | | Final boss |
 
 **World 1 word rules (built in M2):** three letters, consonant + short vowel + consonant. No final r, w or y (they change the vowel), no c or g before e or i (soft sounds), and final blends like "bend" wait for World 2. Words live in `game/data/world1.json`.
 
@@ -201,6 +214,19 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 **Unlock order revised in M4 (Session 9, Claude):** Golem and Frost Totem stay open from the start because Level 1 balance was playtested with all four. Ember Cannon opens after Level 1 (it answers the Bramble Swarms in Level 2) and Lightning Spire after Level 2, so both shield breakers are in hand before Shield Brutes arrive in Level 3. Unlocks are worked out from the wins saved on the device (`unlockBy` in `units.json`). Every defender shows in the build bar; locked ones say which level opens them, and ones not built yet say "Coming soon" once their level is won.
 
 **Built in M4:** Ember Cannon (lobbed shell, splash on landing, cost 120) and Lightning Spire (zaps the creature furthest along, then jumps to 2, 3 or 4 more with less damage each jump, cost 150). Both break shields.
+
+**M6 plan (Session 12, Claude as build manager):** M6 runs in four sessions. (1) Vine Snare, Ballista, Healing Shrine and Barricade. (2) Tier 3 specialties for all ten defenders. (3) Rift Warden hero powers. (4) Armory with banked crystals. Each session ends playable.
+
+**Built in M6 part 1 (Session 12):** the last four World 1 defenders. Numbers live in `units.json`.
+
+| Defender | Spot | Cost (upgrades) | How it works |
+|---|---|---|---|
+| Vine Snare | Trail | 70 (55, 85) | When a ground creature steps in its ring, vines root up to 2, 3 or 4 creatures for 1.6, 2.0 or 2.5 seconds and squeeze them for a little damage. Then it regrows for 6, 5 or 4 seconds. Shield Brutes break free twice as fast. Wisps float over it. |
+| Ballista | Tower | 110 (80, 120) | Very long reach. Fires one heavy bolt about every 2 seconds at the toughest creature in range. Bolts do 1.5 times damage to big creatures (Thornbacks, Shield Brutes, and fliers when Rift Bats arrive). It does not break shields, so cannons and spires keep that job. |
+| Healing Shrine | Tower | 90 (65, 95) | Repairs Stone Golems and Barricades in its ring. During a wave it also mends the Rift Anchor by 1 every 30, 24 or 18 seconds, never above full. |
+| Barricade | Trail | 30 (25, 40) | A cheap wall that holds creatures in place like a golem but never hits back. When it breaks it is gone, and the spot opens again. |
+
+Choice (Claude): World 1 trails are fixed, so the Barricade only blocks there. Rerouting waits for the open maps of later worlds. Ballista, Shrine and Barricade unlock on Level 4 and 5 wins; until those levels are built, Test mode opens them for trying.
 
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 

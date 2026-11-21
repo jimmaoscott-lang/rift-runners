@@ -1,7 +1,7 @@
 {
   "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
   "updated": "2026-11-21",
-  "sessionsSoFar": 11,
+  "sessionsSoFar": 12,
   "milestones": [
     {
       "id": "M0",
@@ -80,7 +80,7 @@
     },
     {
       "id": "M6",
-      "name": "Full arsenal: defenders, upgrades, hero, Armory",
+      "name": "Full arsenal: defenders (done), specialties, hero, Armory",
       "sessions": [
         3,
         4
@@ -107,10 +107,10 @@
     },
     {
       "id": "M9",
-      "name": "Worlds 2 to 8",
+      "name": "Worlds 2 to 8 (46 levels)",
       "sessions": [
-        10,
-        16
+        11,
+        17
       ],
       "done": false
     },

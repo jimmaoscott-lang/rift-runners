@@ -194,38 +194,136 @@
           "chain": 4
         }
       ]
+    },
+    "vine": {
+      "name": "def.vine",
+      "desc": "def.vine.desc",
+      "kind": "trail",
+      "cost": 70,
+      "up": [
+        55,
+        85
+      ],
+      "unlockBy": "w1-l3",
+      "unlock": "level.n3",
+      "bruteBreak": 2.0,
+      "levels": [
+        {
+          "radius": 1.9,
+          "root": 1.6,
+          "hold": 2,
+          "regrow": 6,
+          "dps": 4
+        },
+        {
+          "radius": 2.0,
+          "root": 2.0,
+          "hold": 3,
+          "regrow": 5,
+          "dps": 6
+        },
+        {
+          "radius": 2.1,
+          "root": 2.5,
+          "hold": 4,
+          "regrow": 4,
+          "dps": 9
+        }
+      ]
+    },
+    "ballista": {
+      "name": "def.ballista",
+      "desc": "def.ballista.desc",
+      "kind": "tower",
+      "cost": 110,
+      "up": [
+        80,
+        120
+      ],
+      "unlockBy": "w1-l4",
+      "unlock": "level.n4",
+      "bigBonus": 1.5,
+      "big": [
+        "thornback",
+        "brute",
+        "bat"
+      ],
+      "boltSpeed": 34,
+      "levels": [
+        {
+          "dmg": 42,
+          "range": 13.0,
+          "rate": 0.45
+        },
+        {
+          "dmg": 60,
+          "range": 14.5,
+          "rate": 0.5
+        },
+        {
+          "dmg": 84,
+          "range": 16.0,
+          "rate": 0.55
+        }
+      ]
+    },
+    "shrine": {
+      "name": "def.shrine",
+      "desc": "def.shrine.desc",
+      "kind": "tower",
+      "cost": 90,
+      "up": [
+        65,
+        95
+      ],
+      "unlockBy": "w1-l4",
+      "unlock": "level.n4",
+      "levels": [
+        {
+          "range": 6.0,
+          "heal": 8,
+          "anchorEvery": 30
+        },
+        {
+          "range": 7.0,
+          "heal": 12,
+          "anchorEvery": 24
+        },
+        {
+          "range": 8.0,
+          "heal": 16,
+          "anchorEvery": 18
+        }
+      ]
+    },
+    "barricade": {
+      "name": "def.barricade",
+      "desc": "def.barricade.desc",
+      "kind": "trail",
+      "cost": 30,
+      "up": [
+        25,
+        40
+      ],
+      "unlockBy": "w1-l5",
+      "unlock": "level.n5",
+      "levels": [
+        {
+          "hp": 110,
+          "hold": 4
+        },
+        {
+          "hp": 170,
+          "hold": 5
+        },
+        {
+          "hp": 250,
+          "hold": 6
+        }
+      ]
     }
   },
-  "locked": [
-    {
-      "id": "vine",
-      "name": "def.vine",
-      "cost": 70,
-      "unlock": "level.n3",
-      "unlockBy": "w1-l3"
-    },
-    {
-      "id": "ballista",
-      "name": "def.ballista",
-      "cost": 110,
-      "unlock": "level.n4",
-      "unlockBy": "w1-l4"
-    },
-    {
-      "id": "shrine",
-      "name": "def.shrine",
-      "cost": 90,
-      "unlock": "level.n4",
-      "unlockBy": "w1-l4"
-    },
-    {
-      "id": "barricade",
-      "name": "def.barricade",
-      "cost": 30,
-      "unlock": "level.n5",
-      "unlockBy": "w1-l5"
-    }
-  ],
+  "locked": [],
   "creatures": {
     "thornback": {
       "name": "foe.thornback",
