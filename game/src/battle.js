@@ -51,7 +51,7 @@ window.RF = window.RF || {};
     B.paused = false; B.speed = 1; B.shake = 0;
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
-    B.sealReady = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
+    B.sealReady = false; B.sealDone = false; B.sealOpened = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
     world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; });
     world.anchorFlash = 0;
 
@@ -91,8 +91,11 @@ window.RF = window.RF || {};
     });
     const lv = D.el('div', 'chip', '', top);
     lv.style.cssText += ';font-size:14px;gap:8px;padding:4px 10px';
-    lv.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'level.world1short' }, { id: 'level.n' + B.L.num }, { id: B.L.name }]); }, true));
-    D.el('div', null, '<span class="gold">' + D.esc(RF.t('level.world1short')) + ' · ' + D.esc(RF.t('level.n' + B.L.num)) + '</span><br>' + D.esc(RF.t(B.L.name)), lv).style.lineHeight = '1.2';
+    // Story levels (World 8) show the world name only, since they have no level number in World 1.
+    const wid = B.L.story ? 'level.world8short' : 'level.world1short';
+    const tagParts = B.L.story ? [{ id: wid }] : [{ id: wid }, { id: 'level.n' + B.L.num }];
+    lv.appendChild(D.speaker(function () { RF.speakSeq(tagParts.concat([{ id: B.L.name }])); }, true));
+    D.el('div', null, '<span class="gold">' + tagParts.map(function (p) { return D.esc(RF.t(p.id)); }).join(' · ') + '</span><br>' + D.esc(RF.t(B.L.name)), lv).style.lineHeight = '1.2';
     const ctr = D.el('div', null, null, top);
     ctr.style.cssText = 'display:flex;gap:6px;margin-left:6px';
     B.startBtn = D.el('button', 'btn start pulse', '', ctr);
@@ -117,7 +120,8 @@ window.RF = window.RF || {};
       restore: forgeRestore,
       onPay: function (amount, fromEl) { B.pay(amount, fromEl); },
       onRead: function () { B.refreshLocks(false); },
-      onMega: function () { B.megaBlast(); }
+      onMega: function () { B.megaBlast(); },
+      onSeal: function () { B.sealComplete(); }
     });
 
     // Build bar
@@ -169,7 +173,12 @@ window.RF = window.RF || {};
   // (right on the first try, no help). When every lock is full, the final wave comes.
   B.refreshLocks = function (quiet) {
     const m = B.L.mastery;
-    B.locks = B.L.vowels.map(function (v) {
+    // Story levels have one lock, Story: 8 of the last 10 cards right on the first try with no help.
+    B.locks = B.L.story ? (function () {
+      const recent = RF.metrics.storyRecent(m.window);
+      const first = recent.filter(Boolean).length;
+      return [{ story: true, v: '', pat: 'story', recent: recent, first: first, done: first >= m.need || !!(B.locksFull && B.locksFull.story) }];
+    })() : B.L.vowels.map(function (v) {
       const pat = 'cvc-' + v;
       const recent = RF.metrics.patternRecent(pat, m.window);
       const first = recent.filter(Boolean).length;
@@ -181,14 +190,33 @@ window.RF = window.RF || {};
     B.locks.forEach(function (k) {
       if (k.done && !B.locksFull[k.pat]) {
         B.locksFull[k.pat] = true;
-        if (!quiet && !B.locks.every(function (x) { return x.done; })) { B.toast(null, true, [{ id: 'lock.oneFull' }, { id: 'pat.' + k.pat }]); RF.sfx('big'); }
+        const opening = B.L.story && !B.sealOpened && B.wave >= B.L.minWaves - 1;
+        if (!quiet && !opening && (B.L.story || !B.locks.every(function (x) { return x.done; }))) { B.toast(null, true, [{ id: 'lock.oneFull' }, { id: 'pat.' + k.pat }]); RF.sfx('big'); }
       }
     });
+    if (B.L.story) { B.checkSeal(quiet); return; }
     if (!B.sealReady && B.locks.every(function (x) { return x.done; })) {
       B.sealReady = true;
       if (!quiet) { B.toast(null, true, B.allFullParts()); RF.sfx('win'); }
       if (B.waveChip) B.renderTop();
     }
+  };
+  // Story levels: once the Story lock is full and enough waves have started, the Forge shows the Rift Seal.
+  // Finishing the Seal makes the next wave the final one (sealReady). Locks alone never end the level.
+  B.checkSeal = function (quiet) {
+    if (!B.L.story || B.sealReady || B.sealOpened || !B.forge || !B.locks) return;
+    if (!B.locks.every(function (x) { return x.done; })) return;
+    if (B.wave < B.L.minWaves - 1) return;
+    B.sealOpened = true;
+    B.forge.startSeal();
+    if (!quiet) { B.toast('seal.open', true); RF.sfx('big'); }
+  };
+  B.sealComplete = function () {
+    B.sealDone = true;
+    B.sealReady = true;
+    B.megaBlast();
+    B.toast('seal.done', true);
+    B.renderTop();
   };
   // The final wave comes once every lock is full, but never before the level's minimum wave.
   B.finalWaveNum = function () { return Math.max(B.L.minWaves, B.wave + 1); };
@@ -208,8 +236,8 @@ window.RF = window.RF || {};
       const row = D.el('div', null, null, box);
       row.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer';
       row.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'pat.' + k.pat }, D.num(Math.min(k.first, need)), { id: 'res.of' }, D.num(need)]); }, true));
-      const letter = D.el('div', 'read', D.esc(k.v), row);
-      letter.style.cssText = 'font-size:calc(24px * var(--ts));font-weight:700;width:26px;text-align:center;color:' + (k.done ? '#ffd76a' : '#fff');
+      const letter = D.el('div', 'read', D.esc(k.story ? RF.t('pat.story') : k.v), row);
+      letter.style.cssText = k.story ? 'font-size:calc(17px * var(--ts));font-weight:700;color:' + (k.done ? '#ffd76a' : '#fff') : 'font-size:calc(24px * var(--ts));font-weight:700;width:26px;text-align:center;color:' + (k.done ? '#ffd76a' : '#fff');
       const bar = D.el('div', null, null, row);
       bar.style.cssText = 'display:flex;gap:3px';
       for (let i = 0; i < need; i++) {
@@ -321,7 +349,7 @@ window.RF = window.RF || {};
     RF.audio.fx('waveStart');
     if (!B.paused) RF.audio.music('attack');
     B.renderTop();
-    B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);
+    B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);    if (B.L.story) B.checkSeal(false);
   };
 
   function spawn(type, hpScale) {
@@ -1149,7 +1177,8 @@ window.RF = window.RF || {};
     RF.metrics.battleDone({
       id: B.L.id, result: win ? 'win' : 'lose', stars: stars, waves: B.wave, anchor: Math.max(0, B.anchor),
       words: fs.forged, firstTry: fs.firstTry, misses: fs.misses, help: fs.help, forgeCrystals: fs.crystals,
-      patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
+      patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst,
+      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0 } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
       ms: Date.now() - B.started
     });
     RF.audio.music(null);

@@ -420,6 +420,46 @@ window.RF = window.RF || {};
     if (rows.some(function (x) { return !x.apart; })) D.line('grow.newPat', '', sec).querySelector('.txt').style.cssText = 'font-size:calc(13px * var(--ts));color:#aab6ff';
   };
 
+  // Story levels (World 8): cards right on the first try, the Story lock, and the Rift Seal.
+  S.storyResults = function (r, p) {
+    const st = r.stats;
+    const k = r.locks[0];
+    const need = r.L.mastery.need, win10 = r.L.mastery.window;
+    const sec = D.el('div', null, null, p);
+    sec.style.cssText = 'background:#0b0d20;border:2px solid #4b4f9c;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px';
+    D.line('res.story', '', sec).querySelector('.txt').style.cssText = 'font-weight:700;color:#f0c8ff;font-size:calc(17px * var(--ts))';
+    const cards = st.cards || 0, first = st.cardsFirst || 0;
+    const row = D.el('div', null, null, sec);
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    row.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'res.cardsFirst' }, D.num(first), { id: 'res.of' }, D.num(cards)]); }, true));
+    D.el('div', null, D.esc(RF.t('res.cardsFirst')) + ': <b class="cyan" style="font-size:calc(22px * var(--ts))">' + first + '</b> ' + D.esc(RF.t('res.of')) + ' ' + cards, row).style.cssText = 'font-size:calc(16px * var(--ts));font-weight:700;color:#e6e9ff';
+    const lr = D.el('div', null, null, sec);
+    lr.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    lr.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'pat.story' }, D.num(Math.min(k.first, need)), { id: 'res.of' }, D.num(need), { id: k.done ? 'res.lockDone' : 'res.lockWorking' }]); }, true));
+    D.el('div', 'read', D.esc(RF.t('pat.story')), lr).style.cssText = 'font-size:calc(18px * var(--ts));font-weight:700';
+    const bar = D.el('div', null, null, lr);
+    bar.title = RF.t('res.lastTen');
+    bar.style.cssText = 'display:flex;gap:3px';
+    for (let i = 0; i < win10; i++) {
+      const v = k.recent[i];
+      D.el('div', null, null, bar).style.cssText = 'width:13px;height:18px;border-radius:3px;background:' + (v === undefined ? '#22264a' : v ? (k.done ? '#ffd76a' : '#9cf2c0') : '#5a3a6e');
+    }
+    const chip = D.el('div', 'chip', (k.done ? '&#128274; ' : '') + D.esc(RF.t(k.done ? 'res.lockDone' : 'res.lockWorking')) + (k.done ? '' : ' ' + Math.min(k.first, need) + '/' + need), lr);
+    chip.style.cssText += ';font-size:14px;padding:3px 10px;border-color:' + (k.done ? '#ffd76a' : '#7d89d8') + ';color:' + (k.done ? '#ffd76a' : '#fff');
+    // The Rift Seal
+    const sr = D.el('div', null, null, sec);
+    sr.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    const qn = (RF.data.world8 && RF.data.world8.seal && RF.data.world8.seal.questions.length) || 2;
+    const sparts = [{ id: 'res.seal' }, { id: st.sealDone ? 'res.sealDone' : 'res.sealOpen' }];
+    if (st.sealDone) sparts.push({ id: 'res.sealFirst' }, D.num(st.sealFirstTry || 0), { id: 'res.of' }, D.num(qn));
+    sr.appendChild(D.speaker(function () { RF.speakSeq(sparts); }, true));
+    D.el('div', 'read', D.esc(RF.t('res.seal')), sr).style.cssText = 'font-size:calc(18px * var(--ts));font-weight:700;color:#ffe9a8';
+    const sc = D.el('div', 'chip', (st.sealDone ? '&#10003; ' : '') + D.esc(RF.t(st.sealDone ? 'res.sealDone' : 'res.sealOpen')), sr);
+    sc.style.cssText += ';font-size:14px;padding:3px 10px;border-color:' + (st.sealDone ? '#ffd76a' : '#7d89d8') + ';color:' + (st.sealDone ? '#ffd76a' : '#fff');
+    if (st.sealDone) D.el('div', null, D.esc(RF.t('res.sealFirst')) + ': <b class="cyan">' + (st.sealFirstTry || 0) + '</b> ' + D.esc(RF.t('res.of')) + ' ' + qn, sr).style.cssText = 'font-size:calc(14px * var(--ts));color:#c9c3ff';
+    if (!r.win || !k.done) D.line('res.carry', '', sec).querySelector('.txt').style.cssText = 'color:#9cf2c0;font-size:calc(14px * var(--ts))';
+  };
+
   // ---------- End of level: what happened, and the mastery summary (win or lose) ----------
   S.results = function (r) {
     const box = open(true);
@@ -455,14 +495,16 @@ window.RF = window.RF || {};
     }
 
     // Then and now: first-try rate on the student's first 10 reads of each pattern ever, compared with the last 10.
-    S.growth(r, p);
+    if (!r.L.story) S.growth(r, p);
 
-    // Rift locks: one row per pattern, plus runes.
+    // Rift locks: one row per pattern, plus runes (story levels show cards and the Rift Seal instead).
+    const st = r.stats;
+    if (r.L.story) S.storyResults(r, p);
+    else {
     const sec = D.el('div', null, null, p);
     sec.style.cssText = 'background:#0b0d20;border:2px solid #4b4f9c;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px';
     const lt = D.line('res.locksTitle', '', sec);
     lt.querySelector('.txt').style.cssText = 'font-weight:700;color:#f0c8ff;font-size:calc(17px * var(--ts))';
-    const st = r.stats;
     const need = r.L.mastery.need, win10 = r.L.mastery.window;
     r.locks.forEach(function (k) {
       const bp = st.byPat[k.pat] || { n: 0, first: 0 };
@@ -489,9 +531,11 @@ window.RF = window.RF || {};
     D.el('div', null, D.esc(RF.t('res.runes')) + ' &nbsp; <span style="color:#c9c3ff;font-weight:400">' + D.esc(RF.t('res.thisTry')) + ' <b class="cyan">' + (st.runeFirst || 0) + '</b> ' + D.esc(RF.t('res.of')) + ' ' + st.runes + ' ' + D.esc(RF.t('res.ofFirst')) + '</span>', rr).style.cssText = 'font-size:calc(15px * var(--ts));font-weight:700;color:#ffe9a8';
     if (!r.win || !r.locks.every(function (k) { return k.done; })) D.line('res.carry', '', sec).querySelector('.txt').style.cssText = 'color:#9cf2c0;font-size:calc(14px * var(--ts))';
 
+    }
+
     // Words to practice (tap to hear).
     const pr = D.el('div', null, null, p);
-    pr.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+    pr.style.cssText += ';display:' + (r.L.story ? 'none' : 'flex') + ';gap:8px;align-items:center;flex-wrap:wrap';
     D.line('res.practice', '', pr).querySelector('.txt').style.cssText = 'font-weight:700;color:#aab6ff;font-size:calc(15px * var(--ts))';
     if (st.practice.length) {
       st.practice.slice(0, 10).forEach(function (w) {
@@ -507,7 +551,7 @@ window.RF = window.RF || {};
     const pct = st.forged ? Math.round(st.firstTry / st.forged * 100) : 0;
     const grid = D.el('div', null, null, p);
     grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%';
-    [['res.words', st.forged, D.num(st.forged)], ['res.firstRate', pct + '%', { text: pct + '%' }], ['res.waves', r.waves, D.num(r.waves)]].forEach(function (s2) {
+    [[r.L.story ? 'res.cards' : 'res.words', st.forged, D.num(st.forged)], ['res.firstRate', pct + '%', { text: pct + '%' }], ['res.waves', r.waves, D.num(r.waves)]].forEach(function (s2) {
       const c = D.el('div', 'chip', null, grid);
       c.style.cssText += ';flex-direction:column;gap:2px;padding:8px';
       D.el('div', null, String(s2[1]), c).style.cssText = 'font-size:32px;color:#7ef3ff;line-height:1';

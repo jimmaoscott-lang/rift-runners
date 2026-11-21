@@ -20,11 +20,12 @@ window.RF = window.RF || {};
     const q = new URLSearchParams(location.search);
     RF.lowPower = q.has('low') ? true : q.has('high') ? false : guessLowPower();
 
-    const [strings, ui, words, world1, units, levels, speech] = await Promise.all([
+    const [strings, ui, words, world1, world8, units, levels, speech] = await Promise.all([
       RF.loadJSON('data/strings.json'),
       RF.loadJSON('../assets/audio/ui/manifest.json').catch(function () { return { en: {}, es: {} }; }),
       RF.loadJSON('../assets/audio/words/manifest.json').catch(function () { return { en: {}, es: {} }; }),
       RF.loadJSON('data/world1.json'),
+      RF.loadJSON('data/world8.json').catch(function () { return { cards: [], seal: null }; }),
       RF.loadJSON('data/units.json'),
       RF.loadJSON('data/levels-w1.json'),
       RF.loadJSON('data/speech.json').catch(function () { return {}; })
@@ -32,7 +33,7 @@ window.RF = window.RF || {};
     RF.strings = strings;
     RF.voiceManifest = ui;
     RF.wordManifest = words;
-    RF.data = { world1: world1, units: units, levels: levels, speech: speech };
+    RF.data = { world1: world1, world8: world8, units: units, levels: levels, speech: speech };
     // Speak mode: see if the Azure pronunciation check is online (falls back to Chrome if not).
     if (RF.mic) RF.mic.initAzure();
 

@@ -45,6 +45,16 @@ IPA = {
 }
 
 
+def story_words(text):
+    """Every word in a passage: lowercase, punctuation stripped (same lookup the Forge uses)."""
+    out = []
+    for raw in text.split():
+        w = raw.strip(".,;:!?\"'()[]\u201c\u201d\u2018\u2019\u2014-").lower()
+        if w:
+            out.append(w)
+    return out
+
+
 def cvc_ipa(word):
     if len(word) == 3 and word[1] in "aeiou" and all(ch in IPA for ch in word):
         return "".join(IPA[ch] for ch in word)
@@ -148,6 +158,33 @@ def voice_words(voices):
                 english.update(item.get("options", []))
                 if item.get("es"):
                     spanish.add(item["es"])
+        # Story cards and the Rift Seal (World 8): full texts, questions and choices, plus each
+        # single word, so any word or the whole card can be tapped to hear.
+        blocks = list(data.get("cards", []))
+        if data.get("seal"):
+            blocks.append(data["seal"])
+        for blk in blocks:
+            for key in ("text", "q"):
+                if blk.get(key):
+                    english.add(blk[key])
+                    english.update(story_words(blk[key]))
+            for c in blk.get("choices", []):
+                english.add(c)
+                english.update(story_words(c))
+            if blk.get("es"):
+                spanish.add(blk["es"])
+            for sub in blk.get("questions", []):
+                english.add(sub["q"])
+                english.update(story_words(sub["q"]))
+                for c in sub.get("choices", []):
+                    english.add(c)
+                    english.update(story_words(c))
+                if sub.get("qEs"):
+                    spanish.add(sub["qEs"])
+                spanish.update(sub.get("choicesEs", []))
+            if blk.get("qEs"):
+                spanish.add(blk["qEs"])
+            spanish.update(blk.get("choicesEs", []))
     manifest = {"en": {}, "es": {}}
     made = 0
     jobs = [("en", "en-US", guide, sorted(english)), ("es", "es-MX", es_voice, sorted(spanish))]
@@ -162,7 +199,7 @@ def voice_words(voices):
             name = f"{lang}/{fingerprint(key, text)}.mp3"
             path = os.path.join(WORDS_OUT, name)
             if not os.path.exists(path):
-                audio = synthesize(voice, locale, text, ipa, WORD_RATE if lang == "en" else "-5%")
+                audio = synthesize(voice, locale, text, ipa, WORD_RATE if lang == "en" and " " not in text else "-5%")
                 time.sleep(0.4)
                 if audio is None:
                     continue

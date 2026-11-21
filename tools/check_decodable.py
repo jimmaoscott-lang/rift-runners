@@ -76,7 +76,15 @@ def check_w1_word(word):
     return problems
 
 
-CHECKERS = {1: check_w1_word}
+def check_w8_word(word):
+    """World 8 uses every pattern from Worlds 1 to 7, so any plain English word fits.
+    The story text itself is checked by hand (DESIGN.md 7, final level preview)."""
+    if not re.fullmatch(r"[a-z]+('[a-z]+)?", word.lower()):
+        return ["must be letters only"]
+    return []
+
+
+CHECKERS = {1: check_w1_word, 8: check_w8_word}
 
 
 def check_file(path):
@@ -123,6 +131,21 @@ def check_file(path):
                     errors.append(f"{name}: option '{o}' for '{w}' must change only the vowel")
                 elif world == 1 and len(o) == 3 and {o[1], w[1]} == {"i", "e"} and w[2] in "mn":
                     errors.append(f"{name}: option '{o}' for '{w}': short i and short e sound alike before m or n (pin/pen). Pick another vowel.")
+    # Story cards and the Rift Seal (World 8): every word of every line we show.
+    lines = []
+    for card in data.get("cards", []):
+        lines += [(card["text"], card["id"]), (card["q"], card["id"] + " question")]
+        lines += [(c, card["id"] + " answer") for c in card["choices"]]
+    seal = data.get("seal")
+    if seal:
+        lines.append((seal["text"], "seal"))
+        for q in seal.get("questions", []):
+            lines += [(q["q"], "seal question")] + [(c, "seal answer") for c in q["choices"]]
+    for text, where in lines:
+        for raw in text.split():
+            w = re.sub(r"^[^A-Za-z']+|[^A-Za-z']+$", "", raw)
+            if w:
+                word_ok(w, where)
     return errors, count
 
 

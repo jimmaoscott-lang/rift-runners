@@ -4,6 +4,40 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 13: November 21, 2026 (Final level preview, Part A)
+
+Mr. Scott asked to skip ahead and build the game's last level so the December 2 meeting can see where students start and where they finish. M6 parts 2 to 4 wait until after this.
+
+**Built**
+- "Heart of the Rift," the last level of World 8 (The Rift Core): dark basalt ground, glowing crystal spires, a lava channel, red and purple sky. Creatures are the World 1 types made tougher.
+- Story Forge (tap mode): 12 story cards in `game/data/world8.json`, read in order. Every word can be tapped to hear (counts as help), with a Spanish toggle. One question per card (detail, sequence, cause, vocabulary, main idea, inference), three answers. First try with no help pays 30, otherwise 15; wrong answers cost nothing.
+- One Story lock (8 of the last 10 cards right on the first try). Then the Rift Seal passage (about 70 words) and two questions. Finishing it makes the next wave the final one.
+- Results screen shows story reading: cards right on the first try, the Story lock and the Seal.
+- Teacher access: with Test mode on, the World 1 map has a **Final level preview** button.
+- Voice script now voices the cards, the Seal, every word in them, and the Spanish lines (about 10 minutes after the push).
+- Decodability checker covers World 8. Version v0.8.0.
+
+**Tested (by Claude, headless Chrome)**
+- World 1 levels still play words normally. Card answers pay right, the lock fills, the Seal opens and seals, the final wave wins, results show. Spanish mode works.
+- Balance: as first built, a steady reader lost in wave 1. Raised start crystals to 900 and eased creature health; a simulated reader answering a card about every 8 seconds now wins in about 3 minutes with the Anchor untouched.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.8.0).
+2. Settings, Teacher, Test mode On. Back to the map. Press **Final level preview**.
+3. Build defenders, press Start Wave, and answer cards. Tap a few words to hear them. Try the Spanish button.
+4. When the Story lock fills, read the Rift Seal and answer both questions, then survive the final wave.
+5. Tell me: is it the right difficulty for showing at the meeting, and does the story read well for your students?
+
+**Next up**
+- Part B of the preview: speak mode for story cards and the Seal, scored word by word through the speech checker, with words correct per minute on the results screen. Also a final-level win title ("The rift is sealed"). Start a new chat with Opus.
+- Then back to M6 part 2 (tier 3 specialties).
+
+**Open questions**
+- Spanish lines for World 8 were written by Claude and need a Spanish speaker's check.
+- Seal answers pay no crystals; the reward is the final wave and the win.
+
+---
+
 ## Session 12: November 21, 2026 (M6 part 1: four new defenders; level ramp for all worlds)
 
 **Built**

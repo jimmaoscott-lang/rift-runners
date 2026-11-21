@@ -8,7 +8,7 @@
     "shown": 3,
     "mega": 100,
     "megaPips": 8,
-    "megaBlast": 25,
+    "megaBlast": 25, "storyRight": 30, "storyHelp": 15,
     "fastGuessMs": 1500,
     "cooldownFirst": 5,
     "cooldownLater": 10

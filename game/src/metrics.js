@@ -16,7 +16,10 @@ window.RF = window.RF || {};
       words: {},      // word -> { seen, firstTry, misses, last }
       battles: [],    // one per finished battle
       support: { hearWord: 0, glossary: 0, spanishOn: 0, tapMode: 0, speakMode: 0 },
-      totals: { wordsRead: 0, firstTry: 0 }
+      totals: { wordsRead: 0, firstTry: 0 },
+      cards: {},      // story card id -> { seen, firstTry, misses, last } (World 8 story mode)
+      cardLog: [],    // one per answered story card: { id, type, first, t }, newest last
+      seal: { done: 0, firstTry: 0, last: null }
     };
   }
 
@@ -75,6 +78,34 @@ window.RF = window.RF || {};
     if (rec.mode === 'speak') data.support.speakMode++;
     M.save();
     return entry;
+  };
+
+  // Story cards (World 8). rec: { battle, id, type, tries, help }. first = right on the first try with no help.
+  // Kept apart from words so story reading never changes which words come up in word levels.
+  M.storyCard = function (rec) {
+    M.touch();
+    const first = rec.tries === 1 && !rec.help;
+    const t = new Date().toISOString();
+    const c = data.cards[rec.id] || { seen: 0, firstTry: 0, misses: 0, last: null };
+    c.seen++;
+    if (first) c.firstTry++;
+    c.misses += rec.tries - 1;
+    c.last = t;
+    data.cards[rec.id] = c;
+    data.cardLog.push({ id: rec.id, type: rec.type, first: first, help: !!rec.help, t: t });
+    if (data.cardLog.length > 500) data.cardLog.splice(0, data.cardLog.length - 500);
+    M.save();
+  };
+  // The last n story cards, oldest first: true = right on the first try with no help. Counts every visit.
+  M.storyRecent = function (n) {
+    return data.cardLog.slice(-n).map(function (x) { return !!x.first; });
+  };
+  M.sealDone = function (rec) {
+    M.touch();
+    data.seal.done++;
+    data.seal.firstTry += rec.firstTry || 0;
+    data.seal.last = new Date().toISOString();
+    M.save();
   };
 
   // rec: { id, words, firstTry, misses, help, ms }

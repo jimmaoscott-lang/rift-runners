@@ -294,6 +294,14 @@ window.RF = window.RF || {};
     bot.style.cssText = 'position:absolute;left:14px;bottom:14px;display:flex;gap:12px';
     D.button('title.settings', function () { RF.sfx('open'); RF.screens.settings(function () { MP.show(MP.sel); }); }, '', bot);
     D.button('map.toTitle', function () { RF.sfx('back'); RF.screens.title(); }, '', bot);
+    if (RF.unlocks.testMode()) {
+      // Teacher preview of the last World 8 level (same start path as the Play button).
+      D.button('map.finalPreview', function () {
+        const fi = RF.unlocks.levelIndex('w8-final');
+        if (fi < 0) return;
+        RF.sfx('open'); MP.hide(); RF.screens.close(); RF.startBattle(fi);
+      }, '', bot).btn.style.borderColor = '#c04dff';
+    }
 
     canvasOn();
     MP.select(selIndex == null ? MP.defaultStone() : selIndex, false);

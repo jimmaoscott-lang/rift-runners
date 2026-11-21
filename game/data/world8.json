@@ -1,0 +1,162 @@
+{
+  "_note": "World 8 story cards for the Rune Forge (DESIGN.md 5.3 and 6, World 8). Each card is one or two sentences read in order, then one question with three answers. 'a' is the index of the right answer. 'type' is the question type for teacher reports. 'es' is the Spanish meaning (EB support). The seal is the Rift Seal passage read at the end. Text uses every pattern from Worlds 1 to 7; the decodability checker covers World 1 only, so this file is checked by hand.",
+  "world": 8,
+  "cards": [
+    {
+      "id": "c1",
+      "text": "The ground shook as the last rift tore open above the ruined fortress.",
+      "es": "El suelo tembló cuando la última grieta se abrió sobre la fortaleza en ruinas.",
+      "q": "Where did the last rift open?",
+      "qEs": "¿Dónde se abrió la última grieta?",
+      "choices": ["above the ruined fortress", "under a frozen lake", "beside the desert camp"],
+      "choicesEs": ["sobre la fortaleza en ruinas", "debajo de un lago congelado", "junto al campamento del desierto"],
+      "a": 0,
+      "type": "detail"
+    },
+    {
+      "id": "c2",
+      "text": "Purple light poured out of the crack, and the air hummed like a storm about to break.",
+      "es": "Una luz morada salió de la grieta, y el aire zumbaba como una tormenta a punto de estallar.",
+      "q": "What did the air sound like?",
+      "qEs": "¿A qué sonaba el aire?",
+      "choices": ["waves on a beach", "a storm about to break", "a quiet forest"],
+      "choicesEs": ["olas en una playa", "una tormenta a punto de estallar", "un bosque tranquilo"],
+      "a": 1,
+      "type": "detail"
+    },
+    {
+      "id": "c3",
+      "text": "Every world you crossed was stitched to this place by a thread of rift fire.",
+      "es": "Cada mundo que cruzaste estaba cosido a este lugar con un hilo de fuego de la grieta.",
+      "q": "What joins the worlds to this place?",
+      "qEs": "¿Qué une los mundos con este lugar?",
+      "choices": ["old stone bridges", "deep rivers", "threads of rift fire"],
+      "choicesEs": ["puentes viejos de piedra", "ríos profundos", "hilos de fuego de la grieta"],
+      "a": 2,
+      "type": "detail"
+    },
+    {
+      "id": "c4",
+      "text": "If the core stays open, the broken worlds will keep falling apart.",
+      "es": "Si el núcleo sigue abierto, los mundos rotos seguirán cayéndose a pedazos.",
+      "q": "What will happen if the core stays open?",
+      "qEs": "¿Qué pasará si el núcleo sigue abierto?",
+      "choices": ["The worlds will keep falling apart.", "The worlds will heal by themselves.", "Nothing will change."],
+      "choicesEs": ["Los mundos seguirán cayéndose a pedazos.", "Los mundos se curarán solos.", "Nada cambiará."],
+      "a": 0,
+      "type": "cause"
+    },
+    {
+      "id": "c5",
+      "text": "Your defenders took their places, unafraid, while the creatures gathered at the edge of the light.",
+      "es": "Tus defensores tomaron sus puestos, sin miedo, mientras las criaturas se juntaban al borde de la luz.",
+      "q": "What does unafraid mean?",
+      "qEs": "¿Qué significa unafraid?",
+      "choices": ["very tired", "not scared", "not ready"],
+      "choicesEs": ["muy cansado", "sin miedo", "no listo"],
+      "a": 1,
+      "type": "vocab"
+    },
+    {
+      "id": "c6",
+      "text": "First came the swarms, then the armored brutes, and last of all the shadow riders.",
+      "es": "Primero llegaron los enjambres, luego los brutos con armadura, y al final los jinetes de sombra.",
+      "q": "What came last?",
+      "qEs": "¿Qué llegó al final?",
+      "choices": ["the swarms", "the armored brutes", "the shadow riders"],
+      "choicesEs": ["los enjambres", "los brutos con armadura", "los jinetes de sombra"],
+      "a": 2,
+      "type": "sequence"
+    },
+    {
+      "id": "c7",
+      "text": "The Warden raised her staff and shouted, \"Hold this line until the seal is ready!\"",
+      "es": "La Guardiana levantó su bastón y gritó: \"¡Aguanten esta línea hasta que el sello esté listo!\"",
+      "q": "What does the Warden want the team to do?",
+      "qEs": "¿Qué quiere la Guardiana que haga el equipo?",
+      "choices": ["hold the line until the seal is ready", "run back to camp", "open the rift wider"],
+      "choicesEs": ["aguantar la línea hasta que el sello esté listo", "correr de vuelta al campamento", "abrir más la grieta"],
+      "a": 0,
+      "type": "main"
+    },
+    {
+      "id": "c8",
+      "text": "Each word you read sends power into the seal, brighter and stronger than before.",
+      "es": "Cada palabra que lees manda poder al sello, más brillante y más fuerte que antes.",
+      "q": "What makes the seal stronger?",
+      "qEs": "¿Qué hace más fuerte el sello?",
+      "choices": ["building walls", "reading words", "waiting"],
+      "choicesEs": ["construir muros", "leer palabras", "esperar"],
+      "a": 1,
+      "type": "cause"
+    },
+    {
+      "id": "c9",
+      "text": "Cracks spread across the floor, but the old stones refused to give way.",
+      "es": "Las grietas se extendieron por el piso, pero las piedras viejas no cedieron.",
+      "q": "Did the floor break apart?",
+      "qEs": "¿Se rompió el piso?",
+      "choices": ["Yes, it fell into the rift.", "It turned to ice.", "No, the stones held."],
+      "choicesEs": ["Sí, cayó a la grieta.", "Se volvió hielo.", "No, las piedras aguantaron."],
+      "a": 2,
+      "type": "inference"
+    },
+    {
+      "id": "c10",
+      "text": "A rider swooped low over the walls, its wings tearing the smoke into ribbons.",
+      "es": "Un jinete voló bajo sobre los muros, y sus alas rompieron el humo en tiras.",
+      "q": "Where did the rider fly?",
+      "qEs": "¿Por dónde voló el jinete?",
+      "choices": ["low over the walls", "under the ground", "far from the fight"],
+      "choicesEs": ["bajo, sobre los muros", "debajo de la tierra", "lejos de la pelea"],
+      "a": 0,
+      "type": "detail"
+    },
+    {
+      "id": "c11",
+      "text": "You remember the first trail in the Thornwood, when every step felt impossible.",
+      "es": "Recuerdas el primer sendero en el Thornwood, cuando cada paso parecía imposible.",
+      "q": "How did the first trail feel?",
+      "qEs": "¿Cómo se sentía el primer sendero?",
+      "choices": ["easy", "impossible", "boring"],
+      "choicesEs": ["fácil", "imposible", "aburrido"],
+      "a": 1,
+      "type": "detail"
+    },
+    {
+      "id": "c12",
+      "text": "Now you move like a true Rift Runner, quick and certain, and the core is finally within reach.",
+      "es": "Ahora te mueves como un verdadero Rift Runner, rápido y seguro, y por fin el núcleo está a tu alcance.",
+      "q": "How has the runner changed since the first trail?",
+      "qEs": "¿Cómo ha cambiado el corredor desde el primer sendero?",
+      "choices": ["The runner gave up.", "The runner got slower.", "The runner is now sure and strong."],
+      "choicesEs": ["El corredor se rindió.", "El corredor se volvió más lento.", "Ahora el corredor es seguro y fuerte."],
+      "a": 2,
+      "type": "inference"
+    }
+  ],
+  "seal": {
+    "id": "seal",
+    "title": "The Rift Seal",
+    "text": "Long ago, the worlds were whole. Then the rifts tore them apart, and creatures poured through the cracks. Runners crossed the forest, the dunes, the ice and the sea. They carried the light from world to world. Now the last runner stands at the core. With every word, the broken pieces return to their places. The light grows stronger. The rift is sealed.",
+    "es": "Hace mucho tiempo, los mundos estaban completos. Luego las grietas los rompieron, y las criaturas entraron por ellas. Los corredores cruzaron el bosque, las dunas, el hielo y el mar. Llevaron la luz de mundo en mundo. Ahora el último corredor está en el núcleo. Con cada palabra, las piezas rotas vuelven a su lugar. La luz crece. La grieta queda sellada.",
+    "questions": [
+      {
+        "q": "What is this story mostly about?",
+        "qEs": "¿De qué trata principalmente esta historia?",
+        "choices": ["The creatures win the last battle.", "A runner closes the last rift and the worlds heal.", "The forest is the best world."],
+        "choicesEs": ["Las criaturas ganan la última batalla.", "Un corredor cierra la última grieta y los mundos sanan.", "El bosque es el mejor mundo."],
+        "a": 1,
+        "type": "main"
+      },
+      {
+        "q": "What happened first?",
+        "qEs": "¿Qué pasó primero?",
+        "choices": ["The rifts tore the worlds apart.", "The rift was sealed.", "The last runner reached the core."],
+        "choicesEs": ["Las grietas rompieron los mundos.", "La grieta quedó sellada.", "El último corredor llegó al núcleo."],
+        "a": 0,
+        "type": "sequence"
+      }
+    ]
+  }
+}

@@ -262,6 +262,18 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
 
 ## 7. Boss levels and the Rift Seal (fluency)
 
+**Final level preview (Sessions 13 and 14, Mr. Scott's request for the December 2 meeting):** built ahead of the order so the meeting can see where students start (Thornwood, Level 1) and where they finish. "Heart of the Rift" is the last level of World 8, The Rift Core.
+
+- Map look: dark basalt ground, glowing crystal spires instead of trees, a lava channel instead of the river, red and purple sky. Creatures are the World 1 types made much tougher (World 8 creatures arrive with M9).
+- Reading (decided by Claude): the Forge shows **story cards** from `game/data/world8.json`, one or two sentences each, read in order so the story builds. Every word can be tapped to hear (counts as help). After reading, one question with three answers (detail, sequence, cause, vocabulary, main idea, inference). Right on the first try with no help pays 30 crystals; otherwise 15. Wrong answers never cost crystals; the card stays until it is answered.
+- One rift lock, **Story**: 8 of the last 10 cards right on the first try (80%, a normal comprehension bar).
+- **Rift Seal:** once the lock is full and the minimum waves are done, the Forge shows the Seal passage (about 70 words) and two questions. Finishing it makes the next wave the final one; surviving it closes the rift and wins.
+- Part B (Session 14): speak mode for cards and the Seal, scored word by word, with words correct per minute on the results screen. Tap mode stays a full path, and the time a student takes never lowers a reward.
+- Reached from the World 1 map with Test mode on (teacher button "Final level preview").
+- Balance for the preview (Session 13, Claude): 900 start crystals and creatures 1.3 to 1.9 times tougher, since a preview player has no Armory upgrades. A simulated reader answering a card about every 8 seconds wins in about 3 minutes. Real World 8 balance comes with M9.
+- The decodability checker accepts any plain English word in World 8 (all patterns are taught by then) and still blocks unsafe words.
+
+
 - The last level of each world is a boss: a big creature with special attacks, plus regular waves.
 - To win, the boss must be beaten **and the rift sealed**. The **Rift Seal** is a short passage that scrolls karaoke style to a beat. The student reads along aloud (speak mode) or taps on the beat as each phrase lights up (tap mode). A good seal also blasts the boss.
 - The student can always pick a slower tempo. Replays for higher ranks are repeated readings of the same passage.

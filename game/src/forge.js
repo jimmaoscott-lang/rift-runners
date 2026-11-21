@@ -8,7 +8,7 @@ window.RF = window.RF || {};
 
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
-  // opts: { level, onPay(amount, fromEl), onMega() }
+  // opts: { level, onPay(amount, fromEl), onMega(), onRead(), onSeal(), restore }
   RF.Forge = function (parent, opts) {
     const F = this;
     const cfg = RF.data.units.forge;
@@ -365,6 +365,235 @@ window.RF = window.RF || {};
     };
     F.state = function () { return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats }; };
     F.destroy = function () { if (RF.mic) RF.mic.stop(); if (root.parentNode) root.parentNode.removeChild(root); };
+
+    // ---- Story mode (World 8, DESIGN.md section 7 "Final level preview") ----
+    // A story card to read (every word can be tapped), then a question with three answers.
+    // Right on the first try with no help pays more. Wrong answers never cost crystals. When the
+    // battle tells the Forge, the Rift Seal passage and its two questions replace the cards until
+    // they are answered. Tap mode only for now.
+    function storyMode() {
+      const W8 = RF.data.world8 || {};
+      const cards = W8.cards || [];
+      const seal = W8.seal;
+      const R = opts.restore;
+      F.stats = (R && R.stats && R.stats.byType) ? R.stats : { forged: 0, firstTry: 0, crystals: 0, help: 0, misses: 0, runes: 0, runeFirst: 0, byPat: {}, practice: [], cards: 0, cardsFirst: 0, cardsHelp: 0, byType: {}, sealDone: false, sealFirstTry: 0, sealMisses: 0 };
+      F.idx = 0; F.view = 'card'; F.sealPending = false; F.sealQ = 0; F.sealHelp = false; F.sealFirst = 0;
+      F.tries = 0; F.sealTries = 0; F.help = false; F.out = {}; F.glow = false;
+      if (R && R.story) { F.idx = R.story.idx; F.view = R.story.view; F.sealPending = R.story.sealPending; F.sealQ = R.story.sealQ; F.sealHelp = R.story.sealHelp; F.sealFirst = R.story.sealFirst; }
+      F.showEs = RF.lang() === 'es';
+      F.busy = false;
+      [wordBox, prompt, micBtn, optsRow, forgeBtn, recent].forEach(function (e) { e.style.display = 'none'; });
+      const sbox = D.el('div', null, null, root);
+      sbox.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+      root.insertBefore(sbox, msg);
+      let payEl = null;
+
+      function strip(tok) {
+        const m = /^([^A-Za-z0-9]*)(.*?)([^A-Za-z0-9]*)$/.exec(tok);
+        return { lead: m[1], core: m[2], trail: m[3] };
+      }
+      // Fill host with the text, each word a tappable span (punctuation stripped for the lookup).
+      function words(text, host, onHear) {
+        text.split(/(\s+)/).forEach(function (tok) {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { host.appendChild(document.createTextNode(' ')); return; }
+          const p = strip(tok);
+          if (!p.core) { host.appendChild(document.createTextNode(tok)); return; }
+          if (p.lead) host.appendChild(document.createTextNode(p.lead));
+          const sp = D.el('span', 'sw', D.esc(p.core), host);
+          sp.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            RF.speakWord(p.core.toLowerCase());
+            sp.classList.add('on');
+            setTimeout(function () { sp.classList.remove('on'); }, 600);
+            onHear();
+          });
+          if (p.trail) host.appendChild(document.createTextNode(p.trail));
+        });
+      }
+      function spk(parent, fn) { const b = D.speaker(fn, true); parent.appendChild(b); return b; }
+      function esSpeak(text) { RF.speakSeq([{ es: text }]); }
+
+      function isSeal() { return F.view === 'seal'; }
+      function curCard() { return cards[F.idx % cards.length]; }
+      function curQ() { return isSeal() ? seal.questions[F.sealQ] : curCard(); }
+      function helped() { return isSeal() ? F.sealHelp : F.help; }
+      function triesNow() { return isSeal() ? F.sealTries : F.tries; }
+      function markHelp() {
+        if (helped()) return;
+        if (isSeal()) F.sealHelp = true; else F.help = true;
+        RF.metrics.support('hearWord');
+        updatePay();
+      }
+      function payNow() { return (F.tries > 0 || F.help) ? cfg.storyHelp : cfg.storyRight; }
+      function updatePay() {
+        if (!payEl || isSeal()) return;
+        payEl.innerHTML = D.CRYSTAL(18) + ' +' + payNow();
+      }
+
+      function draw() {
+        D.clear(sbox);
+        const seal_ = isSeal();
+        const text = seal_ ? seal.text : curCard().text;
+        const es = seal_ ? seal.es : curCard().es;
+        const q = curQ();
+        const sc = D.el('div', 'scard' + (seal_ ? ' seal' : ''), null, sbox);
+        const bar = D.el('div', 'sbar', null, sc);
+        spk(bar, function () { markHelp(); RF.speakWord(text); }).title = RF.t('story.hearCard');
+        D.el('div', 'lbl', D.esc(seal_ ? RF.t('seal.title').toUpperCase() : RF.t('story.card') + ' ' + ((F.idx % cards.length) + 1) + '/' + cards.length), bar);
+        payEl = null;
+        if (!seal_) { payEl = D.el('div', 'pay', null, bar); updatePay(); }
+        const esBtn = D.el('button', 'btn', D.esc(RF.t(F.showEs ? 'story.english' : 'story.spanish')), bar);
+        esBtn.style.cssText = 'font-size:calc(14px * var(--ts));padding:4px 10px';
+        esBtn.addEventListener('click', function () { F.showEs = !F.showEs; RF.metrics.support('glossary'); RF.sfx('tap'); draw(); });
+        const t2 = D.el('div', 'txt2', null, sc);
+        t2.title = RF.t('story.tapWords');
+        words(text, t2, markHelp);
+        const esBox = D.el('div', 'es' + (F.showEs ? ' show' : ''), null, sc);
+        if (es) {
+          spk(esBox, function () { esSpeak(es); });
+          D.el('span', null, ' ' + D.esc(es), esBox);
+        }
+
+        // Question
+        const qr = D.el('div', 'sq', null, sbox);
+        spk(qr, function () { markHelp(); RF.speakWord(q.q); }).title = RF.t('story.hearQuestion');
+        const qt = D.el('div', 'qt', null, qr);
+        words(q.q, qt, markHelp);
+        if (F.showEs && q.qEs) {
+          const qe = D.el('div', null, D.esc(q.qEs), sbox);
+          qe.style.cssText = 'font-family:var(--rf);font-size:calc(16px * var(--ts));color:#9cf2c0;margin-top:-4px';
+        }
+        if (seal_ && F.sealQ > 0) setTimeout(function () { qr.scrollIntoView({ block: 'nearest' }); }, 0);
+        // Answers
+        F.ansEls = q.choices.map(function (ch, i) {
+          const row = D.el('div', 'sa', null, sbox);
+          spk(row, function () { markHelp(); RF.speakWord(ch); }).title = RF.t('story.hearAnswer');
+          const b = D.el('button', 'sopt' + (F.out[i] ? ' out' : '') + (F.glow && i === q.a ? ' glow' : ''), D.esc(ch), row);
+          b.dataset.i = String(i);
+          if (F.out[i]) b.disabled = true;
+          if (F.showEs && q.choicesEs && q.choicesEs[i]) {
+            const e2 = D.el('div', null, D.esc(q.choicesEs[i]), b);
+            e2.style.cssText = 'font-size:calc(14px * var(--ts));color:#9cf2c0;font-weight:400;margin-top:2px';
+          }
+          b.addEventListener('click', function () { F.answer(i, b); });
+          return b;
+        });
+      }
+
+      function resetQ() { F.tries = 0; F.sealTries = 0; F.out = {}; F.glow = false; F.shownAt = performance.now(); }
+      function showCard() {
+        F.view = 'card';
+        F.cur = curCard();
+        F.help = false;
+        resetQ();
+        draw();
+      }
+      function showSeal(fresh) {
+        F.view = 'seal';
+        F.sealPending = false;
+        if (fresh) { F.sealQ = 0; F.sealHelp = false; F.sealFirst = 0; }
+        resetQ();
+        draw();
+        if (fresh) say('seal.start', true);
+      }
+      F.next = function () {
+        if (F.sealPending && !F.stats.sealDone && seal) return showSeal(true);
+        showCard();
+      };
+
+      // The battle calls this once the Story lock is full and enough waves have started.
+      F.startSeal = function () {
+        if (F.stats.sealDone || !seal || F.view === 'seal' || F.sealPending) return;
+        F.sealPending = true;
+        const idle = F.tries === 0 && !F.help;
+        if (!F.busy && idle) showSeal(true);
+      };
+
+      F.answer = function (i, btn) {
+        const q = curQ();
+        if (F.out[i]) return;
+        if (i === q.a) return isSeal() ? sealRight() : cardRight(btn);
+        // Missed: no lost crystals. Mark it, shake it, keep the card.
+        if (isSeal()) { F.sealTries++; F.stats.sealMisses++; } else { F.tries++; F.stats.misses++; }
+        F.out[i] = true;
+        btn.classList.add('out', 'shake');
+        btn.disabled = true;
+        RF.sfx('soft');
+        if (triesNow() >= 2) { F.glow = true; F.ansEls[q.a].classList.add('glow'); }
+        if (!isSeal()) updatePay();
+        say(isSeal() ? 'seal.miss' : 'story.miss', true);
+      };
+
+      function cardRight(btn) {
+        const c = curCard();
+        const first = F.tries === 0 && !F.help;
+        let amount = first ? cfg.storyRight : cfg.storyHelp;
+        let mega = false;
+        F.busy = true;
+        F.streak = first ? F.streak + 1 : 0;
+        if (F.streak >= cfg.megaPips) { mega = true; amount += cfg.mega; F.streak = 0; }
+        RF.metrics.storyCard({ battle: L.id, id: c.id, type: c.type, tries: F.tries + 1, help: F.help });
+        const st = F.stats;
+        st.cards++; st.forged++;
+        if (first) { st.cardsFirst++; st.firstTry++; }
+        if (F.help) { st.cardsHelp++; st.help++; }
+        const bt = st.byType[c.type] = st.byType[c.type] || { n: 0, first: 0 };
+        bt.n++; if (first) bt.first++;
+        st.crystals += amount;
+        if (opts.onRead) opts.onRead();
+        if (!mega) RF.sfx(first ? 'hit' : 'select');
+        opts.onPay(amount, btn);
+        let id, speakIt = false;
+        if (mega) { id = 'forge.mega'; speakIt = true; }
+        else if (F.tries > 0) id = 'story.second';
+        else if (F.help) id = 'story.help';
+        else if (F.streak === 3) { id = 'battle.streak3'; speakIt = true; }
+        else if (F.streak === 5) { id = 'battle.streak5'; speakIt = true; }
+        else id = 'forge.good' + (1 + Math.floor(Math.random() * 4));
+        say(id, speakIt);
+        if (mega && opts.onMega) opts.onMega();
+        renderStreak();
+        F.idx++;
+        F.busy = false;
+        F.next();
+      }
+
+      function sealRight() {
+        if (F.sealTries === 0 && !F.sealHelp) F.sealFirst++;
+        RF.sfx('select');
+        F.sealQ++;
+        if (F.sealQ < seal.questions.length) { resetQ(); draw(); say('seal.next', true); return; }
+        F.stats.sealDone = true;
+        F.stats.sealFirstTry = F.sealFirst;
+        RF.metrics.sealDone({ battle: L.id, firstTry: F.sealFirst });
+        F.sealPending = false;
+        if (opts.onSeal) opts.onSeal();
+        F.next();
+        say('seal.doneFx', false);
+      }
+
+      F.key = function (ev) {
+        if (ev.key === '1' || ev.key === '2' || ev.key === '3') {
+          const b = F.ansEls && F.ansEls[+ev.key - 1];
+          if (b && !b.disabled) F.answer(+ev.key - 1, b);
+          return true;
+        }
+        if (ev.key === 'h' || ev.key === 'H') { markHelp(); RF.speakWord(isSeal() ? seal.text : curCard().text); return true; }
+        return false;
+      };
+      F.state = function () {
+        return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats,
+          story: { idx: F.idx, view: F.view, sealPending: F.sealPending, sealQ: F.sealQ, sealHelp: F.sealHelp, sealFirst: F.sealFirst } };
+      };
+
+      if (R) { F.streak = R.streak; F.recent = R.recent; F.overheats = R.overheats; }
+      renderStreak();
+      if (R && R.story && R.story.view === 'seal' && !F.stats.sealDone && seal) { showSeal(false); }
+      else F.next();
+      say('story.start', false);
+    }
+    if (L.story) { storyMode(); return; }
 
     if (opts.restore) {
       F.stats = opts.restore.stats; F.streak = opts.restore.streak; F.recent = opts.restore.recent; F.overheats = opts.restore.overheats;

@@ -755,6 +755,248 @@
         "countStep": 0.15
       },
       "finalBoost": 1.2
+    },
+    {
+      "id": "w8-final",
+      "num": 6,
+      "world": 8,
+      "story": true,
+      "theme": "core",
+      "name": "level.w8final",
+      "enemies": "level.w8final.enemies",
+      "words": "level.w8final.words",
+      "reward": "level.w8final.reward",
+      "vowels": [],
+      "runeRate": 0,
+      "startCrystals": 900,
+      "anchor": 20,
+      "path": [
+        [
+          -38,
+          12
+        ],
+        [
+          -28,
+          13
+        ],
+        [
+          -18,
+          10
+        ],
+        [
+          -10,
+          12
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          14,
+          4
+        ],
+        [
+          8,
+          -2
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -12,
+          -4
+        ],
+        [
+          -20,
+          -8
+        ],
+        [
+          -18,
+          -15
+        ],
+        [
+          -8,
+          -19
+        ],
+        [
+          2,
+          -22
+        ],
+        [
+          10,
+          -22
+        ]
+      ],
+      "camp": [
+        13.5,
+        -22.5
+      ],
+      "rift": [
+        -39.5,
+        12.5
+      ],
+      "hill": [
+        -34,
+        -14
+      ],
+      "river": {
+        "x": 30,
+        "amp": 2
+      },
+      "towerPads": [
+        {
+          "t": 0.07,
+          "side": 1
+        },
+        {
+          "t": 0.16,
+          "side": -1
+        },
+        {
+          "t": 0.26,
+          "side": 1
+        },
+        {
+          "t": 0.35,
+          "side": -1
+        },
+        {
+          "t": 0.45,
+          "side": 1
+        },
+        {
+          "t": 0.55,
+          "side": -1
+        },
+        {
+          "t": 0.65,
+          "side": 1
+        },
+        {
+          "t": 0.75,
+          "side": -1
+        },
+        {
+          "t": 0.85,
+          "side": 1
+        },
+        {
+          "t": 0.93,
+          "side": -1
+        }
+      ],
+      "trailPads": [
+        0.1,
+        0.26,
+        0.42,
+        0.6,
+        0.76,
+        0.9
+      ],
+      "waves": [
+        {
+          "hp": 1.3,
+          "groups": [
+            {
+              "type": "brute",
+              "count": 1,
+              "gap": 1,
+              "delay": 8
+            },
+            {
+              "type": "bramble",
+              "count": 16,
+              "gap": 0.4,
+              "delay": 2
+            },
+            {
+              "type": "thornback",
+              "count": 6,
+              "gap": 3,
+              "delay": 6
+            },
+            {
+              "type": "wisp",
+              "count": 8,
+              "gap": 1.2,
+              "delay": 12
+            }
+          ]
+        },
+        {
+          "hp": 1.6,
+          "groups": [
+            {
+              "type": "brute",
+              "count": 2,
+              "gap": 12,
+              "delay": 4
+            },
+            {
+              "type": "bramble",
+              "count": 22,
+              "gap": 0.36,
+              "delay": 2
+            },
+            {
+              "type": "thornback",
+              "count": 9,
+              "gap": 2.6,
+              "delay": 6
+            },
+            {
+              "type": "wisp",
+              "count": 12,
+              "gap": 1.0,
+              "delay": 12
+            }
+          ]
+        },
+        {
+          "hp": 1.9,
+          "groups": [
+            {
+              "type": "brute",
+              "count": 4,
+              "gap": 7,
+              "delay": 4
+            },
+            {
+              "type": "bramble",
+              "count": 28,
+              "gap": 0.34,
+              "delay": 2
+            },
+            {
+              "type": "thornback",
+              "count": 12,
+              "gap": 2.3,
+              "delay": 5
+            },
+            {
+              "type": "wisp",
+              "count": 16,
+              "gap": 0.9,
+              "delay": 10
+            }
+          ]
+        }
+      ],
+      "minWaves": 3,
+      "mastery": {
+        "window": 10,
+        "need": 8
+      },
+      "endless": {
+        "hpStep": 0.2,
+        "countStep": 0.15
+      },
+      "finalBoost": 1.2
     }
   ],
   "map": {
