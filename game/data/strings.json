@@ -199,7 +199,7 @@
     "lock.title": "Rift locks",
     "lock.hint": "Read right on the first try to fill the locks.",
     "lock.oneFull": "Rift lock full:",
-    "lock.allFull": "All rift locks are full! The final wave is coming. Survive it to close the rift.",
+    "lock.allFull": "All rift locks are full! The next wave is the final wave. Survive it to close the rift.",
     "pat.cvc-a": "short a",
     "pat.cvc-e": "short e",
     "pat.cvc-i": "short i",
@@ -266,7 +266,8 @@
     "unlock.stone": "New stone open:",
     "unlock.def": "New defender:",
     "settings.music": "Music",
-    "settings.effects": "Effects"
+    "settings.effects": "Effects",
+    "lock.allFullLater": "All rift locks are full! Hold out until the final wave: wave"
   },
   "es": {
     "title.name": "Rift Runners",
@@ -467,7 +468,7 @@
     "lock.title": "Cerrojos de la grieta",
     "lock.hint": "Lee bien al primer intento para llenar los cerrojos.",
     "lock.oneFull": "Cerrojo lleno:",
-    "lock.allFull": "¡Todos los cerrojos están llenos! Viene la última oleada. Sobrevívela para cerrar la grieta.",
+    "lock.allFull": "¡Todos los cerrojos están llenos! La próxima oleada es la última. Sobrevive para cerrar la grieta.",
     "pat.cvc-a": "a corta",
     "pat.cvc-e": "e corta",
     "pat.cvc-i": "i corta",
@@ -534,6 +535,7 @@
     "unlock.stone": "Piedra nueva abierta:",
     "unlock.def": "Defensor nuevo:",
     "settings.music": "Música",
-    "settings.effects": "Efectos"
+    "settings.effects": "Efectos",
+    "lock.allFullLater": "¡Todos los cerrojos están llenos! Aguanta hasta la última oleada: la oleada"
   }
 }

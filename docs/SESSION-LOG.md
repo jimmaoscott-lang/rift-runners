@@ -23,6 +23,8 @@ Newest entry at the top. Each session adds one entry.
 3. In Settings, try turning Music down to 0 and Effects up and down.
 4. Tell me if anything is too loud, annoying after a while, or missing.
 
+**Fix (Mr. Scott's report):** filling every rift lock before wave 1 still meant playing waves 1 and 2 first, but the message said "The final wave is coming," which looked like a glitch. The minimum waves stay. Now the message names the final wave ("Hold out until the final wave: wave 3"), it is also said at the start if the locks are already full, and the wave counter shows "Wave 1 of 3".
+
 **Next up**
 - Unchanged: M5 speak mode, starting with Opus.
 

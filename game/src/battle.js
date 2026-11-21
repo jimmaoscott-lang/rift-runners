@@ -61,7 +61,8 @@ window.RF = window.RF || {};
     B.refreshLocks(true);
     B.updatePads();
     canvasOn();
-    B.toast('hud.buildStart', true);
+    // Locks can already be full from earlier play: say when the final wave will be.
+    B.toast(null, true, B.sealReady ? [{ id: 'hud.buildStart' }].concat(B.allFullParts()) : [{ id: 'hud.buildStart' }]);
     RF.audio.music('calm');
   };
 
@@ -82,7 +83,12 @@ window.RF = window.RF || {};
     B.crystalChip.style.transition = 'transform .15s';
     B.waveChip = D.el('div', 'chip', '', top);
     B.waveChip.style.cssText += ';font-size:16px;cursor:pointer;padding:6px 12px';
-    B.waveChip.addEventListener('click', function () { RF.speakSeq(B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(Math.max(1, B.wave))]); });
+    B.waveChip.addEventListener('click', function () {
+      if (B.finalWave) return RF.speakSeq([{ id: 'hud.finalWave' }]);
+      const parts = [{ id: 'hud.wave' }, D.num(Math.max(1, B.wave))];
+      if (B.sealReady) parts.push({ id: 'res.of' }, D.num(B.finalWaveNum()));
+      RF.speakSeq(parts);
+    });
     const lv = D.el('div', 'chip', '', top);
     lv.style.cssText += ';font-size:14px;gap:8px;padding:4px 10px';
     lv.appendChild(D.speaker(function () { RF.speakSeq([{ id: 'level.world1short' }, { id: 'level.n' + B.L.num }, { id: B.L.name }]); }, true));
@@ -180,8 +186,16 @@ window.RF = window.RF || {};
     });
     if (!B.sealReady && B.locks.every(function (x) { return x.done; })) {
       B.sealReady = true;
-      if (!quiet) { B.toast('lock.allFull', true); RF.sfx('win'); }
+      if (!quiet) { B.toast(null, true, B.allFullParts()); RF.sfx('win'); }
+      if (B.waveChip) B.renderTop();
     }
+  };
+  // The final wave comes once every lock is full, but never before the level's minimum wave.
+  B.finalWaveNum = function () { return Math.max(B.L.minWaves, B.wave + 1); };
+  // "All rift locks are full!" said the right way: the next wave is final, or which wave will be.
+  B.allFullParts = function () {
+    const n = B.finalWaveNum();
+    return n === B.wave + 1 ? [{ id: 'lock.allFull' }] : [{ id: 'lock.allFullLater' }, D.num(n)];
   };
   B.renderLocks = function () {
     const box = B.locksBox;
@@ -213,7 +227,9 @@ window.RF = window.RF || {};
 
   B.renderTop = function () {
     B.crystalChip.innerHTML = D.CRYSTAL(30) + ' <span class="cyan">' + B.crystals + '</span>';
-    B.waveChip.innerHTML = B.finalWave ? '<span class="gold">' + D.esc(RF.t('hud.finalWave')) + '</span>' : D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span>';
+    // Once every lock is full, the chip counts down to the final wave: "Wave 1 of 3".
+    B.waveChip.innerHTML = B.finalWave ? '<span class="gold">' + D.esc(RF.t('hud.finalWave')) + '</span>' : D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span>' +
+      (B.sealReady ? ' ' + D.esc(RF.t('res.of')) + ' <span class="gold" style="font-size:22px">' + B.finalWaveNum() + '</span>' : '');
     const showStart = B.phase === 'build' || B.phase === 'between';
     B.startBtn.style.display = showStart ? '' : 'none';
     const nextFinal = B.sealReady && B.wave + 1 >= B.L.minWaves;
