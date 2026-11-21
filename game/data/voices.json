@@ -1,8 +1,20 @@
 {
   "_note": "Azure voice assigned to each role. Change a voice here without touching game code. null = not chosen yet. readingGuide says battle words; until one is picked, the narrator says them.",
-  "narrator": { "en": "en-US-GuyNeural", "es": "es-MX-JorgeNeural" },
-  "readingGuide": { "en": null, "es": null },
-  "readingGuideOptions": { "en": [], "es": [] },
-  "encouragementRotation": { "en": [], "es": [] },
+  "narrator": {
+    "en": "en-US-GuyNeural",
+    "es": "es-MX-JorgeNeural"
+  },
+  "readingGuide": {
+    "en": "en-US-AndrewNeural",
+    "es": null
+  },
+  "readingGuideOptions": {
+    "en": [],
+    "es": []
+  },
+  "encouragementRotation": {
+    "en": [],
+    "es": []
+  },
   "characters": {}
 }

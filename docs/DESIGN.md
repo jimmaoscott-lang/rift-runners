@@ -257,6 +257,7 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
     - **Spanish:** the same approach with the Spanish voices.
     - Character-to-voice assignments live in `game/data/voices.json`, so voices can be swapped without changing code.
     - Candidate voices from the first samples: English Andrew, Brian, Guy, Davis, Ava, Emma, Jenny, Aria; Spanish Dalia, Jorge, Alonso, Paloma. Mr. Scott approves the final cast.
+    - **Reading guide (Forge words):** English Andrew, picked by Mr. Scott on the sound-check page (Session 8). Guy blurred short a.
     - **Chosen so far:** narrator is English Guy (picked by Mr. Scott) and Spanish Jorge, Mexico (picked to match: a male narrator voice in the Spanish variety most common among local EB students). A Spanish-speaking colleague or student should give the Spanish voices a quick listen before launch.
   - Free tier is 0.5 million characters per month, far more than the game's full text. Free tier usage is throttled rather than billed when the limit is reached.
   - Backup option with no account: an open-source voice (Kokoro or Piper) run by the same GitHub Action.

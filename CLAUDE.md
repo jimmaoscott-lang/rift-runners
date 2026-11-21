@@ -18,6 +18,20 @@ Full design: `docs/DESIGN.md`. That file is the source of truth. If a build deci
 - Tell him if a different Claude model would fit a task better (for example, a lighter model for simple content entry).
 - **Reading instruction choices are Claude's call.** Mr. Scott has handed over decisions about the skill sequence, word lists, which patterns go in which world, and how support works. Make the choice using structured literacy practice, record it in DESIGN.md, and tell him what was decided. Ask him about game feel, his students and classroom logistics.
 
+## Claude is the build manager
+
+Mr. Scott asked Claude to act as manager for every build session (Session 8). In each session:
+
+- **Plan the work.** Break the "Next up" item into small tasks and show them in the task list.
+- **Assign each task to the right model.** When subagents are available, hand tasks to them with clear instructions and pick the model by the job:
+  - **Haiku:** content entry and simple edits (word lists, strings and Spanish lines, JSON numbers, doc and log updates, re-running checkers).
+  - **Sonnet:** routine coding on an existing pattern (a new creature or defender like the ones already built, a new menu screen, bug fixes with a known cause), test scripts and balance runs.
+  - **Opus:** design and architecture, reading instruction decisions, game feel and balance judgment, hard bugs, and reviewing other models' work.
+  - Do a task directly instead when handing it off costs more than doing it (a one-line change).
+- **Check all delegated work** before it is committed: read the changes, run the decodability checker, load the game and play the new part.
+- **Tell Mr. Scott which model to start the next chat with**, with a one-line starting message, at the end of every session.
+- Report what each model did only when it matters to him; he cares about the result.
+
 ## How each session runs
 
 He builds in small sessions, often at the end of the week with leftover credits. Make each session count:

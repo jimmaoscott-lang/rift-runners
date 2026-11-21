@@ -4,6 +4,23 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 8: November 21, 2026 (word voice, build manager)
+
+**Decided (Mr. Scott)**
+- Forge words now use the Andrew voice (reading guide). Guy blurred short a. Guy stays the narrator for menus and story lines.
+- Claude acts as build manager in every session and assigns tasks to Haiku, Sonnet or Opus. Rules added to CLAUDE.md.
+
+**Built**
+- `game/data/voices.json`: reading guide set to Andrew. GitHub re-voices every Forge word after this push.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, refresh the game, and listen to the Forge choices.
+
+**Next up**
+- M4: World 1 map with locks and stars, Level Clear growth screen, Levels 2 and 3, defender unlock order. Start the chat with Opus (planning and map design), which hands parts to Sonnet and Haiku.
+
+---
+
 ## Session 7: November 21, 2026 (Forge sounds fixed)
 
 **Mr. Scott's playtest:** on "yat" two choices sounded the same and the right answer seemed marked wrong; "pin" and "pen" sounded alike; on "hit" the choices were hard to understand.
