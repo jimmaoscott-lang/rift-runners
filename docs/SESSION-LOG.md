@@ -14,8 +14,8 @@ Newest entry at the top. Each session adds one entry.
 - Microphone test screen: tells you plainly whether speak mode can work in that version of the game (website, offline file, Apps Script).
 - Keyboard play on every screen (arrows, Tab, Enter, Esc).
 - All menu text lives in `game/data/strings.json`. Read-aloud plays pre-made Azure voice files, with the Chromebook voice as backup.
-- `tools/voice_lines.py`: voices every menu line with the narrator voices (Guy, Jorge) on each push.
-- `tools/build_single.py`: builds the all-in-one file (about 1.5 MB, code, fonts and voices packed inside).
+- `tools/voice_lines.py`: voices every menu line with the narrator voices (Guy, Jorge) on each push. First run voiced all 70 lines; they are live in the game.
+- `tools/build_single.py`: builds the all-in-one file (about 3 MB, code, fonts and voices packed inside).
 - `.github/workflows/deploy.yml`: on every push to main it voices new lines, builds the all-in-one file and publishes the website.
 - `assets/CREDITS.md` started (Lexend, OpenDyslexic, Phaser).
 
