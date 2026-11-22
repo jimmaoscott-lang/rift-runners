@@ -21,6 +21,16 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 20: November 22, 2026 (cut scenes switched to video)
+
+- **Design change:** cut scenes are now video. Each level has three MP4 clips (start, win, loss), about 5 to 6 MB each, made in Google Gemini. DESIGN.md section 4.4 updated (format, clip loading, narration over the clip, build owner). Claude's choice: the start, win and loss clips map to the three clips per level.
+- **Credits:** Gemini clips added to `assets/CREDITS.md`.
+- **Not built yet:** the video player and per-level loading (Sonnet job, after the mic fix and Arsenal steps).
+- **Open questions for Mr. Scott:** (1) Is it right that the Azure voice plays over each clip, rather than baked into the video? (2) Should clips be made with no speech at all? (3) Are the Gemini clips 720p H.264 MP4s? Check before committing a clip.
+- **Next up:** unchanged (mic fix, then Arsenal step 4).
+
+---
+
 ## Session 19b: November 22, 2026 (Arsenal and Rift Bestiary plan)
 
 **Planned (no code yet):** `docs/ARSENAL.md`. One new defender and two new creatures every level, from Archer Tower up to the Photon Fortress. Damage types (Pierce, Blast, Fire, Frost, Shock, Acid, Laser, Photon) and creature traits (Armored, Shielded, Flying, Camo, Fireproof, Mirror, Regen and more) so winning depends on matching defenders to creatures. Camo Shade Stalker and the Sniper Nest in World 1 Level 5. A scout comes alone first, then a Rift Intel card (no narrator) explains it. Intel cards ramp from about grade 2.5 to grade 9. Prices are set in words of reading; a small Rift Cache win bonus. Existing defenders move later so each level brings one (replaces plan item 3).

@@ -92,9 +92,9 @@ Runs automatically the first time a student opens Level 1. It does not run on la
 
 ---
 
-### 4.4 Cut scenes (planned, Mr. Scott approved the Level 1 outline, November 22)
+### 4.4 Cut scenes (planned, Mr. Scott approved the Level 1 outline, November 22; format changed to video, November 22)
 
-Short in-engine scenes (camera moves and simple animation on the game's own models, no video files) at the start and end of each level. Rules: 10 to 15 seconds (loss about 8), skippable after the first viewing, voice first with small optional captions (every word tappable). The first time a student opens Level 1, the start scene plays, then the tutorial (4.3) begins.
+Each level has three short video clips (MP4, about 5 to 6 MB each, made with Google Gemini): a start clip, a win clip and a loss clip. The start clip plays when the level opens, and the win or loss clip plays at the end of the level. Rules: 10 to 15 seconds (loss about 8), skippable after the first viewing, voice first with small optional captions (every word tappable). Narration is the Azure voice audio played over the clip, so the spoken lines stay the same across clips and the captions match the audio. Clips load only when their level opens, so the game never downloads every level at once. The first time a student opens Level 1, the start clip plays, then the tutorial (4.3) begins. The scene scripts below are the content for each clip.
 
 **Characters**
 - **The Rift Warden:** a veteran guardian in her 30s who has held rifts closed for years. Striking and heroic: long dark-teal coat with leather straps, armored shoulder plates, hood usually down, hair pulled back, a scar over one eyebrow, and a tall staff topped with a cyan crystal that glows brighter when the player reads well. Stands like a soldier, speaks plainly, treats the Runner as a capable recruit. Her appeal is confidence, skill and attitude; she is never drawn or posed to be sexualized (teen-appropriate rule). Voice: one of Azure's female voices, picked by Mr. Scott from samples.
@@ -109,7 +109,7 @@ Short in-engine scenes (camera moves and simple animation on the game's own mode
 
 **Level 1 loss (about 8 s):** a Thornback slams the Anchor and its core goes dark. The Warden steps in front and slams her staff down; a shockwave pushes the creatures back. Steady, not angry: "They broke through, but we're not done. Every rune you read made us stronger. Back to the line." The core flickers back; Try again appears. The loss scene always reads as regrouping together, never failure.
 
-**Build:** after the mic fix and Arsenal steps. Opus writes and directs; camera work is a Sonnet job. Later worlds get their own story thread toward the Rift Core.
+**Build:** after the mic fix and Arsenal steps. Mr. Scott makes the clips in Gemini from the scripts below, one clip at a time. Claude adds the video player and per-level loading (Sonnet job), and checks each clip's size and playback on a Chromebook before it is committed. Later worlds get their own story thread toward the Rift Core.
 
 ## 5. Skill sequence
 
