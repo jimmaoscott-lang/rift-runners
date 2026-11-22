@@ -434,7 +434,7 @@
       ]
     },
     {
-      "w": "fim",
+      "w": "fim", "noSpeak": true,
       "options": [
         "fam",
         "fum"

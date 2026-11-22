@@ -48,8 +48,11 @@ Newest entry at the top. Each session adds one entry.
 
 **Fixed after the session (Mr. Scott, Nov 21): rune "fim" failed a correct read about half the time (v0.11.1).** Likely cause: Azure guesses how made-up words are said and sometimes expects a long i ("fime"). The speech check now judges the short vowel the spelling asks for, using what the vowel sounded most like when Azure's guess differs. Test mode's orange line says "azure expected aɪ, checked as ɪ" when this happens. A wrong long-vowel read on such a rune now misses (before it could pass).
 
+**Mr. Scott's retest (Nov 21):** "fim" still fails a correct short i some of the time; other runes are fine. Marked noSpeak (tap only), like "pid" in Session 11. The vowel-by-spelling check from v0.11.1 stays.
+
+**Fixed (Mr. Scott, Nov 21): hero powers filled but could not be tapped.** The power buttons sat under the battlefield, so taps never reached them. Tested with a real mouse click in a wave: Meteor fired. v0.11.2.
+
 **Next up**
-- Mr. Scott: retry "fim" and other runes in speak mode. If one still fails, turn on Test mode and send the orange line.
 - M6 part 4: the Armory (spend the kill shard bank between levels on permanent upgrades). Keep upgrades small so difficulty holds. Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 
