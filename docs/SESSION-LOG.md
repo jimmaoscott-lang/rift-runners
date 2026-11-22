@@ -4,6 +4,29 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Plan: tighten up gameplay (Mr. Scott's playtest, November 22, 2026)
+
+Smallest first. One item per session where possible. Work top down; each item gets its own SESSION-LOG entry when built.
+
+| # | Fix | Size | Model |
+|---|---|---|---|
+| 1 | **Volume slider on the battle screen** (top bar, one tap opens it). | Small | Sonnet |
+| 2 | **Miss card, short version:** show the word as letter tiles, sound each one out, then blend it ("g, a, s, gas"). Add a **Show the rule** button that opens the full rule card. Full card: replace "like ax" with a clearer key word layout. | Small | Sonnet (Opus picks key words) |
+| 3 | **Fewer weapons early:** Level 1 opens with Archer Tower and Spike Pit only, then one new defender every level or two, each with a one-time "new defender" tip. | Small | Opus sets the schedule, Haiku enters it |
+| 4 | **Narrator and word audio:** a word the student is hearing always plays first. Wave alerts become a sound and a flash while a word is playing, and narrator lines wait in a line instead of cutting each other off. | Small to medium | Sonnet |
+| 5 | **Rift locks that make sense:** each lock shows the last 10 tries as boxes (bright for right on the first try, dark for a miss), so a student can see why it went down. Check the counting with a test script. | Small to medium | Opus decides, Sonnet builds |
+| 6 | **Clear upgrades:** an up-arrow badge on any defender the student can afford to upgrade, a big Upgrade button when it is tapped, and a one-time tip the first time an upgrade is affordable. | Medium | Sonnet |
+| 7 | **Harder levels:** retune after item 3, since fewer weapons alone will make levels harder. Mr. Scott playtests before more changes. | Medium | Opus |
+| 8 | **Mic misses words (short u and a, lag):** find which recognizer runs on his Chromebook, cut the wait after the student stops talking, keep the mic ready between words, and give Azure the three choices as hints. Never accept a wrong vowel as right. | Medium to large | Opus |
+| 9 | **Place defenders anywhere open:** remove the stone pads. Towers go on any open ground off the trail; trail types (Vine Snare, Stone Golem, Spike Pit, Barricade) go on the trail. A ghost preview shows green or red before building. | Large | Opus designs, Sonnet builds |
+| 10 | **Better graphics:** needs Mr. Scott's direction first (what looks off: the map, the creatures, the towers, the effects?). | Large, ongoing | Opus |
+
+**Notes**
+- Rift locks today count the last 10 tries on that sound from all play, not only this level. So a lock can start partly full, and a miss can make a square disappear. The math is right; the display is the problem (item 5).
+- Items 1 to 5 should fit before Wednesday. Items 8 and 9 are the big ones; 10 needs his input.
+
+---
+
 ## Session 18: November 21, 2026 (Level 1 tutorial)
 
 **Built**
