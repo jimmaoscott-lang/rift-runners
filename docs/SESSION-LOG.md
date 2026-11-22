@@ -57,7 +57,18 @@ Newest entry at the top. Each session adds one entry.
 4. Miss another word with the same vowel and check that the short card shows.
 
 **Next up**
-- M7: the Thorn King boss level (short phrases and a short passage, Rift Seal read aloud with WCPM). Start the chat with Opus.
+- **Level 1 tutorial (approved by Mr. Scott, Nov 21). Build this first.** Start the chat with Opus.
+  - Runs automatically the first time a student opens Level 1; not on replays. Settings gets a "Replay tutorial" button. No skip button the first time; a skip button shows only on replays.
+  - The battle stays frozen during each step until the student does the action. No timers. About 2 minutes, 5 steps. Each step: narrator voice, a short text line (shown even with Battle captions off), and a glowing arrow or spotlight on the right spot.
+  - Step 1, read to earn: "Read the word. Tap the sounds, pick the one that matches, then press Forge." Student forges one word; crystals fly to the total. If the mic works, a second line points out Say it.
+  - Step 2, build: arrow to the Archer Tower card, then to a glowing tower pad. Student places it.
+  - Step 3, reading brings waves: student reads 2 more words; point out the "Next wave in" counter and that Start wave calls a wave early.
+  - Step 4, first wave: a small wave runs; the student watches the tower fire and sees creatures that get through hurt the Rift Anchor.
+  - Step 5, rift locks: "Read words right on the first try to fill these locks. Fill them all, survive the final wave, and the rift closes." Then normal play.
+  - Tutorial words count toward the rift locks and the progress record like any other read (Mr. Scott).
+  - Upgrades, hero powers and later defenders get a one-time tip the first time each matters (like new creature lines), not tutorial steps.
+  - Update DESIGN.md (section 4.2 or a new tutorial section) in the same session.
+- Then M7: the Thorn King boss level (short phrases and a short passage, Rift Seal read aloud with WCPM). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 
 **Open questions**
