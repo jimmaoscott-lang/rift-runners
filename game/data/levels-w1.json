@@ -459,7 +459,7 @@
         "need": 9
       },
       "endless": {
-        "hpStep": 0.18,
+        "hpStep": 0.22,
         "countStep": 0.12
       },
       "finalBoost": 1.2
@@ -751,7 +751,7 @@
         "need": 9
       },
       "endless": {
-        "hpStep": 0.15,
+        "hpStep": 0.2,
         "countStep": 0.12
       },
       "finalBoost": 1.2

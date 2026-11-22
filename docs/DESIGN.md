@@ -201,8 +201,8 @@ Always on screen in a level, on the right side.
 | Level | Strong | Typical | Struggling |
 |---|---|---|---|
 | 1 | wins all, 3 to 4 waves | wins 9 of 10 (3 with Anchor damage), 3 to 8 waves | loses at wave 4 or 5 |
-| 2 | wins all, 3 to 4 waves | wins 9 of 10, 4 to 11 waves | loses at wave 4 to 6 (two at 8) |
-| 3 | wins all, 4 to 8 waves | wins 7 of 10 (3 with damage), 7 to 11 waves; losses near wave 15 | loses at wave 4 |
+| 2 | wins all, 3 to 4 waves | wins all (2 with damage), 4 to 10 waves (Session 16, with specialties) | loses at wave 4 to 7 |
+| 3 | wins all, 4 to 8 waves | wins 9 of 10 (5 with damage), 7 to 15 waves; one loss at wave 15 (Session 16, with specialties) | loses at wave 4 |
 | Final | wins all in 3 waves | wins all in 3 waves (2 with damage) | loses at wave 4 to 6 in 7 of 10; 3 win when the Story lock fills by luck |
 
 Crystals per 10 items: World 1 about 80 (struggling), 145 (typical), 245 (strong, Mega Forges included); final level about 225, 300 and 380. Wave strength (`hp` per wave, `endless` steps) was raised in the middle waves and the endless steps set per level; World 1 starting crystals are unchanged (100, 100, 120) and the final level starts with 400. Numbers live in `game/data/levels-w1.json` and `game/data/units.json`. Run `python3 tools/sim_balance.py` after any change to waves, defenders or pay.
@@ -211,7 +211,7 @@ Crystals per 10 items: World 1 about 80 (struggling), 145 (typical), 245 (strong
 
 ## 6A. Defenders
 
-Placed on build spots beside the trail (towers) or on the trail itself (blockers and traps). Each has 3 upgrade tiers; tier 3 picks one of two specialties.
+Placed on build spots beside the trail (towers) or on the trail itself (blockers and traps). Each has 3 levels, and a third upgrade picks one of two tier 3 specialties.
 
 | Defender | Role | Unlocks |
 |---|---|---|
@@ -246,6 +246,23 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Barricade | Trail | 30 (25, 40) | A cheap wall that holds creatures in place like a golem but never hits back. When it breaks it is gone, and the spot opens again. |
 
 Choice (Claude): World 1 trails are fixed, so the Barricade only blocks there. Rerouting waits for the open maps of later worlds. Ballista, Shrine and Barricade unlock on Level 4 and 5 wins; until those levels are built, Test mode opens them for trying.
+
+**Built in M6 part 2 (Session 16): tier 3 specialties.** Claude's call: the specialty is a third upgrade, from level 3 to level 4, so the level 1 to 3 numbers students have already played stay the same. Tap a level 3 defender and the popup shows both choices, each with a speaker, a one-line description and its price. Picking one is final (sell to change). The specialty's numbers replace level 3's (`spec` in `units.json`). A gem above the defender shows the choice: orange for the first, blue for the second.
+
+| Defender | Cost | First choice (orange) | Second choice (blue) |
+|---|---|---|---|
+| Archer Tower | 145 | Sharpshooter Tower: 46 damage, long reach, slower | Volley Tower: 3 arrows at once at 3 creatures |
+| Spike Pit | 110 | Blade Pit: 44 damage a second | Tar Pit: 20 damage a second and slows to half |
+| Stone Golem | 195 | Mountain Golem: 470 health, holds 6, rebuilds in 9 seconds | Quake Golem: every slam hits everything it holds |
+| Frost Totem | 160 | Glacier Totem: freezes its ring every 6 seconds for 1.6 seconds (Brutes half) | Blizzard Totem: wider, colder ring that hurts 7 a second |
+| Ember Cannon | 230 | Doom Mortar: 115 damage, huge blast, slow | Inferno Cannon: faster shells that leave fire on the ground for 3.5 seconds |
+| Lightning Spire | 250 | Storm Spire: jumps to 6 more creatures | Thunder Spire: one 125 bolt that stuns for 0.9 seconds |
+| Vine Snare | 150 | Thorn Snare: thorny vines squeeze for 28 a second | Deep Roots: wide ring, holds 7 for 3.6 seconds |
+| Ballista | 210 | Siege Ballista: 165 bolts, double damage to big creatures, breaks shields | Repeater Ballista: fires about 3 times as fast |
+| Healing Shrine | 170 | Life Shrine: big healing, mends the Anchor every 12 seconds, golems in its ring rebuild twice as fast | War Shrine: defenders in its ring fire 30% faster |
+| Barricade | 75 | Stone Wall: 560 health, holds 8 | Thorn Wall: thorns hurt everything it holds |
+
+Each pair trades power on one target against power on many, or damage against control, so the choice depends on the trail and the creatures. Balance: the first prices tried (about 1.4 times the level 3 upgrade) let the typical reader win every World 1 run without damage, so prices went to about 1.8 times, Storm Spire went from 7 jumps to 6, and the endless wave growth on Levels 2 and 3 went up (`hpStep` 0.18 to 0.22 and 0.15 to 0.2). `sim_balance.py` now buys specialties.
 
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 

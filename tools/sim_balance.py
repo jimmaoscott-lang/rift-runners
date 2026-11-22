@@ -106,12 +106,15 @@ async (args) => {
       }
       if (pi < plan.length) continue;
       // Every planned spot used: upgrade the lowest level damage dealer first.
-      const ups = B.defenders.filter(function (x) { return x.lv < 3; })
+      // Level 3 defenders then take a tier 3 specialty (a coin flip between the two).
+      const ups = B.defenders.filter(function (x) { return x.lv < 4; })
         .sort(function (a, b) { return a.lv - b.lv || (a.type === 'golem') - (b.type === 'golem'); });
       if (!ups.length) return;
-      const u = ups[0], cost = U.defenders[u.type].up[u.lv - 1];
+      const u = ups[0], ud = U.defenders[u.type];
+      const pick = u.lv === 3 ? (Math.random() < 0.5 ? 'a' : 'b') : null;
+      const cost = pick ? ud.spec[pick].cost : ud.up[u.lv - 1];
       if (B.crystals < cost) return;
-      B.upgrade(u); B.closePopup();
+      B.upgrade(u, pick); B.closePopup();
     }
   }
 

@@ -49,7 +49,7 @@ window.RF = window.RF || {};
     B.wave = 0; B.waveTime = 0; B.queue = [];
     // Waves from reading (DESIGN.md 6): every waveEvery finished words or cards brings a wave.
     B.every = L.waveEvery || 10; B.readCount = 0; B.wavesDue = 0; B.dueT = 0;
-    B.creatures = []; B.defenders = []; B.shots = []; B.fx = [];
+    B.creatures = []; B.defenders = []; B.shots = []; B.fx = []; B.burns = [];
     B.paused = false; B.speed = 1; B.shake = 0;
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
@@ -408,7 +408,7 @@ window.RF = window.RF || {};
     const G = RF.G;
     const cdef = B.U.creatures[type];
     const hp = Math.round(cdef.hp * (hpScale || 1));
-    const c = { type: type, hp: hp, max: hp, s: 0, speed: cdef.speed * (0.92 + Math.random() * 0.16), lane: (Math.random() - 0.5) * (type === 'wisp' ? 1.8 : 1.0), slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false };
+    const c = { type: type, hp: hp, max: hp, s: 0, speed: cdef.speed * (0.92 + Math.random() * 0.16), lane: (Math.random() - 0.5) * (type === 'wisp' ? 1.8 : 1.0), slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false, stun: 0 };
     if (type === 'thornback') c.obj = G.thornback(0, 0, B.world.dyn, 0.95);
     else if (type === 'bramble') c.obj = G.bramble(0, 0, B.world.dyn, 1.0);
     else if (type === 'brute') { c.obj = G.shieldBrute(0, 0, B.world.dyn); c.obj.scale.setScalar(1.15); c.shield = true; c.lane = (Math.random() - 0.5) * 0.5; }
@@ -469,6 +469,7 @@ window.RF = window.RF || {};
     if (B.crystals < d.cost) { B.toast('hud.need', true); RF.sfx('soft'); return false; }
     B.crystals -= d.cost;
     const def = { type: type, lv: 1, pad: pad, spent: d.cost, cd: 0.2, obj: defModel(type, pad) };
+    if (type === 'frost') def.rings = def.obj.children.slice(-2); // the two range circles, kept so upgrade rings never get mixed up with them
     if (type === 'golem') {
       def.hp = d.levels[0].hp; def.max = def.hp; def.down = 0; def.held = [];
       def.label = makeBar(true);
@@ -492,10 +493,19 @@ window.RF = window.RF || {};
     return true;
   };
   function scaleFrost(def) {
-    const r = B.U.defenders.frost.levels[def.lv - 1].range;
-    const kids = def.obj.children;
-    [kids[kids.length - 1], kids[kids.length - 2]].forEach(function (m) { m.scale.set(r / 3.7, r / 3.7, 1); });
+    const r = stat(def).range;
+    // The circles sit inside the totem, which grows with each level, so undo that growth here.
+    const g = def.obj.scale.x || 1;
+    def.rings.forEach(function (m) { m.scale.set(r / 3.7 / g, r / 3.7 / g, 1); });
   }
+  // A defender's numbers right now: its level, or its tier 3 specialty (DESIGN.md 6A).
+  function stat(def) {
+    const d = B.U.defenders[def.type];
+    if (!def.spec) return d.levels[def.lv - 1];
+    if (!def.st) def.st = Object.assign({}, d.levels[2], d.spec[def.spec]);
+    return def.st;
+  }
+  B.stat = stat;
   // A defender's size: grows a little with each level. A vine shrinks while it regrows.
   function applyScale(def) {
     const base = (def.type === 'golem' ? 0.8 : 1) * (1 + 0.08 * (def.lv - 1));
@@ -507,26 +517,43 @@ window.RF = window.RF || {};
     obj.scale.setScalar(0.01);
     B.fx.push({ life: 0.35, t: 0, update: function (f) { obj.scale.setScalar(target * Math.min(1, 0.2 + f * 1.1)); }, end: function () { obj.scale.setScalar(target); } });
   }
-  B.upgrade = function (def) {
+  // The third upgrade (level 3 to 4) picks specialty 'a' or 'b'.
+  B.upgrade = function (def, pick) {
     const d = B.U.defenders[def.type];
-    if (def.lv >= 3) return;
-    const cost = d.up[def.lv - 1];
+    if (def.lv >= 4 || (def.lv === 3 && !(d.spec && d.spec[pick]))) return;
+    const cost = def.lv === 3 ? d.spec[pick].cost : d.up[def.lv - 1];
     if (B.crystals < cost) { B.toast('hud.need', true); RF.sfx('soft'); return; }
     B.crystals -= cost;
     def.spent += cost;
     def.lv++;
+    if (def.lv === 4) { def.spec = pick; def.st = null; }
     applyScale(def);
     const RR = { archer: [1.15, 1.72, 0.12], ember: [1.3, 0.12, 0.15], lightning: [1.05, 0.2, 0.15], vine: [1.05, 0.15, 0.12], ballista: [1.3, 0.3, 0.15], shrine: [1.2, 0.2, 0.15], barricade: [1.15, 0.12, 0.1] };
     const rr = RR[def.type] || [0.9, 0.45, 0.15];
     const ring = RF.G.mesh(new THREE.TorusGeometry(rr[0], 0.07, 4, 16), RF.G.M.gold, 0, rr[1] + (def.lv - 2) * rr[2], 0, def.obj);
     ring.rotation.x = Math.PI / 2;
-    if (def.type === 'golem' || def.type === 'barricade') { const nl = d.levels[def.lv - 1]; def.max = nl.hp; def.hp = nl.hp; }
+    if (def.spec) specCrown(def);
+    if (def.type === 'golem' || def.type === 'barricade') { const nl = stat(def); def.max = nl.hp; def.hp = nl.hp; }
     if (def.type === 'frost') scaleFrost(def);
-    RF.audio.fx('upgrade');
+    RF.audio.fx(def.spec ? 'mega' : 'upgrade');
+    if (def.spec) { B.toast(d.spec[pick].name, true); burst(def.pad.x, 2.5, def.pad.z, def.spec === 'a' ? RF.G.TEX.orange : RF.G.TEX.cyan, 10); }
     RF.metrics.support('upgrade');
     B.renderTop(); B.renderCards();
     B.showDefPopup(def);
   };
+  // A specialty gets a glowing gem above the defender: orange for the first choice, blue for the second,
+  // so a student can tell at a glance which one each defender took.
+  function specCrown(def) {
+    const o = def.obj, sc = o.scale.x || 1;
+    o.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(o);
+    const top = (box.max.y - o.position.y) / sc + 0.5;
+    const a = def.spec === 'a';
+    const gem = RF.G.mesh(new THREE.OctahedronGeometry(0.34, 0), a ? RF.G.M.ember : RF.G.M.anchor, 0, top, 0, o);
+    gem.scale.y = 1.4;
+    RF.G.sprite(a ? RF.G.TEX.orange : RF.G.TEX.cyan, 1.6, 0, top, 0, o, 0.85);
+    def.gem = gem;
+  }
   B.sell = function (def) {
     const refund = Math.round(def.spent * 0.6);
     B.crystals += refund;
@@ -627,11 +654,16 @@ window.RF = window.RF || {};
 
   // ---------- Popups on the battlefield ----------
   function popupAt(x, y, z) {
-    const p = screenOf(x, y, z);
-    const s = RF.dom.scale;
-    B.popup.style.left = (p.x / s) + 'px';
-    B.popup.style.top = (p.y / s) + 'px';
     B.popup.style.display = '';
+    placePopup(screenOf(x, y, z));
+  }
+  // The popup sits above its defender, but never off the screen (the specialty choice is tall).
+  function placePopup(p) {
+    const s = RF.dom.scale, el = B.popup;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const vw = window.innerWidth / s, vh = window.innerHeight / s;
+    el.style.left = Math.min(Math.max(p.x / s, w / 2 + 8), vw - w / 2 - 8) + 'px';
+    el.style.top = Math.min(Math.max(p.y / s, h + 8), vh - 8) + 'px';
   }
   B.closePopup = function () {
     B.popup.style.display = 'none';
@@ -672,8 +704,32 @@ window.RF = window.RF || {};
     const d = B.U.defenders[def.type];
     const box = D.el('div', 'panel', null, B.popup);
     box.style.cssText += ';padding:10px 12px;display:flex;flex-direction:column;gap:8px;border-color:#ffd76a;min-width:240px';
-    const nm = D.lineParts([{ id: d.name }, { id: 'hud.lv' }, { id: 'num.' + def.lv }], '', box, D.esc(RF.t(d.name)) + ' · ' + D.esc(RF.t('hud.lv')) + ' ' + def.lv);
-    nm.querySelector('.txt').style.cssText = 'font-weight:700;color:#ffd76a;font-size:calc(17px * var(--ts))';
+    // A specialty shows its own name in place of "Level 4".
+    const head = def.spec ? [{ id: d.spec[def.spec].name }] : [{ id: d.name }, { id: 'hud.lv' }, { id: 'num.' + def.lv }];
+    const nm = D.lineParts(head, '', box, def.spec ? D.esc(RF.t(d.spec[def.spec].name)) : D.esc(RF.t(d.name)) + ' · ' + D.esc(RF.t('hud.lv')) + ' ' + def.lv);
+    nm.querySelector('.txt').style.cssText = 'font-weight:700;color:' + (def.spec === 'a' ? '#ffb46a' : def.spec === 'b' ? '#7ef3ff' : '#ffd76a') + ';font-size:calc(17px * var(--ts))';
+    if (def.spec) D.line(d.spec[def.spec].desc, '', box).querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));max-width:320px;white-space:normal';
+    // Level 3: the third upgrade is a choice of two specialties (DESIGN.md 6A).
+    if (def.lv === 3 && d.spec) {
+      box.style.minWidth = '360px';
+      const ph = D.line('hud.pickSpec', '', box);
+      ph.querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#d9c8ff';
+      let first = null;
+      ['a', 'b'].forEach(function (k) {
+        const sp = d.spec[k];
+        const col = k === 'a' ? '#ffb46a' : '#7ef3ff';
+        const opt = D.el('div', null, null, box);
+        opt.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;border:2px solid ' + col + ';background:rgba(10,12,30,.6)';
+        opt.appendChild(D.speaker(function () { RF.speakSeq([{ id: sp.name }, { id: sp.desc }]); }, true));
+        const txt = D.el('div', 'read', '<div style="font-weight:700;color:' + col + ';font-size:calc(16px * var(--ts))">' + D.esc(RF.t(sp.name)) + '</div><div style="font-size:calc(14px * var(--ts));line-height:1.3">' + D.esc(RF.t(sp.desc)) + '</div>', opt);
+        txt.style.cssText += ';flex:1;max-width:270px;white-space:normal';
+        const pb = D.el('button', 'btn go', D.esc(RF.t('hud.pick')) + ' ' + D.CRYSTAL(16) + '<span style="color:' + (B.crystals >= sp.cost ? '#fff' : '#ffb0b0') + '">' + sp.cost + '</span>', opt);
+        pb.style.flex = 'none';
+        pb.addEventListener('click', function () { B.upgrade(def, k); });
+        if (!first) first = pb;
+      });
+      first.focus({ preventScroll: true });
+    }
     const row = D.el('div', null, null, box);
     row.style.cssText = 'display:flex;gap:8px';
     if (def.lv < 3) {
@@ -681,7 +737,7 @@ window.RF = window.RF || {};
       const ub = D.el('button', 'btn go', '&#11014; ' + D.esc(RF.t('hud.upgrade')) + ' ' + D.CRYSTAL(16) + '<span style="color:' + (B.crystals >= cost ? '#fff' : '#ffb0b0') + '">' + cost + '</span>', row);
       ub.addEventListener('click', function () { B.upgrade(def); });
       ub.focus({ preventScroll: true });
-    } else D.line('hud.maxed', '', row);
+    } else if (def.lv >= 4) D.line('hud.maxed', '', row);
     const sb = D.el('button', 'btn', D.esc(RF.t('hud.sell')) + ' +' + Math.round(def.spent * 0.6), row);
     sb.addEventListener('click', function () { B.sell(def); });
     const x = D.el('button', 'btn', '&#10005;', row);
@@ -689,7 +745,7 @@ window.RF = window.RF || {};
     x.addEventListener('click', function () { B.closePopup(); });
     popupAt(def.pad.x, def.type === 'archer' ? 5.2 : 3.4, def.pad.z);
     // Show its reach.
-    const lvl = d.levels[def.lv - 1];
+    const lvl = stat(def);
     const r = lvl.range || lvl.radius || 1.6;
     if (!B.rangeRing) {
       B.rangeRing = new THREE.Mesh(new THREE.RingGeometry(0.97, 1, 64), new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.9, depthWrite: false }));
@@ -699,7 +755,7 @@ window.RF = window.RF || {};
     B.rangeRing.scale.set(r, r, 1);
     B.rangeRing.position.set(def.pad.x, 0.15, def.pad.z);
     B.rangeRing.visible = def.type !== 'golem' && def.type !== 'barricade';
-    RF.speakSeq([{ id: d.name }, { id: 'hud.lv' }, { id: 'num.' + def.lv }]);
+    RF.speakSeq(def.lv === 3 && d.spec ? head.concat([{ id: 'hud.specLast' }]) : head);
   };
 
   // ---------- Pause ----------
@@ -799,6 +855,10 @@ window.RF = window.RF || {};
       if (Math.hypot(c.x - x, c.z - z) <= lv.radius) hurt(c, lv.dmg, c.max > 20, 'break');
     });
     burst(x, 0.8, z, G.TEX.orange, 8);
+    if (lv.burnDps) {
+      const spr = G.sprite(G.TEX.orange, lv.burnRadius * 2, x, 0.3, z, B.world.dyn, 0.7);
+      B.burns.push({ x: x, z: z, r: lv.burnRadius, dps: lv.burnDps, life: lv.burnLife, spr: spr });
+    }
     const ring = G.sprite(G.TEX.orange, lv.radius * 1.2, x, 0.6, z, B.world.dyn, 0.9);
     B.fx.push({ life: 0.35, t: 0, update: function (f) { ring.material.opacity = 0.9 * (1 - f); ring.scale.setScalar(lv.radius * (1.2 + f * 1.6)); }, end: function () { B.world.dyn.remove(ring); } });
     if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.08);
@@ -860,22 +920,58 @@ window.RF = window.RF || {};
       while (B.queue.length && B.queue[0].at <= B.waveTime) { const q = B.queue.shift(); spawn(q.type, q.hp); }
     }
     const U = B.U;
-    // Frost slows
+    // Shrine auras (tier 3): a War Shrine makes defenders in its ring fire faster; a Life Shrine
+    // rebuilds fallen golems in its ring faster.
+    B.defenders.forEach(function (d) { d.haste = 1; d.rebuild = 1; });
+    B.defenders.forEach(function (d) {
+      if (d.type !== 'shrine' || !d.spec) return;
+      const lv = stat(d);
+      B.defenders.forEach(function (o) {
+        if (o === d || Math.hypot(o.pad.x - d.pad.x, o.pad.z - d.pad.z) > lv.range) return;
+        if (lv.haste) o.haste = Math.max(o.haste, lv.haste);
+        if (lv.rebuild) o.rebuild = Math.max(o.rebuild, lv.rebuild);
+      });
+    });
+    // Frost slows (and Tar Pits slow what walks over them)
     B.creatures.forEach(function (c) { c.slow = 1; c.tag = ''; });
     B.defenders.forEach(function (d) {
-      if (d.type !== 'frost') return;
-      const lv = U.defenders.frost.levels[d.lv - 1];
+      if (d.type !== 'spike') return;
+      const lv = stat(d);
+      if (!lv.slow) return;
       B.creatures.forEach(function (c) {
-        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; d.chill = true; }
+        if (c.type !== 'wisp' && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; }
       });
+    });
+    B.defenders.forEach(function (d) {
+      if (d.type !== 'frost') return;
+      const lv = stat(d);
+      let inRing = [];
+      B.creatures.forEach(function (c) {
+        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; d.chill = true; inRing.push(c); }
+      });
+      // Blizzard Totem: the cold hurts too.
+      if (lv.dps) inRing.forEach(function (c) { hurt(c, lv.dps * dt); });
+      // Glacier Totem: every few seconds, freeze everything in the ring (Shield Brutes thaw twice as fast).
+      if (lv.freezeEvery) {
+        d.frz = (d.frz || 0) + dt;
+        if (d.frz >= lv.freezeEvery && inRing.length) {
+          d.frz = 0;
+          inRing.forEach(function (c) {
+            if (!c.alive) return;
+            c.stun = Math.max(c.stun, lv.freeze / (c.type === 'brute' ? 2 : 1)); c.stunTag = 'tag.frozen';
+            burst(c.x, heightOf(c), c.z, RF.G.TEX.ice, 2);
+          });
+          RF.audio.fx('frost');
+        }
+      }
       if (d.chill) { RF.audio.fxEvery('frost', d.pad.id, 3.5); d.chill = false; }
     });
     // Golems hold creatures in place
     B.defenders.forEach(function (d) {
       if (d.type !== 'golem') return;
-      const lv = U.defenders.golem.levels[d.lv - 1];
+      const lv = stat(d);
       if (d.down > 0) {
-        d.down -= dt;
+        d.down -= dt * d.rebuild;
         if (d.down <= 0) { d.obj.visible = true; d.hp = d.max; popIn(d.obj); }
         return;
       }
@@ -888,15 +984,17 @@ window.RF = window.RF || {};
       d.held.forEach(function (c) { incoming += U.creatures[c.type].hit; });
       d.hp -= incoming * dt;
       if (!d.held.length) d.hp = Math.min(d.max, d.hp + U.defenders.golem.regen * dt);
-      d.cd -= dt;
+      d.cd -= dt * d.haste;
       if (d.cd <= 0 && d.held.length) {
         d.cd = 1 / lv.rate;
         RF.audio.fxEvery('golem', d.pad.id, 0.5);
-        hurt(d.held[0], lv.dmg, true);
+        // Quake Golem: every slam hits everything it holds.
+        if (lv.quake) { d.held.slice().forEach(function (c) { hurt(c, lv.dmg, true); }); burst(d.pad.x, 0.4, d.pad.z, RF.G.TEX.orange, 4); if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.06); }
+        else hurt(d.held[0], lv.dmg, true);
         if (!RF.settings.reducedMotion) { d.obj.rotation.x = -0.25; setTimeout(function () { d.obj.rotation.x = 0; }, 160); }
       }
       if (d.hp <= 0) {
-        d.down = U.defenders.golem.respawn;
+        d.down = lv.respawn || U.defenders.golem.respawn;
         B.golemFalls++;
         d.obj.visible = false;
         burst(d.pad.x, 1.2, d.pad.z, RF.G.TEX.cyan, 6);
@@ -908,7 +1006,7 @@ window.RF = window.RF || {};
     // Barricades hold creatures like a golem, but never hit back, never heal and never come back.
     B.defenders.slice().forEach(function (d) {
       if (d.type !== 'barricade') return;
-      const lv = U.defenders.barricade.levels[d.lv - 1];
+      const lv = stat(d);
       B.creatures.forEach(function (c) {
         if (c.held || c.rooted > 0 || d.held.length >= lv.hold) return;
         if (c.s >= d.pad.s - 1.6 && c.s <= d.pad.s - 0.4) { c.held = d; d.held.push(c); }
@@ -916,6 +1014,8 @@ window.RF = window.RF || {};
       let incoming = 0;
       d.held.forEach(function (c) { incoming += U.creatures[c.type].hit; });
       d.hp -= incoming * dt;
+      // Thorn Wall: thorns hurt everything it holds.
+      if (lv.thorns) d.held.slice().forEach(function (c) { hurt(c, lv.thorns * dt); });
       if (d.hp <= 0) {
         d.held.forEach(function (c) { c.held = null; });
         d.held = [];
@@ -934,7 +1034,7 @@ window.RF = window.RF || {};
     B.defenders.forEach(function (d) {
       if (d.type !== 'vine') return;
       const spec = U.defenders.vine;
-      const lv = spec.levels[d.lv - 1];
+      const lv = stat(d);
       if (d.regrow > 0) {
         d.regrow -= dt;
         if (d.regrow <= 0) { d.regrow = 0; applyScale(d); }
@@ -962,7 +1062,7 @@ window.RF = window.RF || {};
     // Healing Shrines repair golems and barricades, and slowly mend the Rift Anchor during a wave.
     B.defenders.forEach(function (d) {
       if (d.type !== 'shrine') return;
-      const lv = U.defenders.shrine.levels[d.lv - 1];
+      const lv = stat(d);
       d.fxT = (d.fxT || 0) - dt;
       B.defenders.forEach(function (o) {
         if ((o.type !== 'golem' && o.type !== 'barricade') || o.down > 0 || o.hp >= o.max) return;
@@ -988,7 +1088,7 @@ window.RF = window.RF || {};
     // Spike pits
     B.defenders.forEach(function (d) {
       if (d.type !== 'spike') return;
-      const lv = U.defenders.spike.levels[d.lv - 1];
+      const lv = stat(d);
       let any = false;
       B.creatures.slice().forEach(function (c) {
         if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { hurt(c, lv.dps * dt); any = true; }
@@ -1004,6 +1104,9 @@ window.RF = window.RF || {};
         c.s = Math.min(c.s, c.held.pad.s - 0.9 - c.held.held.indexOf(c) * 0.5);
       } else if (c.rooted > 0) {
         c.tag = 'tag.rooted';
+      } else if (c.stun > 0) {
+        c.stun -= dt;
+        c.tag = c.stunTag;
       } else c.s += c.speed * c.slow * dt;
       placeCreature(c);
       if (c.s >= world.path.len) {
@@ -1021,28 +1124,32 @@ window.RF = window.RF || {};
     // Archer towers
     B.defenders.forEach(function (d) {
       if (d.type !== 'archer') return;
-      const lv = U.defenders.archer.levels[d.lv - 1];
-      d.cd -= dt;
+      const lv = stat(d);
+      d.cd -= dt * d.haste;
       if (d.cd > 0) return;
-      let best = null;
-      B.creatures.forEach(function (c) {
-        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range && (!best || c.s > best.s)) best = c;
-      });
-      if (!best) return;
+      // Furthest along first. A Volley Tower shoots at the first few at once.
+      const inR = B.creatures.filter(function (c) { return Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range; })
+        .sort(function (a, b) { return b.s - a.s; }).slice(0, lv.multi || 1);
+      if (!inR.length) return;
       d.cd = 1 / lv.rate;
-      const a = RF.G.arrow(d.pad.x, 3.2, d.pad.z, world.dyn);
+      const sc = 1 + 0.08 * (d.lv - 1);
+      inR.forEach(function (best) {
+        const a = RF.G.arrow(d.pad.x, 3.2 * sc, d.pad.z, world.dyn);
+        if (d.spec === 'a') a.scale.setScalar(1.6);
+        B.shots.push({ obj: a, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
+      });
       RF.audio.fxEvery('archer', d.pad.id, 0.3);
-      B.shots.push({ obj: a, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
     });
     // Ballistas fire a heavy bolt at the toughest creature in range.
     B.defenders.forEach(function (d) {
       if (d.type !== 'ballista') return;
       const spec = U.defenders.ballista;
-      const lv = spec.levels[d.lv - 1];
-      d.cd -= dt;
+      const lv = stat(d);
+      d.cd -= dt * d.haste;
       if (d.cd > 0) return;
-      // Toughest first, but a shield soaks most of a bolt, so shielded ones count for less.
-      const worth = function (c) { return c.hp * (c.shield ? 1 - (U.creatures[c.type].shieldCut || 0.8) : 1); };
+      // Toughest first, but a shield soaks most of a bolt, so shielded ones count for less
+      // (unless this is a Siege Ballista, whose bolts break shields).
+      const worth = function (c) { return c.hp * (c.shield && !lv.breaks ? 1 - (U.creatures[c.type].shieldCut || 0.8) : 1); };
       let best = null;
       B.creatures.forEach(function (c) {
         if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range && (!best || worth(c) > worth(best))) best = c;
@@ -1052,16 +1159,16 @@ window.RF = window.RF || {};
       const top = d.obj.children[1];
       top.rotation.set(0.2, Math.atan2(-(best.x - d.pad.x), -(best.z - d.pad.z)), 0);
       const a = RF.G.arrow(d.pad.x, 1.9 * (1 + 0.08 * (d.lv - 1)), d.pad.z, world.dyn);
-      a.scale.setScalar(2.2);
+      a.scale.setScalar(d.spec === 'a' ? 3.2 : 2.2);
       RF.audio.fxEvery('archer', d.pad.id, 0.3);
-      B.shots.push({ obj: a, target: best, dmg: lv.dmg * (spec.big.indexOf(best.type) >= 0 ? spec.bigBonus : 1), speed: spec.boltSpeed, tx: best.x, tz: best.z });
+      B.shots.push({ obj: a, target: best, dmg: lv.dmg * (spec.big.indexOf(best.type) >= 0 ? (lv.bigBonus || spec.bigBonus) : 1), speed: spec.boltSpeed, tx: best.x, tz: best.z, src: lv.breaks ? 'break' : null });
     });
     // Ember Cannons lob a slow shell at the creature furthest along the trail.
     B.defenders.forEach(function (d) {
       if (d.type !== 'ember') return;
-      const lv = U.defenders.ember.levels[d.lv - 1];
+      const lv = stat(d);
       const sc = 1 + 0.08 * (d.lv - 1);
-      d.cd -= dt;
+      d.cd -= dt * d.haste;
       if (d.cd > 0) return;
       let best = null;
       B.creatures.forEach(function (c) {
@@ -1090,8 +1197,8 @@ window.RF = window.RF || {};
     B.defenders.forEach(function (d) {
       if (d.type !== 'lightning') return;
       const spec = U.defenders.lightning;
-      const lv = spec.levels[d.lv - 1];
-      d.cd -= dt;
+      const lv = stat(d);
+      d.cd -= dt * d.haste;
       if (d.cd > 0) return;
       let best = null;
       B.creatures.forEach(function (c) {
@@ -1106,9 +1213,11 @@ window.RF = window.RF || {};
       for (let j = 0; j <= lv.chain && cur; j++) {
         const pt = V3(cur.x, heightOf(cur), cur.z);
         zap(prev, pt);
+        if (lv.stun) zap(prev, pt); // Thunder Spire: one fat bolt
         hurt(cur, dmg, true, 'break');
+        if (lv.stun && cur.alive) { cur.stun = Math.max(cur.stun, lv.stun); cur.stunTag = 'tag.stunned'; }
         prev = pt;
-        dmg *= spec.falloff;
+        dmg *= lv.falloff || spec.falloff;
         let nxt = null, nd = spec.chainRange;
         B.creatures.forEach(function (c) {
           if (!c.alive || hit.indexOf(c) >= 0) return;
@@ -1134,6 +1243,16 @@ window.RF = window.RF || {};
         B.shots.splice(i, 1);
       }
     }
+    // Burning ground from Inferno Cannon shells hurts creatures that walk through it (fliers pass over).
+    for (let i = B.burns.length - 1; i >= 0; i--) {
+      const b = B.burns[i];
+      b.life -= dt;
+      B.creatures.slice().forEach(function (c) {
+        if (c.type !== 'wisp' && Math.hypot(c.x - b.x, c.z - b.z) <= b.r) hurt(c, b.dps * dt);
+      });
+      b.spr.material.opacity = 0.7 * Math.min(1, b.life / 0.8);
+      if (b.life <= 0) { B.world.dyn.remove(b.spr); B.burns.splice(i, 1); }
+    }
     // Arrows fly
     for (let i = B.shots.length - 1; i >= 0; i--) {
       const sh = B.shots[i];
@@ -1145,7 +1264,7 @@ window.RF = window.RF || {};
       const dist = Math.hypot(dx, dy, dz);
       const step = sh.speed * dt;
       if (dist <= step) {
-        if (sh.target.alive) { RF.audio.fxEvery('arrowHit', 'arrowHit', 0.09); hurt(sh.target, sh.dmg, true); burst(sh.tx, ty, sh.tz, RF.G.TEX.yellow, 2); }
+        if (sh.target.alive) { RF.audio.fxEvery('arrowHit', 'arrowHit', 0.09); hurt(sh.target, sh.dmg, true, sh.src); burst(sh.tx, ty, sh.tz, RF.G.TEX.yellow, 2); }
         world.dyn.remove(sh.obj);
         B.shots.splice(i, 1);
       } else {
@@ -1180,7 +1299,7 @@ window.RF = window.RF || {};
       const t = c.shield ? RF.t('tag.shield') + (c.tag ? ' · ' + RF.t(c.tag) : '') : c.tag ? RF.t(c.tag) : '';
       if (c.label.firstChild.textContent !== t) {
         c.label.firstChild.textContent = t;
-        c.label.firstChild.style.color = c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' ? '#bff3ff' : c.tag === 'tag.rooted' ? '#9cf2c0' : '#ffd76a';
+        c.label.firstChild.style.color = c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' ? '#bff3ff' : c.tag === 'tag.rooted' ? '#9cf2c0' : c.tag === 'tag.frozen' ? '#bff3ff' : '#ffd76a';
       }
     });
     B.defenders.forEach(function (d) {
@@ -1191,9 +1310,7 @@ window.RF = window.RF || {};
       if (d.label.firstChild.textContent !== t) d.label.firstChild.textContent = t;
     });
     if (B.selDef && B.popup.style.display !== 'none') {
-      const p = screenOf(B.selDef.pad.x, B.selDef.type === 'archer' ? 5.2 : 3.4, B.selDef.pad.z);
-      B.popup.style.left = (p.x / RF.dom.scale) + 'px';
-      B.popup.style.top = (p.y / RF.dom.scale) + 'px';
+      placePopup(screenOf(B.selDef.pad.x, B.selDef.type === 'archer' ? 5.2 : 3.4, B.selDef.pad.z));
     }
   };
 

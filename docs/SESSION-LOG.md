@@ -4,6 +4,41 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 16: November 21, 2026 (M6 part 2: tier 3 specialties)
+
+**Built**
+- Every defender now has a third upgrade from level 3 that picks one of two specialties (20 in all). Tap a level 3 defender: the popup shows both choices, each with a speaker, a one-line description and a Pick button with its price. The choice is final (sell to change it).
+- A glowing gem above the defender shows its specialty: orange for the first choice, blue for the second. Picking one plays the big upgrade sound and says its name.
+- The 20 specialties (full table in DESIGN.md 6A): Sharpshooter or Volley Tower, Blade or Tar Pit, Mountain or Quake Golem, Glacier or Blizzard Totem, Doom Mortar or Inferno Cannon, Storm or Thunder Spire, Thorn Snare or Deep Roots, Siege or Repeater Ballista, Life or War Shrine, Stone or Thorn Wall.
+- New creature tags: FROZEN (Glacier Totem) and STUNNED (Thunder Spire).
+- Popups now stay on screen; the tall specialty choice used to run off the top.
+- Fixed an old bug: upgrading a Frost Totem stretched its gold ring instead of its range circle.
+- English and Spanish lines for all 20 plus 5 new menu lines (voiced about 10 minutes after the push). Version v0.10.0.
+
+**Balance (Claude's call)**
+- The first prices let the typical reader win every World 1 run with no damage. Prices went up to about 1.8 times the level 3 upgrade (75 for the Barricade up to 250 for the Lightning Spire), Storm Spire jumps to 6 creatures instead of 7, and late waves on Levels 2 and 3 grow a little faster.
+- Simulated typical reader now: Level 2 wins all 10 (2 with damage), Level 3 wins 9 of 10 (5 with damage). Struggling readers still lose at wave 4 to 7 (they rarely earn enough for a specialty). Strong readers win everything, as before.
+
+**Tested (by Claude, headless Chrome)**
+- All 10 defenders built and taken to each specialty on Level 3, three waves played each way. The third upgrade does nothing until a choice is made. No game errors.
+- Each special power checked on its own: Thunder Spire stunned a Brute, Siege Ballista broke a shield, Glacier froze, Blizzard hurt, Inferno left fire on the ground, Tar Pit slowed to half, Thorn Wall hurt what it held, Quake Golem hit both creatures it held, Life Shrine doubled a nearby golem's rebuild, Volley Tower fired 3 arrows. Decodability check passes.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.10.0).
+2. Settings, Teacher, Test mode On. Play Level 3 and forge enough to get a few defenders to level 3.
+3. Tap a level 3 defender, listen to both choices, and pick one. Try a few different ones.
+4. Tell me: are the choices easy to understand? Does any specialty feel too strong or not worth the price?
+
+**Next up**
+- M6 part 3: Rift Warden hero powers (Meteor, Time Freeze, Rally, charged by forging). Start the chat with Opus.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+
+**Open questions**
+- Still open: the final level Story lock bar (8 of 10, or 9 of 10 for the real World 8?).
+- New Spanish lines need a Spanish speaker's check.
+
+---
+
 ## Session 15: November 21, 2026 (Waves from reading, all levels)
 
 **Built**
