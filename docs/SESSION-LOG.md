@@ -20,13 +20,22 @@ Newest entry at the top. Each session adds one entry.
 - New lines in English and Spanish (voiced automatically after the push). Version v0.14.0.
 - DESIGN.md section 4.3 added.
 
+**Fixed after Mr. Scott's first try (v0.14.1)**
+- **Frozen at step 5:** the card's buttons (Let's go, Skip, speakers) could not be clicked; taps went through to the battlefield. My first test pressed them by code, which missed it. Fixed, and the test now uses real mouse clicks.
+- **Archer Tower tap did nothing:** un-dimming the build bar also switched off clicks on it. Fixed. Tapping the Archer Tower again in step 2 keeps it picked instead of un-picking it, and the first line goes away once it is picked so the change is easy to see.
+- **Card covered the battle:** during the first wave the card shrinks to a thin strip at the top.
+- **Could not build during the first wave:** every unlocked defender can now be built from step 4 on.
+- **New (his idea):** everything outside the current step is greyed out, with clear windows on the parts to use (round windows on build spots). Taps on the grey do nothing. No grey-out during the wave or while paused.
+- Fixed: the first word could still be a rune.
+- Tested again at his screen size with large text, real clicks, all five steps, Let's go, Replay and Skip. No game errors.
+
 **Tested (by Claude, headless Chrome)**
 - Played all five steps. Building and Start wave are blocked in step 1, only the Archer Tower builds in step 2, the wave starts after 2 reads, a creature reached the Anchor (20 to 19) and the line played, Let's go saved the done flag, the next Level 1 start had no tutorial, Replay tutorial showed Skip and Skip worked. No game errors.
 
 **Model use:** done directly by Opus; the tutorial hooks into the battle code in many small places, so splitting it up would have cost more than it saved.
 
 **To test (Mr. Scott)**
-1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.14.0).
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.14.1). Refresh once if it still says v0.14.0.
 2. Settings, Replay tutorial. (If you have played any level on this device before, it will not start on its own.)
 3. Go through all five steps. Listen to each line and watch where the arrow points.
 4. Tell me: does it feel like about 2 minutes? Is any line too long? Does the first wave feel right for a brand new student?

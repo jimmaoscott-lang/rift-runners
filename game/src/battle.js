@@ -160,7 +160,7 @@ window.RF = window.RF || {};
         return;
       }
       const c = D.el('button', 'card', '<img alt="" src="' + ic[id] + '"><div class="n">' + D.esc(RF.t(d.name)) + '</div><div class="c"></div>', bar);
-      c.addEventListener('click', function () { B.selectBuild(B.buildSel === id ? null : id); });
+      c.addEventListener('click', function () { B.selectBuild(B.buildSel === id && !(B.tut && B.tut.step === 2) ? null : id); });
       B.cards[id] = c;
     });
     // Not built yet: say when it opens, or "coming soon" once its level has been won.
@@ -782,7 +782,7 @@ window.RF = window.RF || {};
     const pad = pickPad(ev);
     if (!pad) { B.selectBuild(null); B.closePopup(); return; }
     if (pad.def) { B.selectBuild(null); B.showDefPopup(pad.def); return; }
-    if (B.tut && B.tut.step !== 2 && !B.buildSel && !pad.def) return;
+    if (B.tut && !B.tut.allowPads() && !B.buildSel && !pad.def) return;
     if (B.buildSel) {
       if (B.U.defenders[B.buildSel].kind === pad.kind) B.place(B.buildSel, pad);
       else { B.toast(pad.kind === 'tower' ? 'hud.wrongTower' : 'hud.wrongTrail', true); RF.sfx('soft'); }

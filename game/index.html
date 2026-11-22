@@ -153,13 +153,19 @@
     .popup { position: absolute; transform: translate(-50%, -100%); }
     .toast { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); }
     /* Level 1 tutorial (DESIGN.md 4.3) */
-    .tutCard { position: absolute; top: 132px; left: calc((100% - 374px) / 2); transform: translateX(-50%); width: 560px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; border-color: #7dff9c; box-shadow: 0 0 26px rgba(125,255,156,.3), 0 6px 0 #05060f; z-index: 5; }
+    .tutCard { position: absolute; top: 132px; left: calc((100% - 374px) / 2); transform: translateX(-50%); width: 560px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; border-color: #7dff9c; box-shadow: 0 0 26px rgba(125,255,156,.3), 0 6px 0 #05060f; z-index: 5; pointer-events: auto; }
+    .tutCard.mini { top: 76px; left: 368px; right: 396px; width: auto; transform: none; padding: 6px 12px; gap: 2px; }
+    .tutCard.mini .tutHead { font-size: 11px; }
+    .tutCard.mini .tutLine:not(.cur) { display: none; }
+    .tutCard.mini .tutLine .txt { font-size: min(calc(16px * var(--ts)), 20px); }
     .tutHead { font: 700 14px Lexend, sans-serif; letter-spacing: 2px; color: #7dff9c; }
     .tutCard .tutLine .txt { font-size: calc(20px * var(--ts)); line-height: 1.35; }
     .tutCard .tutLine.cur .txt { color: #ffe9a8; }
     .tutCount { font: 700 22px Lexend, sans-serif; color: #ffd76a; text-align: center; }
     .tutFoot { display: flex; gap: 12px; justify-content: flex-end; align-items: center; }
     .tutFoot:empty { display: none; }
+    .tutShade { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 44; pointer-events: none; }
+    .tutShade path { fill: rgba(4,6,16,.72); pointer-events: visiblePainted; }
     .tutGlow { position: fixed; z-index: 45; pointer-events: none; border: 4px solid #7dff9c; border-radius: 14px; box-shadow: 0 0 22px rgba(125,255,156,.8), inset 0 0 14px rgba(125,255,156,.35); animation: tutPulse 1.2s ease-in-out infinite; }
     .tutArrow { position: fixed; z-index: 46; pointer-events: none; font-size: 46px; line-height: 1; color: #7dff9c; text-shadow: 0 0 14px rgba(125,255,156,.9), 0 3px 0 #000; transform: translate(-50%, -100%); animation: tutBob .9s ease-in-out infinite; }
     .tutArrow.up { transform: translate(-50%, 0); animation-name: tutBobUp; }
