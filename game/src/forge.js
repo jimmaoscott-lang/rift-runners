@@ -177,10 +177,11 @@ window.RF = window.RF || {};
       return n;
     }
     // ---- Sound rule card (DESIGN.md 6, item 6) ----
-    // After the first miss on a word, a card explains the sound and blends the word. The battle
-    // holds still and the card cannot be closed until the voice finishes. The first miss of each
-    // vowel in a level gets the full card (rule + vowel + blend); later misses of that vowel get the
-    // short card (vowel + blend).
+    // After the first miss on a word, a card blends the word and the battle holds still. The card
+    // cannot be closed until the voice finishes. The first miss of each vowel in a level gets the
+    // full card (rule, key word, blend). Later misses of that vowel get the short card: the word as
+    // letter tiles, each sound, then the whole word ("g, a, s, gas"), with a Show the rule button
+    // that opens the full card (November 22 plan, item 2).
     F.ruleSeen = {};
     F.ruleUp = false;
     // Load the card's sounds now so they play with no wait when a miss happens.
@@ -190,7 +191,7 @@ window.RF = window.RF || {};
       const files = [];
       Object.keys(wm).forEach(function (k) { if (k.indexOf('snd:') === 0) files.push('../assets/audio/words/' + wm[k]); });
       Object.keys(R.vowels).forEach(function (v) { if (wm[R.vowels[v].word]) files.push('../assets/audio/words/' + wm[R.vowels[v].word]); });
-      [R.line, 'rule.like', 'rule.tryAgain', 'rule.sayIt'].forEach(function (id) { if (um[id]) files.push('../assets/audio/ui/' + um[id]); });
+      [R.line, 'rule.asIn', 'rule.tryAgain', 'rule.sayIt'].forEach(function (id) { if (um[id]) files.push('../assets/audio/ui/' + um[id]); });
       files.forEach(function (f) { try { fetch(RF.assetURL(f)).catch(function () {}); } catch (e) { /* preload is optional */ } });
     })();
     function ruleFor(w) {
@@ -198,14 +199,16 @@ window.RF = window.RF || {};
       if (!R || !/^[a-z][aeiou][a-z]$/.test(w.w)) return null;
       return { rule: R, v: w.w[1], key: R.vowels[w.w[1]] };
     }
-    function showRule(after) {
+    function showRule(after, forceFull) {
       const w = F.cur, info = ruleFor(w);
       if (!info || !info.key) return after();
-      const full = !F.ruleSeen[info.v];
-      F.ruleSeen[info.v] = true;
+      const full = forceFull || !F.ruleSeen[info.v];
+      if (!forceFull) {
+        F.ruleSeen[info.v] = true;
+        F.stats.rules = (F.stats.rules || 0) + 1;
+        RF.metrics.support('rule-' + info.v);
+      } else RF.metrics.support('ruleShow');
       F.ruleUp = true;
-      F.stats.rules = (F.stats.rules || 0) + 1;
-      RF.metrics.support('rule-' + info.v);
       if (opts.onHold) opts.onHold(true, true);
       if (RF.mic) RF.mic.stop();
       const shade = D.el('div', 'ruleShade', null, document.body);
@@ -213,25 +216,37 @@ window.RF = window.RF || {};
       shade.addEventListener('click', function (ev) { ev.stopPropagation(); });
       const card = D.el('div', 'ruleCard', null, shade);
       D.el('div', 'ruleHead', D.esc(RF.t('rule.title')).toUpperCase(), card);
-      let ruleRow = null;
-      if (full) ruleRow = D.el('div', 'ruleLine read', D.esc(RF.t(info.rule.line)), card);
-      const vRow = D.el('div', 'ruleVowel read', null, card);
-      vRow.innerHTML = '<span class="rv">' + D.esc(info.v) + '</span><span class="rs">' + D.esc(RF.t('rule.says')) + '</span>' +
-        '<span class="rsnd">' + D.esc(info.key.show) + '</span><span class="rs">' + D.esc(RF.t('rule.like')) + '</span><span class="rkey">' + D.esc(info.key.word) + '</span>';
+      let ruleRow = null, vRow = null, keyTiles = [];
+      if (full) {
+        ruleRow = D.el('div', 'ruleLine read', D.esc(RF.t(info.rule.line)), card);
+        // Key word layout: the vowel, its sound, then the key word in tiles with the vowel lit gold.
+        //   [a]  /ă/   KEY WORD [a][t]
+        vRow = D.el('div', 'ruleKey read', null, card);
+        D.el('span', 'rv', D.esc(info.v), vRow);
+        D.el('span', 'rsnd', D.esc(info.key.show), vRow);
+        const kbox = D.el('span', 'rkbox', null, vRow);
+        D.el('span', 'rklabel', D.esc(RF.t('rule.keyWord')).toUpperCase(), kbox);
+        const kt = D.el('span', 'rktiles', null, kbox);
+        keyTiles = info.key.word.split('').map(function (ch) { return D.el('span', ch === info.v ? 'v' : '', D.esc(ch), kt); });
+      }
       const tiles = D.el('div', 'ruleTiles read', null, card);
       const tileEls = w.w.split('').map(function (ch, k) { return D.el('span', k === 1 ? 'v' : '', D.esc(ch), tiles); });
       const whole = D.el('div', 'ruleWhole read', D.esc(w.w), card);
       const foot = D.el('div', 'ruleFoot', null, card);
       const again = D.el('button', 'btn', D.SPK + ' ' + D.esc(RF.t('rule.replay')), foot);
+      // The short card can open the full one at any time; that is more teaching, so it never waits.
+      const showBtn = full ? null : D.el('button', 'btn ruleShow', D.esc(RF.t('rule.show')), foot);
       const go = D.el('button', 'btn big go', D.esc(RF.t('rule.gotIt')), foot);
       again.style.visibility = go.style.visibility = 'hidden';
       function lit(el) { return function () { [ruleRow, vRow, whole].concat(tileEls).forEach(function (e) { if (e) e.classList.remove('lit'); }); if (el) el.classList.add('lit'); }; }
       function seq(withRule) {
         const items = [];
-        // Kept short on purpose (Mr. Scott: 7 or 8 seconds is fine, 17 kills the game). The vowel
-        // line is shown in full but only its sound and key word are said: "/u/, like up".
-        if (withRule && ruleRow) items.push({ id: info.rule.line, on: lit(ruleRow) }, { pause: 150 });
-        items.push({ snd: info.v, on: lit(vRow) }, { id: 'rule.like' }, { word: info.key.word }, { pause: 250 });
+        // Kept short on purpose (Mr. Scott: 7 or 8 seconds is fine, 17 kills the game). The key
+        // row is said as "/ă/, as in at".
+        if (full) {
+          if (withRule) items.push({ id: info.rule.line, on: lit(ruleRow) }, { pause: 150 });
+          items.push({ snd: info.v, on: lit(vRow) }, { id: 'rule.asIn' }, { word: info.key.word }, { pause: 250 });
+        }
         w.w.split('').forEach(function (ch, k) { items.push({ snd: ch, on: lit(tileEls[k]) }, { pause: 120 }); });
         // The word file ends in silence, so Got it shows a moment after the word starts.
         items.push({ word: w.w, on: function () { lit(whole)(); tileEls.forEach(function (e) { e.classList.add('lit'); }); setTimeout(ready, 900); } });
@@ -246,18 +261,27 @@ window.RF = window.RF || {};
       }
       function play(withRule) {
         // The Got it button waits for the voice, with a safety limit in case audio never ends.
-        const limit = setTimeout(ready, withRule ? 16000 : 12000);
+        const limit = setTimeout(ready, full ? 16000 : 9000);
         RF.speakSeq(seq(withRule)).then(function () { clearTimeout(limit); setTimeout(ready, 300); });
       }
-      again.addEventListener('click', function (ev) { ev.stopPropagation(); RF.sfx('tap'); play(false); });
-      go.addEventListener('click', function (ev) {
-        ev.stopPropagation();
-        if (!done) return;
+      function close() {
         RF.stopSpeaking();
-        RF.sfx('select');
         shade.remove();
         F.ruleUp = false;
         F.closeRule = null;
+      }
+      again.addEventListener('click', function (ev) { ev.stopPropagation(); RF.sfx('tap'); play(false); });
+      if (showBtn) showBtn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        RF.sfx('tap');
+        close();
+        showRule(after, true);
+      });
+      go.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        if (!done) return;
+        RF.sfx('select');
+        close();
         if (opts.onHold) opts.onHold(false, true);
         F.lastAction = performance.now();
         after();
@@ -265,8 +289,11 @@ window.RF = window.RF || {};
       // Every word can be heard: once the card has finished, tap a letter, the key word or the word.
       function tapHear(el, item) { el.style.cursor = 'pointer'; el.addEventListener('click', function (ev) { ev.stopPropagation(); if (done) RF.speakSeq([item]); }); }
       tileEls.forEach(function (e, k) { tapHear(e, { snd: w.w[k] }); });
-      tapHear(vRow.querySelector('.rkey'), { word: info.key.word });
-      tapHear(vRow.querySelector('.rsnd'), { snd: info.v });
+      if (vRow) {
+        tapHear(vRow.querySelector('.rkbox'), { word: info.key.word });
+        tapHear(vRow.querySelector('.rsnd'), { snd: info.v });
+        tapHear(vRow.querySelector('.rv'), { snd: info.v });
+      }
       tapHear(whole, { word: w.w });
       if (ruleRow) tapHear(ruleRow, { id: info.rule.line });
       F.closeRule = function () { if (done) go.click(); };

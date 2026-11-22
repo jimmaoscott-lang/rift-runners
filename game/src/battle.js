@@ -75,6 +75,48 @@ window.RF = window.RF || {};
     B.toast(null, true, B.sealReady ? bs.concat(B.allFullParts()) : bs);
   };
 
+  // ---------- Sound sliders ----------
+  B.toggleVolume = function (force) {
+    const open = force != null ? force : !B.volPanel;
+    if (B.volPanel) { B.volPanel.remove(); B.volPanel = null; document.removeEventListener('pointerdown', B.volAway, true); }
+    B.volBtn.classList.toggle('on', open);
+    B.volBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open) return;
+    RF.sfx('tap');
+    const st = RF.settings;
+    const p = D.el('div', 'volPanel', null, B.volBtn.parentNode.parentNode);
+    B.volPanel = p;
+    p.addEventListener('click', function (ev) { ev.stopPropagation(); });
+    [['settings.volume', 'volume', 8], ['settings.music', 'music', 6], ['settings.effects', 'effects', 8]].forEach(function (vr) {
+      const key = vr[1];
+      if (st[key] == null) st[key] = vr[2];
+      const row = D.el('div', 'volRow', null, p);
+      row.appendChild(D.speaker(function () { RF.speak(vr[0]); }, true));
+      D.el('span', 'volName', D.esc(RF.t(vr[0])), row);
+      const r = D.el('input', null, null, row);
+      r.type = 'range'; r.min = '0'; r.max = '10'; r.step = '1'; r.value = String(st[key]);
+      r.setAttribute('aria-label', RF.t(vr[0]));
+      const val = D.el('span', 'volVal', String(st[key]), row);
+      r.addEventListener('input', function () {
+        st[key] = Number(r.value);
+        val.textContent = r.value;
+        if (RF.audio) RF.audio.applyVolumes();
+        if (key === 'music' && B.active && !B.paused && st.music > 0 && RF.audio && !RF.audio.mood()) RF.audio.music(B.phase === 'wave' ? 'attack' : 'calm');
+      });
+      // When the student lets go: save, and give a sample of the new level.
+      r.addEventListener('change', function () {
+        RF.saveSettings();
+        if (key === 'effects') RF.audio.fx('arrowHit');
+        else if (key === 'volume') RF.speak(vr[0]);
+      });
+    });
+    // Line the panel's right edge up with the button, so it stays clear of the Rune Forge.
+    p.style.left = Math.max(0, B.volBtn.offsetLeft + B.volBtn.offsetWidth - p.offsetWidth) + 'px';
+    // Tapping anywhere else closes the sliders.
+    B.volAway = function (ev) { if (!p.contains(ev.target) && !B.volBtn.contains(ev.target)) B.toggleVolume(false); };
+    document.addEventListener('pointerdown', B.volAway, true);
+  };
+
   // ---------- HUD ----------
   B.buildHUD = function (forgeRestore) {
     const ui = document.getElementById('ui');
@@ -120,6 +162,14 @@ window.RF = window.RF || {};
     B.speedBtn = D.el('button', 'btn', '', ctr);
     B.speedBtn.style.fontSize = '15px';
     B.speedBtn.addEventListener('click', function () { B.speed = B.speed === 1 ? 2 : 1; RF.sfx('tap'); B.renderTop(); });
+    // Sound button: one tap opens Voice, Music and Effects sliders right on the battle screen
+    // (November 22 plan, item 1). The battle keeps running; tap the button again or anywhere else to close.
+    B.volBtn = D.el('button', 'btn', D.SPK, ctr);
+    B.volBtn.classList.add('volBtn');
+    B.volBtn.title = RF.t('hud.sound');
+    B.volBtn.setAttribute('aria-label', B.volBtn.title);
+    B.volBtn.setAttribute('aria-expanded', 'false');
+    B.volBtn.addEventListener('click', function (ev) { ev.stopPropagation(); B.toggleVolume(); });
     B.focusChip = D.el('div', 'chip', '', ctr);
     B.focusChip.style.cssText += ';font-size:14px;border-color:#7ef3ff';
 
@@ -1540,6 +1590,7 @@ window.RF = window.RF || {};
     RF.audio.music(null);
     RF.stopSpeaking();
     clearTimeout(B.toastTimer);
+    if (B.volPanel) B.toggleVolume(false);
     if (B.hud) { B.hud.remove(); B.hud = null; }
     D.clear(document.getElementById('labels'));
     const dyn = B.world.dyn;

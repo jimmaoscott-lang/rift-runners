@@ -4,14 +4,46 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 19: November 22, 2026 (gameplay plan items 1 and 2: Sound sliders, clearer miss card)
+
+**Built (v0.16.0)**
+- **Sound button on the battle screen.** A speaker button sits at the end of the top bar (after the speed button). One tap opens three sliders: Voice, Music and Effects, 0 to 10. The battle keeps running. Tap the button again or anywhere else to close. Changes save right away and match the ones in Settings. Letting go of the Effects slider plays a sample hit; letting go of Voice says "Voice" at the new level. Each slider name has a speaker button.
+- **Miss card, short version.** After the first miss of a vowel in a level, later misses show a short card: the word as letter tiles, each sound, then the whole word ("f, o, g, fog"). No rule line and no key word, so it is about half as long as before. A **Show the rule** button opens the full card any time, even while the short card is talking.
+- **Full card, clearer key word.** "a says /ă/ like ax" is gone. The key word row is now three boxes: the vowel in a gold tile, its sound, and a KEY WORD box with the key word in letter tiles and the vowel lit gold. The narrator says "/ă/, as in at."
+- **New key words (reading call):** a is now "at" (was "ax") and o is now "on" (was "ox"). Both start with the vowel sound, so the sound is easy to hear, and every student knows them. e, i and u keep jet, it and up. Decodability check passed.
+- New lines "as in", "Key word", "Show the rule", "Sound" (English and Spanish); voiced automatically after the push. DESIGN.md updated (sections on sound and the sound rule card).
+
+**Tested (by Claude, headless Chrome, 1366 by 768)**
+- Opened the sliders with a real click, dragged Music to 0, closed by tapping the battlefield. The setting saved. The panel lines up under the button and stays clear of the Rune Forge.
+- Missed a word (full card with new key word boxes), then missed another word with the same vowel (short card), pressed Show the rule (full card replaced it), pressed Got it (battle released). Teacher report counts both cards plus the Show the rule press. No game errors.
+- Card timing could not be checked here (audio in the test browser runs slow). The short card now says 4 clips instead of 7, so it is shorter on any device.
+
+**Model use:** both items done directly by Opus. Each was one small change in a file Opus already had open, so handing them to Sonnet would have cost more than it saved. Opus picked the key words.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.16.0). Refresh until it does.
+2. In any battle, tap the speaker button at the right end of the top bar. Slide Music down and Effects up during a wave.
+3. Miss a word on purpose. Check the new key word row on the full card.
+4. Miss another word with the same vowel in the same level. Check the short card, then press Show the rule.
+5. Tell me: is the short card short enough? Is the key word row clear for your students?
+
+**Next up**
+- Item 3: fewer weapons early (Archer Tower and Spike Pit only in Level 1, then one new defender every level or two with a one-time tip). Start the chat with Opus to set the schedule; content entry after that is a Haiku job.
+
+**Open questions**
+- Still open: the final level Story lock bar (8 of 10, or 9 of 10 for the real World 8?).
+- New Spanish lines need a Spanish speaker's check.
+
+---
+
 ## Plan: tighten up gameplay (Mr. Scott's playtest, November 22, 2026)
 
 Smallest first. One item per session where possible. Work top down; each item gets its own SESSION-LOG entry when built.
 
 | # | Fix | Size | Model |
 |---|---|---|---|
-| 1 | **Volume slider on the battle screen** (top bar, one tap opens it). | Small | Sonnet |
-| 2 | **Miss card, short version:** show the word as letter tiles, sound each one out, then blend it ("g, a, s, gas"). Add a **Show the rule** button that opens the full rule card. Full card: replace "like ax" with a clearer key word layout. | Small | Sonnet (Opus picks key words) |
+| 1 | ✅ (v0.16.0) **Volume slider on the battle screen** (top bar, one tap opens it). | Small | Sonnet |
+| 2 | ✅ (v0.16.0) **Miss card, short version:** show the word as letter tiles, sound each one out, then blend it ("g, a, s, gas"). Add a **Show the rule** button that opens the full rule card. Full card: replace "like ax" with a clearer key word layout. | Small | Sonnet (Opus picks key words) |
 | 3 | **Fewer weapons early:** Level 1 opens with Archer Tower and Spike Pit only, then one new defender every level or two, each with a one-time "new defender" tip. | Small | Opus sets the schedule, Haiku enters it |
 | 4 | **Narrator and word audio:** a word the student is hearing always plays first. Wave alerts become a sound and a flash while a word is playing, and narrator lines wait in a line instead of cutting each other off. | Small to medium | Sonnet |
 | 5 | **Rift locks that make sense:** each lock shows the last 10 tries as boxes (bright for right on the first try, dark for a miss), so a student can see why it went down. Check the counting with a test script. | Small to medium | Opus decides, Sonnet builds |
