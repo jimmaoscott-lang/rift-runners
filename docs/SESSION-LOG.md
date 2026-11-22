@@ -42,6 +42,8 @@ Newest entry at the top. Each session adds one entry.
 **Next up**
 - Item 3: fewer weapons early (Archer Tower and Spike Pit only in Level 1, then one new defender every level or two with a one-time tip). Start the chat with Opus to set the schedule; content entry after that is a Haiku job.
 
+**Mr. Scott's playtest (Nov 22):** sound sliders, full card, short card and Show the rule all worked as designed.
+
 **Open questions**
 - Still open: the final level Story lock bar (8 of 10, or 9 of 10 for the real World 8?).
 - New Spanish lines need a Spanish speaker's check.
