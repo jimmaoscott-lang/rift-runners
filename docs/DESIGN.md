@@ -395,6 +395,7 @@ Fallback: a teacher screen on the device itself (opened with a teacher PIN) can 
 | Progress | Current world and area, patterns mastered with date of mastery |
 | Accuracy by pattern | Percent of words read correctly for each pattern, over time |
 | Fluency | Words correct per minute (WCPM) on boss passages, every attempt, with personal best |
+| How fluency was scored | Shown beside every WCPM number so the report is never misleading (Mr. Scott, Session 15). Each read aloud saves which checker scored it and the rules in force: **Azure** (pronunciation checked sound by sound, strictest), **Azure + Chrome** (part of the read fell back to Chrome) or **Chrome only** (Azure blocked or offline; Chrome fills in words from context, so the count can run high). Also saved: the accent bar (`wordMin`) and whether Chrome rescue was on. Reads saved before Session 15 have no rules field and were scored under the looser first rules (accent bar 35, Chrome rescue on); the report marks them "early scoring, may run high." The report counts Azure reads in the WCPM trend line and shows Chrome-only reads as separate, lighter points with a note. |
 | Words read | Total words read, per session and overall |
 | Trouble words | The words and patterns missed most often |
 | Nonsense word accuracy | True decoding skill, separate from words the student may have memorized |
@@ -403,9 +404,10 @@ Fallback: a teacher screen on the device itself (opened with a teacher PIN) can 
 
 ### 12.3 Reports
 
-- **Student report:** one page per student code with starting level vs. current level, a WCPM line graph, an accuracy-by-pattern chart, play frequency and trouble words. Includes a plain-language progress summary the teacher can adapt for IEP progress reports (example: "Since placement on 9/2, he has mastered 3 of 8 patterns. WCPM on boss passages rose from 48 to 71.").
+- **Student report:** one page per student code with starting level vs. current level, a WCPM line graph, an accuracy-by-pattern chart, play frequency and trouble words. Includes a plain-language progress summary the teacher can adapt for IEP progress reports (example: "Since placement on 9/2, he has mastered 3 of 8 patterns. WCPM on boss passages rose from 48 to 71, scored by pronunciation check.").
 - **Class overview:** every student code on one table, with current world, minutes played this week, last played date and a flag for students who have not played in 7 days or are stuck on one pattern.
 - **Date range filter** for grading periods and progress report windows.
+- **Scoring note on every fluency number:** each WCPM figure says how it was scored (Azure, Azure + Chrome, Chrome only, early scoring), with a one-line plain explanation at the bottom of the report, so a teacher never quotes a loosely scored number in an IEP progress report without knowing it.
 
 ---
 

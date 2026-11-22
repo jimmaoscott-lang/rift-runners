@@ -40,6 +40,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Fix after the session (Mr. Scott, Nov 21): final level read aloud was too loose.** Azure's accent bar raised from 35 to 50, and Chrome no longer rescues words Azure called skipped (Chrome fills in mangled words from context). Test mode's orange line lists words Azure scored under 75 so the bar can be tuned. If the orange line says chrome, Azure was not used and scoring stays loose. v0.9.4.
 
+**Decided (Mr. Scott, Nov 21):** the teacher fluency report (M10) must say how every WCPM number was scored, so it is not misleading. Each read aloud now also saves the scoring rules in force (accent bar, Chrome rescue, rules v2) beside the checker it already saved. DESIGN.md 12.2 and 12.3 say how the report shows it.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.

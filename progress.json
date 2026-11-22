@@ -145,7 +145,7 @@
     },
     {
       "id": "M10",
-      "name": "Teacher reports in Google Sheets",
+      "name": "Teacher reports in Google Sheets (each WCPM shows how it was scored)",
       "sessions": [
         2,
         3

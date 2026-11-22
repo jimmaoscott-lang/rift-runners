@@ -114,7 +114,10 @@ window.RF = window.RF || {};
   M.fluency = function (rec) {
     M.touch();
     data.fluency = data.fluency || [];
-    data.fluency.push(Object.assign({ t: new Date().toISOString() }, rec));
+    // Save how the read was scored with it, so the teacher report can say so (DESIGN.md 12.2).
+    const pc = (RF.data && RF.data.speech && RF.data.speech.passage) || {};
+    const how = { scoring: { wordMin: pc.wordMin != null ? pc.wordMin : 50, chromeRescue: !!pc.chromeRescue, rules: 'v2' } };
+    data.fluency.push(Object.assign({ t: new Date().toISOString() }, how, rec));
     if (data.fluency.length > 1000) data.fluency.splice(0, data.fluency.length - 1000);
     M.save();
   };
