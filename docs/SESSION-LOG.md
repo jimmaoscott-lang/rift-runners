@@ -48,9 +48,11 @@ Newest entry at the top. Each session adds one entry.
 
 **Fixed (Claude's reading call): vowel check on every word read aloud.** The speech checker now sends each sound's score and what it sounded most like for passages (same as single words in World 1). A word read aloud now also misses when any vowel sounded most like a different vowel (unless that vowel still scored 80 or more), or scored under 35. Accent is allowed: short i as long e, unstressed vowels as schwa ("thuh" or "thee" for the), cot/caught, Gulf Coast long i as "ah", pin/pen. Short a as short o stays a miss (a close pair). The test tags now show the vowel that failed, like "94 ɪ>aɪ" (short i sounded like long i). Settings in `speech.json` passage: vowelCheck, vowelClearMiss, vowelMin. The speech checker on Cloudflare updates itself from GitHub a few minutes after the push. v0.9.6.
 
+**Mr. Scott's retest (Nov 21):** better now; could be tighter, but he wants to try it with students first before changing the numbers. Tune `speech.json` passage numbers from the Test mode tags after the student test.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
-- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook (also try read aloud on the final level with a few students; Test mode tags show each word's score).
 
 **Open questions**
 - A struggling reader can still win the final level when 8 of 10 cards happen to go right. That is the Story lock bar (80%), not the waves. Leave it, or raise it to 9 of 10 for the real World 8?
