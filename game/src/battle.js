@@ -56,6 +56,9 @@ window.RF = window.RF || {};
     B.sealReady = false; B.sealDone = false; B.sealOpened = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
     world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; });
     world.anchorFlash = 0;
+    // Rift Warden (DESIGN.md 6A): three powers charged only by reading.
+    B.power = { rally: 0, meteor: 0, freeze: 0 }; B.rallyT = 0; B.freezeT = 0; B.powersUsed = 0;
+    B.warden = wardenModel(world);
 
     app.setView(374, 140);
     app.battleCam();
@@ -162,6 +165,8 @@ window.RF = window.RF || {};
     });
     B.locksBox = auto(D.el('div', 'panel', null, hud));
     B.locksBox.style.cssText += ';position:absolute;left:12px;bottom:146px;padding:8px 12px;border-color:#c04dff;display:flex;flex-direction:column;gap:6px;box-shadow:0 0 16px rgba(192,77,255,.35),0 4px 0 #05060f';
+    B.powerBox = auto(D.el('div', null, null, hud));
+    B.powerBox.style.cssText = 'position:absolute;left:12px;top:74px;display:flex;gap:8px;align-items:stretch';
     B.info = auto(D.el('div', 'info', null, hud));
     B.info.style.display = 'none';
     B.popup = auto(D.el('div', 'popup', null, hud));
@@ -178,8 +183,114 @@ window.RF = window.RF || {};
     B.defenders.forEach(function (d) { if (d.type === 'golem' || d.type === 'barricade') { d.label = makeBar(true); labels.appendChild(d.label); } });
     B.renderTop();
     B.renderCards();
+    B.renderPowers();
     if (B.locks) B.renderLocks();
   };
+
+  // ---------- Rift Warden powers ----------
+  function wardenModel(world) {
+    const G = RF.G;
+    const g = new THREE.Group();
+    g.position.set(world.camp.x + 2.6, 0, world.camp.z - 1.2);
+    world.dyn.add(g);
+    G.mesh(new THREE.ConeGeometry(0.75, 2.0, 7), G.M.roof, 0, 1.0, 0, g); // long coat
+    G.mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.7, 7), G.M.stoneDark, 0, 2.05, 0, g); // shoulders
+    G.mesh(new THREE.SphereGeometry(0.3, 8, 6), G.M.cloth, 0, 2.6, 0, g); // head
+    const hood = G.mesh(new THREE.ConeGeometry(0.42, 0.8, 7), G.M.roof, 0, 2.85, -0.05, g);
+    hood.rotation.x = -0.15;
+    const staff = G.mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.0, 5), G.M.woodDark, 0.6, 1.5, 0.1, g);
+    staff.rotation.z = -0.08;
+    const gem = G.mesh(new THREE.OctahedronGeometry(0.26, 0), G.M.anchor, 0.72, 3.15, 0.1, g);
+    const glow = G.sprite(G.TEX.cyan, 1.4, 0.72, 3.15, 0.1, g, 0.8);
+    g.rotation.y = Math.PI * 0.75;
+    return { obj: g, gem: gem, glow: glow };
+  }
+  // Every finished word (or story card) charges all three powers. Called from readTick.
+  B.chargePowers = function () {
+    const H = B.U.hero;
+    const add = B.L.story ? H.storyCharge : 1;
+    Object.keys(B.power).forEach(function (k) {
+      const need = H.powers[k].charge;
+      const was = B.power[k];
+      B.power[k] = Math.min(need, was + add);
+      if (was < need && B.power[k] >= need) { RF.sfx('big'); B.flashPower = k; }
+    });
+    B.renderPowers();
+  };
+  B.renderPowers = function () {
+    const box = B.powerBox;
+    if (!box) return;
+    const H = B.U.hero;
+    D.clear(box);
+    const live = B.phase === 'wave';
+    Object.keys(H.powers).forEach(function (k) {
+      const pw = H.powers[k];
+      const have = B.power[k], ready = have >= pw.charge;
+      const col = { rally: '#ffd76a', meteor: '#ffb46a', freeze: '#7ef3ff' }[k];
+      const ic = { rally: '&#9876;', meteor: '&#9732;', freeze: '&#10052;' }[k];
+      const b = D.el('button', 'btn' + (ready && live ? ' go' : ''), null, box);
+      b.style.cssText += ';display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 10px;min-width:96px;font-size:14px;border-color:' + col + (ready ? '' : ';opacity:.85');
+      b.innerHTML = '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:20px;color:' + col + '">' + ic + '</span><span class="read" style="font-weight:700">' + D.esc(RF.t(pw.name)) + '</span></div>' +
+        '<div style="width:100%;height:7px;border-radius:4px;background:#2a2a55;overflow:hidden"><i style="display:block;height:100%;width:' + Math.round(have / pw.charge * 100) + '%;background:' + col + '"></i></div>' +
+        '<div style="font-size:12px;color:#d9c8ff">' + (ready ? D.esc(RF.t('hero.ready')) : have + '/' + pw.charge) + '</div>';
+      b.title = RF.t(pw.desc);
+      b.addEventListener('click', function () { B.usePower(k); });
+    });
+  };
+  B.usePower = function (k) {
+    const H = B.U.hero, pw = H.powers[k];
+    if (B.phase === 'done') return;
+    // Not ready or no wave: say what it does and how to charge it (every button can be heard).
+    if (B.power[k] < pw.charge) { RF.speakSeq([{ id: pw.name }, { id: pw.desc }, D.num(pw.charge - B.power[k]), { id: 'hero.needWords' }]); return; }
+    if (B.phase !== 'wave' || !B.creatures.length) { RF.speakSeq([{ id: pw.name }, { id: 'hero.waitWave' }]); RF.sfx('soft'); return; }
+    B.power[k] = 0;
+    B.powersUsed++;
+    RF.speak(pw.name);
+    wardenCast(k);
+    if (k === 'rally') { B.rallyT = pw.time; RF.audio.fx('upgrade'); }
+    else if (k === 'freeze') {
+      B.freezeT = pw.time;
+      B.creatures.forEach(function (c) { c.stun = Math.max(c.stun, pw.time); c.stunTag = 'tag.frozen'; burst(c.x, heightOf(c), c.z, RF.G.TEX.ice, 2); });
+      RF.audio.fx('frost');
+      const fl = RF.G.sprite(RF.G.TEX.ice, 70, B.world.camp.x * 0.5, 10, B.world.camp.z * 0.5, B.world.dyn, 0.6);
+      B.fx.push({ life: 0.8, t: 0, update: function (f) { fl.material.opacity = 0.6 * (1 - f); }, end: function () { B.world.dyn.remove(fl); } });
+    } else meteor(pw);
+    B.renderPowers();
+  };
+  function wardenCast(k) {
+    const w = B.warden;
+    if (!w) return;
+    const tex = { rally: RF.G.TEX.yellow, meteor: RF.G.TEX.orange, freeze: RF.G.TEX.ice }[k];
+    const p = w.obj.position;
+    burst(p.x, 3.4, p.z, tex, 8);
+    w.glow.material.map = tex;
+    B.fx.push({ life: 0.8, t: 0, update: function (f) { w.glow.scale.setScalar(1.4 + Math.sin(f * Math.PI) * 3); }, end: function () { w.glow.scale.setScalar(1.4); w.glow.material.map = RF.G.TEX.cyan; } });
+  }
+  // Meteor falls on the biggest group (most creatures within its blast, tougher ones count more).
+  function meteor(pw) {
+    let best = null, bestV = -1;
+    B.creatures.forEach(function (c) {
+      let v = 0;
+      B.creatures.forEach(function (o) { if (Math.hypot(o.x - c.x, o.z - c.z) <= pw.radius) v += 1 + o.hp / 100; });
+      if (v > bestV) { bestV = v; best = c; }
+    });
+    if (!best) return;
+    const tx = best.x, tz = best.z, G = RF.G;
+    const rock = G.mesh(new THREE.DodecahedronGeometry(0.9, 0), G.M.ember, tx + 6, 22, tz - 4, B.world.dyn);
+    const glow = G.sprite(G.TEX.orange, 4, 0, 0, 0, rock, 0.9);
+    const mark = G.sprite(G.TEX.orange, pw.radius * 2, tx, 0.3, tz, B.world.dyn, 0.5);
+    B.fx.push({ life: 0.7, t: 0, update: function (f) { rock.position.set(tx + 6 * (1 - f), 22 * (1 - f) + 0.5, tz - 4 * (1 - f)); rock.rotation.x += 0.3; mark.material.opacity = 0.3 + f * 0.5; },
+      end: function () {
+        B.world.dyn.remove(rock); B.world.dyn.remove(mark); rock.geometry.dispose();
+        if (B.phase === 'done') return;
+        B.creatures.slice().forEach(function (c) { if (Math.hypot(c.x - tx, c.z - tz) <= pw.radius) hurt(c, pw.dmg, true, 'break'); });
+        burst(tx, 1, tz, G.TEX.orange, 14); burst(tx, 1, tz, G.TEX.purple, 6);
+        const ring = G.sprite(G.TEX.orange, pw.radius * 2, tx, 0.6, tz, B.world.dyn, 1);
+        B.fx.push({ life: 0.45, t: 0, update: function (f) { ring.material.opacity = 1 - f; ring.scale.setScalar(pw.radius * (2 + f * 2)); }, end: function () { B.world.dyn.remove(ring); } });
+        if (!RF.settings.reducedMotion) B.shake = 0.35;
+        RF.audio.fx('emberBoom'); RF.audio.fx('mega');
+      } });
+  }
 
   // ---------- Rift locks (mastery, DESIGN.md 5.1) ----------
   // One lock per vowel pattern in the level. A lock fills from the last reads of that pattern
@@ -360,6 +471,7 @@ window.RF = window.RF || {};
   // A word or card was finished (right, after any number of tries). Tries never count, so guessing
   // does not bring waves faster. Reads during a wave count toward the next one.
   B.readTick = function () {
+    if (B.phase !== 'done') B.chargePowers();
     if (B.phase === 'done' || B.finalWave) return;
     B.readCount++;
     if (B.readCount >= B.every) {
@@ -400,7 +512,7 @@ window.RF = window.RF || {};
     B.phase = 'wave';
     RF.audio.fx('waveStart');
     if (!B.paused) RF.audio.music('attack');
-    B.renderTop();
+    B.renderTop(); B.renderPowers();
     B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);    if (B.L.story) B.checkSeal(false);
   };
 
@@ -915,14 +1027,18 @@ window.RF = window.RF || {};
     }
 
     // Spawns
-    if (B.phase === 'wave') {
+    if (B.freezeT > 0) B.freezeT -= dt;
+    if (B.phase === 'wave' && !(B.freezeT > 0)) {
       B.waveTime += dt;
       while (B.queue.length && B.queue[0].at <= B.waveTime) { const q = B.queue.shift(); spawn(q.type, q.hp); }
     }
     const U = B.U;
     // Shrine auras (tier 3): a War Shrine makes defenders in its ring fire faster; a Life Shrine
     // rebuilds fallen golems in its ring faster.
-    B.defenders.forEach(function (d) { d.haste = 1; d.rebuild = 1; });
+    // Rally (hero power): every defender fires faster for a short time.
+    if (B.rallyT > 0) B.rallyT -= dt;
+    const rally = B.rallyT > 0 ? B.U.hero.powers.rally.haste : 1;
+    B.defenders.forEach(function (d) { d.haste = rally; d.rebuild = 1; });
     B.defenders.forEach(function (d) {
       if (d.type !== 'shrine' || !d.spec) return;
       const lv = stat(d);
@@ -1277,7 +1393,8 @@ window.RF = window.RF || {};
     if (B.phase === 'wave' && !B.queue.length && !B.creatures.length) {
       if (B.finalWave) return B.finish(true);
       B.phase = 'between';
-      B.renderTop();
+      B.rallyT = 0;
+      B.renderTop(); B.renderPowers();
       RF.audio.fx('waveClear');
       RF.audio.music('calm');
       B.toast('hud.waveCleared', true);
@@ -1355,7 +1472,7 @@ window.RF = window.RF || {};
       id: B.L.id, result: win ? 'win' : 'lose', stars: stars, waves: B.wave, anchor: Math.max(0, B.anchor),
       words: fs.forged, firstTry: fs.firstTry, misses: fs.misses, help: fs.help, forgeCrystals: fs.crystals,
       patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst,
-      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0, aloud: fs.aloud || 0, aloudWords: fs.aloudWords || 0, aloudRight: fs.aloudRight || 0, aloudMs: fs.aloudMs || 0, sealRead: fs.sealRead ? { tries: fs.sealRead.tries, firstWcpm: fs.sealRead.first.wcpm, bestWcpm: fs.sealRead.best.wcpm } : null } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }), shards: B.shards, kills: B.kills,
+      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0, aloud: fs.aloud || 0, aloudWords: fs.aloudWords || 0, aloudRight: fs.aloudRight || 0, aloudMs: fs.aloudMs || 0, sealRead: fs.sealRead ? { tries: fs.sealRead.tries, firstWcpm: fs.sealRead.first.wcpm, bestWcpm: fs.sealRead.best.wcpm } : null } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }), shards: B.shards, kills: B.kills, powers: B.powersUsed,
       ms: Date.now() - B.started
     });
     RF.audio.music(null);

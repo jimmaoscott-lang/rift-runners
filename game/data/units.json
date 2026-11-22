@@ -15,6 +15,32 @@
     "cooldownFirst": 5,
     "cooldownLater": 10
   },
+  "hero": {
+    "_note": "Rift Warden powers (DESIGN.md 6A, Hero). Each finished word adds 1 charge to every power (a finished story card adds storyCharge). 'charge' is how many it needs. Powers work only during a wave.",
+    "storyCharge": 2,
+    "powers": {
+      "rally": {
+        "name": "hero.rally",
+        "desc": "hero.rally.desc",
+        "charge": 15,
+        "haste": 1.25,
+        "time": 5
+      },
+      "meteor": {
+        "name": "hero.meteor",
+        "desc": "hero.meteor.desc",
+        "charge": 20,
+        "dmg": 60,
+        "radius": 3.5
+      },
+      "freeze": {
+        "name": "hero.freeze",
+        "desc": "hero.freeze.desc",
+        "charge": 25,
+        "time": 2.5
+      }
+    }
+  },
   "defenders": {
     "archer": {
       "name": "def.archer",

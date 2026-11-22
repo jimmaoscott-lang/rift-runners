@@ -425,7 +425,17 @@
     "hud.nextAfterShort": "comes next",
     "teacher.clear": "Clear progress on this device",
     "teacher.clearSure": "Tap again to clear all progress",
-    "teacher.cleared": "Progress cleared. Test mode is off."
+    "teacher.cleared": "Progress cleared. Test mode is off.",
+    "hero.title": "Rift Warden",
+    "hero.rally": "Rally",
+    "hero.rally.desc": "Your defenders fire faster for a short time.",
+    "hero.meteor": "Meteor",
+    "hero.meteor.desc": "Drops a meteor on the biggest group of creatures.",
+    "hero.freeze": "Time Freeze",
+    "hero.freeze.desc": "Freezes every creature and stops the rift for a few seconds.",
+    "hero.ready": "Ready!",
+    "hero.needWords": "words to charge",
+    "hero.waitWave": "Save it for a wave."
   },
   "es": {
     "title.name": "Rift Runners",
@@ -852,6 +862,16 @@
     "hud.nextAfterShort": "viene después",
     "teacher.clear": "Borrar el progreso en este aparato",
     "teacher.clearSure": "Toca otra vez para borrar todo el progreso",
-    "teacher.cleared": "Progreso borrado. El modo de prueba está apagado."
+    "teacher.cleared": "Progreso borrado. El modo de prueba está apagado.",
+    "hero.title": "Guardián de la Grieta",
+    "hero.rally": "Grito de guerra",
+    "hero.rally.desc": "Tus defensores disparan más rápido por un rato.",
+    "hero.meteor": "Meteoro",
+    "hero.meteor.desc": "Lanza un meteoro sobre el grupo más grande de criaturas.",
+    "hero.freeze": "Tiempo congelado",
+    "hero.freeze.desc": "Congela a todas las criaturas y detiene la grieta por unos segundos.",
+    "hero.ready": "¡Listo!",
+    "hero.needWords": "palabras para cargar",
+    "hero.waitWave": "Guárdalo para una oleada."
   }
 }

@@ -41,7 +41,7 @@ READERS = {
 
 SIM_JS = r"""
 async (args) => {
-  const { levelIndex, reader, seed, override, maxMinutes, keep } = args;
+  const { levelIndex, reader, seed, override, maxMinutes, keep, noPowers } = args;
   // Seeded random so runs repeat.
   let s = seed >>> 0 || 1;
   Math.random = function () { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
@@ -166,6 +166,10 @@ async (args) => {
       next = t + itemTime();
       continue;
     }
+    // Hero powers: a student fires each one as soon as it is charged and a wave has a crowd.
+    if (B.phase === 'wave' && B.creatures.length >= 4 && !noPowers) Object.keys(U.hero.powers).forEach(function (k) {
+      if (B.power[k] >= U.hero.powers[k].charge) B.usePower(k);
+    });
     if (t >= next) {
       const first = readOne();
       next = t + itemTime() * (first ? 1 : 1.5);
@@ -206,6 +210,7 @@ def main():
     ap.add_argument("--override", default=None)
     ap.add_argument("--minutes", type=float, default=40)
     ap.add_argument("--verbose", action="store_true")
+    ap.add_argument("--no-powers", action="store_true", help="never use hero powers")
     a = ap.parse_args()
     override = json.load(open(a.override)) if a.override else None
     levels = json.load(open(os.path.join(ROOT, "game", "data", "levels-w1.json")))["levels"]
@@ -224,7 +229,7 @@ def main():
                 rows = []
                 for k in range(a.runs):
                     rows.append(pg.evaluate(SIM_JS, dict(levelIndex=li, reader=READERS[rn], seed=1000 + k * 7919 + li,
-                                                         override=override, maxMinutes=a.minutes, keep=False)))
+                                                         override=override, maxMinutes=a.minutes, keep=False, noPowers=a.no_powers)))
                     if a.verbose:
                         print("   ", rows[-1])
                 wins = sum(r["result"] == "win" for r in rows)

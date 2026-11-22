@@ -80,10 +80,10 @@
     },
     {
       "id": "M6",
-      "name": "Full arsenal: defenders and specialties (done), hero, Armory",
+      "name": "Full arsenal: defenders, specialties, hero powers (done), Armory",
       "sessions": [
-        2,
-        2
+        1,
+        1
       ],
       "done": false
     },

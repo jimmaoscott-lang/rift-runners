@@ -266,6 +266,16 @@ Each pair trades power on one target against power on many, or damage against co
 
 **Hero:** one Rift Warden on the map, with 3 powers charged by forging: **Meteor** (big area blast), **Time Freeze** (stops a wave for a few seconds), **Rally** (defenders fire faster for a short time). More heroes unlock later, each with a different power set (like the rulers in Hold the Keep).
 
+**Built in M6 part 3 (Session 16):** the Rift Warden stands in the camp with a glowing staff. Three power buttons sit under the top bar, each with a charge bar. Every finished word adds 1 charge to all three (a story card adds 2). Powers fire only during a wave; tapping one that is not ready says what it does and how many words are left. Numbers live in `units.json` (`hero`).
+
+| Power | Charge | Effect |
+|---|---|---|
+| Rally | 15 words | Every defender fires 25% faster for 5 seconds |
+| Meteor | 20 words | 60 damage in a 3.5 ring on the biggest group; breaks shields |
+| Time Freeze | 25 words | Freezes every creature and stops the rift for 2.5 seconds |
+
+Balance (Claude's call): Mr. Scott liked the difficulty after kill income was removed, so the powers stay small. A first version (8, 10 and 12 words, stronger effects) raised the simulated typical reader from 3 to 8 wins in 10 on Level 2. At these numbers: Level 2 goes from 3 to 5, Level 3 stays at 5. `sim_balance.py` fires each power when charged during a crowded wave (`--no-powers` turns that off).
+
 **Between levels:** the **Armory** spends banked crystals on permanent upgrades (stronger arrows, cheaper golems) and skins.
 
 ---

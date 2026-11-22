@@ -4,7 +4,7 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
-## Session 16: November 21, 2026 (M6 part 2: tier 3 specialties)
+## Session 16: November 21, 2026 (M6 parts 2 and 3: tier 3 specialties, kill income removed, Rift Warden powers)
 
 **Built**
 - Every defender now has a third upgrade from level 3 that picks one of two specialties (20 in all). Tap a level 3 defender: the popup shows both choices, each with a speaker, a one-line description and a Pick button with its price. The choice is final (sell to change it).
@@ -33,9 +33,21 @@ Newest entry at the top. Each session adds one entry.
 
 **Changed after the session: kills no longer pay crystals (v0.10.1).** Reading is the only income during a level. Shards from kills float up in purple and are saved with the battle for the Armory bank (M6 part 4). Simulated typical reader without kill income, waves unchanged: Level 1 wins 10 of 10, Level 2 3 of 10, Level 3 5 of 10 (most with heavy damage). Struggling readers lose at wave 3 to 5. Mr. Scott asked to play this version before any wave changes, since the simulated readers tend to find levels easier than real play.
 
+**Mr. Scott's test (Nov 21):** likes the difficulty of v0.10.1. Keep it.
+
+**Built after the session: M6 part 3, Rift Warden powers (v0.11.0).**
+- The Rift Warden stands in the camp. Three power buttons sit under the top bar: Rally (15 words, defenders fire 25% faster for 5 seconds), Meteor (20 words, a blast on the biggest group that breaks shields) and Time Freeze (25 words, freezes every creature and stops the rift for 2.5 seconds).
+- Every finished word charges all three. Powers fire only during a wave. Tapping one that is not ready says what it does and how many words are left.
+- Kept small so the difficulty Mr. Scott liked holds: simulated typical reader Level 2 goes from 3 to 5 wins in 10, Level 3 stays at 5.
+- Tested in headless Chrome: charging, the "not ready" and "save it for a wave" cases, all three powers in a wave. No game errors. Decodability check passes.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.11.0).
+2. Play Level 2 or 3 like a typical student. Watch the power bars fill as you read, and fire each power during a wave.
+3. Tell me: do the powers feel worth waiting for? Is the difficulty still where you liked it?
+
 **Next up**
-- Mr. Scott plays v0.10.1 (Levels 1 to 3, reading like a typical student). Retune waves from his result.
-- M6 part 3: Rift Warden hero powers (Meteor, Time Freeze, Rally, charged by forging). Start the chat with Opus.
+- M6 part 4: the Armory (spend the kill shard bank between levels on permanent upgrades). Keep upgrades small so difficulty holds. Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 
 **Open questions**
