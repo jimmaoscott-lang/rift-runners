@@ -476,6 +476,7 @@
     },
     {
       "w": "baf",
+      "noSpeak": true,
       "options": [
         "bif",
         "buf"
