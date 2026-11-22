@@ -131,6 +131,7 @@ window.RF = window.RF || {};
       });
     });
     row('settings.motion', [{ v: false, id: 'settings.motion.full' }, { v: true, id: 'settings.motion.reduced' }], function () { return !!st.reducedMotion; }, function (v) { st.reducedMotion = v; });
+    row('settings.captions', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.captions; }, function (v) { st.captions = v; });
     row('settings.focus', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.focus; }, function (v) { st.focus = v; if (v) RF.metrics.support('focusOn'); });
     D.el('div', null, null, grid);
     D.line('settings.focusHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(15px * var(--ts));color:#aab6ff';

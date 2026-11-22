@@ -373,6 +373,7 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
 - Reduced motion option and volume controls
 - Full keyboard play: arrow keys and Tab move, Enter or Space picks, Left and Right change a setting, Esc goes back
 - Read-aloud in menus: every line and button has its own speaker button. Picking an option in Settings also reads it aloud. Tapping single words inside a line arrives with the battle words in M2.
+- **Battle captions (Session 17, Mr. Scott):** battle messages from the narrator are voice only by default so they never cover the fight. Settings, Battle captions On shows them in a small box beside the hero power buttons (for students who are hard of hearing or have no headphones; worth noting in an IEP).
 - Settings save on the device right away: language, text size (Normal, Large, Extra large), font (Lexend or OpenDyslexic), volume, motion (Full or Reduced), and Focus (battles at half speed, added in M3). Motion starts at Reduced if the Chromebook's own reduced motion setting is on.
 - Short sessions with a natural stopping point every few minutes
 - Works with keyboard, mouse or touch

@@ -48,6 +48,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Decided (Mr. Scott, Nov 21):** keep the sound rule card as it is in v0.13.1 (full card on the first miss of each vowel per level, short card after). Claude offered a one-sentence version ("Closed in, so u says /ŭ/, like up") and a slide-in lock animation; he passed. The student's job after the card is to get the word right on the retry.
 
+**Changed (Mr. Scott, Nov 21): battle messages are voice only (v0.13.3).** The narrator's pop-ups (wave started, new creature, lock full and so on) blocked the battlefield. Now the narrator just says them. A new Settings option, **Battle captions** (Off by default), shows them as a small box beside the power buttons for students who need to read them (hard of hearing, no headphones). Lines that are never spoken still show.
+
 **To test the sound rule card (Mr. Scott)**
 1. Wait about 10 minutes after the push, then open the game (title says v0.13.0).
 2. Play any World 1 level and pick a wrong sound on purpose.

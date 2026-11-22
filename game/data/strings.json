@@ -459,7 +459,8 @@
     "rule.replay": "Hear it again",
     "rule.gotIt": "Got it",
     "rule.tryAgain": "Your turn. Read it again and pick the match.",
-    "rule.sayIt": "Your turn. Say each sound, then say the word."
+    "rule.sayIt": "Your turn. Say each sound, then say the word.",
+    "settings.captions": "Battle captions"
   },
   "es": {
     "title.name": "Rift Runners",
@@ -920,6 +921,7 @@
     "rule.replay": "Escúchalo otra vez",
     "rule.gotIt": "Entendido",
     "rule.tryAgain": "Tu turno. Léela otra vez y elige la que suena igual.",
-    "rule.sayIt": "Tu turno. Di cada sonido y luego la palabra."
+    "rule.sayIt": "Tu turno. Di cada sonido y luego la palabra.",
+    "settings.captions": "Subtítulos de batalla"
   }
 }

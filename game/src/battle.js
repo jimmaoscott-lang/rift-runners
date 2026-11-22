@@ -122,7 +122,9 @@ window.RF = window.RF || {};
 
     B.toastBox = auto(D.el('div', 'toast', null, hud));
     B.toastBox.style.left = 'calc((100% - 374px) / 2)';
-    B.toastBox.style.top = '142px'; // below the Rift Warden power buttons (they sat on top of long lines)
+    // Battle messages sit small beside the power buttons, out of the fight (Mr. Scott, Session 17).
+    // With Battle captions off (the default) the narrator only says them.
+    B.toastBox.style.cssText += ';top:76px;left:368px;right:396px;transform:none;display:flex;justify-content:flex-start';
 
     // Rune Forge
     const fhost = auto(D.el('div', null, null, hud));
@@ -420,14 +422,16 @@ window.RF = window.RF || {};
   };
 
   B.toast = function (id, speakIt, parts) {
-    D.clear(B.toastBox);
     const p = parts || [{ id: id }];
-    const row = D.lineParts(p, 'chip', B.toastBox);
-    row.style.cssText += ';font-size:18px;padding:8px 14px;border-color:#ffd76a';
-    row.querySelector('.txt').style.fontSize = 'calc(19px * var(--ts))';
     if (speakIt) RF.speakSeq(p);
+    // Captions off: spoken lines are voice only. Lines that are never spoken still show.
+    if (speakIt && !RF.settings.captions) return;
+    D.clear(B.toastBox);
+    const row = D.lineParts(p, 'chip', B.toastBox);
+    row.style.cssText += ';font-size:15px;padding:5px 12px;border-color:#ffd76a;background:rgba(14,16,40,.82)';
+    row.querySelector('.txt').style.fontSize = 'calc(15px * var(--ts))';
     clearTimeout(B.toastTimer);
-    B.toastTimer = setTimeout(function () { D.clear(B.toastBox); }, 6000);
+    B.toastTimer = setTimeout(function () { D.clear(B.toastBox); }, 4500);
   };
 
   // ---------- Crystals ----------
