@@ -42,6 +42,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Decided (Mr. Scott, Nov 21):** the teacher fluency report (M10) must say how every WCPM number was scored, so it is not misleading. Each read aloud now also saves the scoring rules in force (accent bar, Chrome rescue, rules v2) beside the checker it already saved. DESIGN.md 12.2 and 12.3 say how the report shows it.
 
+**Added (Mr. Scott, Nov 21):** in Test mode, after a read aloud, every word shows its score as a small tag on the word: Azure's 0 to 100 score (green counted right, red missed), "skip" when Azure heard no word, "C" when Chrome scored it. Students never see it. Mr. Scott's first test with v0.9.4 showed 13 of 15 right after mangling several words, so the tags are for finding the right bar. v0.9.5.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.

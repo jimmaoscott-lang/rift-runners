@@ -443,12 +443,12 @@ window.RF = window.RF || {};
   // Line Azure's word list up with the sentence's reference words.
   function azureMarks(ref, words) {
     const ws = (words || []).map(function (w) { return { t: String(w.w || '').toLowerCase().replace(/[^a-z0-9']/g, ''), w: w }; });
-    if (ws.length === ref.length) return ref.map(function (r, i) { return { ok: wordOK(ws[i].w), skipped: ws[i].w.error === 'Omission', acc: ws[i].w.accuracy }; });
+    if (ws.length === ref.length) return ref.map(function (r, i) { return { ok: wordOK(ws[i].w), skipped: ws[i].w.error === 'Omission', acc: ws[i].w.accuracy, err: ws[i].w.error }; });
     const out = ref.map(function () { return { ok: false, skipped: true }; });
     let p = 0;
     ref.forEach(function (r, i) {
       for (let k = p; k < Math.min(ws.length, p + 3); k++) {
-        if (ws[k].t === r) { out[i] = { ok: wordOK(ws[k].w), skipped: ws[k].w.error === 'Omission', acc: ws[k].w.accuracy }; p = k + 1; return; }
+        if (ws[k].t === r) { out[i] = { ok: wordOK(ws[k].w), skipped: ws[k].w.error === 'Omission', acc: ws[k].w.accuracy, err: ws[k].w.error }; p = k + 1; return; }
       }
     });
     return out;
@@ -591,7 +591,7 @@ window.RF = window.RF || {};
           const parts = azParts[s];
           return ref.map(function (w, wi) {
             total++;
-            let ok;
+            let ok, acc = -1, err = '';
             if (parts.length) {
               usedAz++;
               // A long sentence may come in more than one clip: a word read right in any clip counts.
@@ -600,11 +600,13 @@ window.RF = window.RF || {};
               // Off by default since Session 15: Chrome guesses words from the sentence around them,
               // so it "heard" mangled words and gave them back as right. Turn on with passage.chromeRescue.
               if (!ok && skipped && pc.chromeRescue && hitAt(s, wi)) ok = true;
-              const acc = parts.reduce(function (m, x) { return x[wi] && x[wi].acc != null ? Math.max(m, x[wi].acc) : m; }, -1);
+              // Test mode shows each word's Azure score on the word (best clip if there were two).
+              parts.forEach(function (x) { if (x[wi] && x[wi].acc != null && x[wi].acc > acc) { acc = x[wi].acc; err = x[wi].err || ''; } });
+              if (acc < 0 && skipped) err = 'Omission';
               if (acc >= 0 && acc < 75) low.push(w + ' ' + Math.round(acc));
             } else ok = hitAt(s, wi);
             if (ok) correct++;
-            return { w: w, ok: !!ok };
+            return { w: w, ok: !!ok, acc: acc >= 0 ? Math.round(acc) : null, err: err, by: parts.length ? 'azure' : 'chrome' };
           });
         });
         const ms = firstVoice >= 0 ? Math.max(1000, (lastVoice - firstVoice + 1) * chunkMs) : 0;

@@ -508,7 +508,20 @@ window.RF = window.RF || {};
         // Show the last result on the words: right words plain, missed words gold and underlined.
         if (!F.read || !F.sentSpans) return;
         F.read.sentences.forEach(function (sen, si) {
-          sen.forEach(function (w, wi) { const sp = F.sentSpans[si] && F.sentSpans[si][wi]; if (sp) sp.classList.add(w.ok ? 'rok' : 'rmiss'); });
+          sen.forEach(function (w, wi) {
+            const sp = F.sentSpans[si] && F.sentSpans[si][wi];
+            if (!sp) return;
+            sp.classList.add(w.ok ? 'rok' : 'rmiss');
+            // Test mode only: the score each word got, right on the word (Mr. Scott, Session 15).
+            // A number is Azure's 0 to 100 score, "skip" means Azure heard no word there,
+            // "C" means Chrome scored it (Azure was not used). Students never see this.
+            if (!RF.unlocks.testMode()) return;
+            const old = sp.querySelector('.tscore'); if (old) old.remove();
+            const tag = w.acc != null ? String(w.acc) : w.err === 'Omission' ? 'skip' : w.by === 'chrome' ? 'C' : '?';
+            const b = D.el('span', 'tscore', D.esc(tag), sp);
+            b.title = (w.err || '') + (w.acc != null ? ' ' + w.acc : '');
+            b.style.cssText = 'font-family:Lexend,sans-serif;font-size:11px;font-weight:700;letter-spacing:0;vertical-align:super;margin-left:2px;padding:0 3px;border-radius:4px;color:#10101e;background:' + (w.ok ? '#7dff9c' : '#ff8a8a');
+          });
         });
       }
       function drawRead() {
@@ -539,7 +552,7 @@ window.RF = window.RF || {};
           if (seal_ && r.best) D.line('read.best', '', box).querySelector('.txt').style.cssText = 'color:#ffd76a;font-weight:700;font-size:calc(15px * var(--ts))';
           else if (seal_ && r.bestWcpm) D.lineParts([{ id: 'read.bestWas' }, D.num(r.bestWcpm)], '', box, D.esc(RF.t('read.bestWas')) + ': <b class="gold">' + r.bestWcpm + '</b>').querySelector('.txt').style.cssText = 'color:#c9c3ff;font-size:calc(14px * var(--ts))';
           if (r.correct < r.total) D.line('read.tapGold', '', box).querySelector('.txt').style.cssText = 'color:#ffd76a;font-size:calc(13px * var(--ts))';
-          if (RF.unlocks.testMode() && r.diag) D.el('div', null, D.esc(r.diag), box).style.cssText = 'font-size:12px;color:#ffb060';
+          if (RF.unlocks.testMode() && r.diag) D.el('div', null, D.esc(r.diag) + '<br>' + D.esc('Test mode: each word shows its score. Green counted right, red missed. A word Azure flags needs ' + (((RF.data.speech || {}).passage || {}).wordMin || 50) + ' or more; skip = no word heard, C = scored by Chrome.'), box).style.cssText = 'font-size:12px;color:#ffb060';
           if (seal_ && canAloud()) {
             const again = D.el('button', 'btn abtn', D.MIC + '<span>' + D.esc(RF.t('read.again')) + '</span>', box);
             again.addEventListener('click', function () { startRead(); });
