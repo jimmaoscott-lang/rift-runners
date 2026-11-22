@@ -228,6 +228,41 @@ function riftBat(x, y, z, parent, rot) {
   const w2 = mesh(wg, wmat, -0.2, 0.05, 0, g); w2.rotation.x = -Math.PI / 2 + 0.4; w2.scale.x = -1;
   mesh(new THREE.SphereGeometry(0.06, 6, 4), M.eye, -0.12, 0.08, -0.32, g);
   mesh(new THREE.SphereGeometry(0.06, 6, 4), M.eye, 0.12, 0.08, -0.32, g);
+  // ears and a faint rift glow so it reads against the dark ground from above
+  mesh(new THREE.ConeGeometry(0.08, 0.25, 4), mat(0x2a1f3d), -0.15, 0.32, -0.12, g);
+  mesh(new THREE.ConeGeometry(0.08, 0.25, 4), mat(0x2a1f3d), 0.15, 0.32, -0.12, g);
+  sprite(TEX.purple, 1.3, 0, 0, 0, g, 0.45);
+  g.userData.wings = [w1, w2]; // the battle flaps these
+  return g;
+}
+// Splitter: a hunched rock creature split down the middle by a glowing rift crack.
+// When it falls, the two halves run on as Splitlings.
+function splitter(x, z, parent, rot) {
+  const g = group(x, 0, z, parent); g.rotation.y = rot || 0;
+  const rockA = mat(0x5a4a6e), rockB = mat(0x46395a);
+  [-1, 1].forEach(function (side) {
+    const h = mesh(new THREE.DodecahedronGeometry(0.62, 0), side < 0 ? rockA : rockB, side * 0.3, 0.95, 0, g);
+    h.scale.set(0.75, 1.0, 1.0); h.rotation.set(R(0, 1), R(0, 1), side * 0.15);
+    mesh(new THREE.BoxGeometry(0.22, 0.55, 0.22), M.stoneDark, side * 0.35, 0.28, 0.15, g);
+    mesh(new THREE.BoxGeometry(0.22, 0.55, 0.22), M.stoneDark, side * 0.35, 0.28, -0.2, g);
+    mesh(new THREE.SphereGeometry(0.08, 6, 4), M.eye, side * 0.22, 1.15, -0.58, g);
+    for (let i = 0; i < 3; i++) { const sp = mesh(new THREE.OctahedronGeometry(0.14, 0), M.crystalP, side * R(0.3, 0.55), R(1.3, 1.6), R(-0.4, 0.4), g); sp.scale.y = 2; }
+  });
+  const crack = mesh(new THREE.BoxGeometry(0.07, 1.25, 1.0), M.rift, 0, 1.0, 0, g);
+  crack.rotation.z = 0.05;
+  sprite(TEX.purple, 1.6, 0, 1.0, 0, g, 0.6);
+  return g;
+}
+// Splitling: one half of a Splitter, small and quick.
+function splitling(x, z, parent, rot) {
+  const g = group(x, 0, z, parent); g.rotation.y = rot || 0;
+  const b = mesh(new THREE.DodecahedronGeometry(0.4, 0), mat(0x5a4a6e), 0, 0.5, 0, g);
+  b.scale.set(0.8, 0.9, 1.0); b.rotation.set(R(0, 1), R(0, 1), 0);
+  mesh(new THREE.BoxGeometry(0.05, 0.6, 0.6), M.rift, 0.3, 0.5, 0, g);
+  mesh(new THREE.SphereGeometry(0.07, 6, 4), M.eye, -0.1, 0.62, -0.36, g);
+  mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), M.stoneDark, -0.15, 0.15, 0, g);
+  mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), M.stoneDark, 0.15, 0.15, 0, g);
+  sprite(TEX.purple, 0.9, 0.3, 0.5, 0, g, 0.5);
   return g;
 }
 function shieldBrute(x, z, parent, rot) {
@@ -457,6 +492,6 @@ const CRYSTAL = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><pat
 
   RF.G = { rnd, R, mat, glow, mesh, group, glowTex, TEX, sprite, M, tree, roundTree, rock,
     archerTower, frostTotem, lightningSpire, emberCannon, golem, spikePit, vineSnare, ballista, healShrine, barricade,
-    thornback, bramble, wisp, riftBat, shieldBrute, hero, camp, riftGate, boltLine, arrow, noise, terrain, pathDistance,
+    thornback, bramble, wisp, riftBat, splitter, splitling, shieldBrute, hero, camp, riftGate, boltLine, arrow, noise, terrain, pathDistance,
     SPK, CRYSTAL, mergeStatic, iconOf, reseed };
 })(window.RF);

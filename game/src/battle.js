@@ -122,6 +122,7 @@ window.RF = window.RF || {};
 
     B.toastBox = auto(D.el('div', 'toast', null, hud));
     B.toastBox.style.left = 'calc((100% - 374px) / 2)';
+    B.toastBox.style.top = '142px'; // below the Rift Warden power buttons (they sat on top of long lines)
 
     // Rune Forge
     const fhost = auto(D.el('div', null, null, hud));
@@ -516,17 +517,26 @@ window.RF = window.RF || {};
     B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);    if (B.L.story) B.checkSeal(false);
   };
 
-  function spawn(type, hpScale) {
+  // Fliers (Rift Bats, "air" in units.json) pass over Spike Pits, Tar Pits, Golems, Barricades,
+  // Vine Snares and burning ground, and Ember Cannons cannot aim at them. Wisps only skip the
+  // snares, tar and fire, as before.
+  function isAir(c) { return !!B.U.creatures[c.type].air; }
+  function onGround(c) { return c.type !== 'wisp' && !isAir(c); }
+  function spawn(type, hpScale, at) {
     const G = RF.G;
     const cdef = B.U.creatures[type];
     const hp = Math.round(cdef.hp * (hpScale || 1));
-    const c = { type: type, hp: hp, max: hp, s: 0, speed: cdef.speed * (0.92 + Math.random() * 0.16), lane: (Math.random() - 0.5) * (type === 'wisp' ? 1.8 : 1.0), slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false, stun: 0 };
+    const wide = type === 'wisp' ? 1.8 : type === 'bat' ? 2.2 : 1.0;
+    const c = { type: type, hp: hp, max: hp, hpScale: hpScale || 1, s: at ? at.s : 0, speed: cdef.speed * (0.92 + Math.random() * 0.16), lane: at ? at.lane : (Math.random() - 0.5) * wide, slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false, stun: 0 };
     if (type === 'thornback') c.obj = G.thornback(0, 0, B.world.dyn, 0.95);
     else if (type === 'bramble') c.obj = G.bramble(0, 0, B.world.dyn, 1.0);
     else if (type === 'brute') { c.obj = G.shieldBrute(0, 0, B.world.dyn); c.obj.scale.setScalar(1.15); c.shield = true; c.lane = (Math.random() - 0.5) * 0.5; }
+    else if (type === 'bat') { c.obj = G.riftBat(0, 2.4, 0, B.world.dyn); c.obj.scale.setScalar(1.5); }
+    else if (type === 'splitter') { c.obj = G.splitter(0, 0, B.world.dyn); c.obj.scale.setScalar(1.05); }
+    else if (type === 'splitling') c.obj = G.splitling(0, 0, B.world.dyn);
     else c.obj = G.wisp(0, 1.4, 0, B.world.dyn);
     c.label = makeBar(false);
-    if (type === 'bramble') c.label.lastChild.style.width = '26px'; // tiny bar for tiny creatures
+    if (type === 'bramble' || type === 'splitling') c.label.lastChild.style.width = '26px'; // tiny bar for tiny creatures
     document.getElementById('labels').appendChild(c.label);
     B.creatures.push(c);
     placeCreature(c);
@@ -542,6 +552,13 @@ window.RF = window.RF || {};
     c.obj.position.x = p.x; c.obj.position.z = p.z;
     if (c.type === 'wisp') {
       c.obj.position.y = 1.4 + (RF.settings.reducedMotion ? 0 : Math.sin(RF.app.time * 4 + c.bob) * 0.25);
+    } else if (c.type === 'bat') {
+      const still = RF.settings.reducedMotion;
+      c.obj.position.y = 2.4 + (still ? 0 : Math.sin(RF.app.time * 3 + c.bob) * 0.3);
+      c.obj.rotation.y = p.rot;
+      const f = still ? 0.2 : Math.sin(RF.app.time * (c.stun > 0 ? 0 : 16) + c.bob) * 0.6;
+      const w = c.obj.userData.wings;
+      if (w) { w[0].rotation.y = f; w[1].rotation.y = -f; }
     } else {
       c.obj.rotation.y = p.rot;
       if (!RF.settings.reducedMotion && !c.held) c.obj.rotation.z = Math.sin(RF.app.time * 7 + c.bob) * 0.06;
@@ -549,7 +566,7 @@ window.RF = window.RF || {};
     }
   }
   // How high a creature's middle is, for aiming and bolts.
-  function heightOf(c) { return c.type === 'wisp' ? 1.4 : c.type === 'bramble' ? 0.5 : c.type === 'brute' ? 1.3 : 1.0; }
+  function heightOf(c) { return c.type === 'wisp' ? 1.4 : c.type === 'bat' ? 2.4 : c.type === 'bramble' || c.type === 'splitling' ? 0.5 : c.type === 'brute' ? 1.3 : 1.0; }
 
   // ---------- Defenders ----------
   function defModel(type, pad) {
@@ -964,7 +981,7 @@ window.RF = window.RF || {};
   function splash(x, z, lv) {
     const G = RF.G;
     B.creatures.slice().forEach(function (c) {
-      if (Math.hypot(c.x - x, c.z - z) <= lv.radius) hurt(c, lv.dmg, c.max > 20, 'break');
+      if (!isAir(c) && Math.hypot(c.x - x, c.z - z) <= lv.radius) hurt(c, lv.dmg, c.max > 20, 'break');
     });
     burst(x, 0.8, z, G.TEX.orange, 8);
     if (lv.burnDps) {
@@ -989,10 +1006,19 @@ window.RF = window.RF || {};
       // Kills never pay spendable crystals: reading is the only income during a level (Session 16).
       // Shards go to a bank for the Armory between levels (M6 part 4).
       B.shards += cd.shards;
-      burst(c.x, 1.0, c.z, RF.G.TEX.purple, c.type === 'wisp' || c.type === 'bramble' ? 3 : 7);
-      RF.audio.fx(c.type === 'wisp' ? 'wispDie' : c.type === 'bramble' ? 'brambleDie' : 'thornDie');
+      const small = c.type === 'wisp' || c.type === 'bramble' || c.type === 'bat' || c.type === 'splitling';
+      burst(c.x, heightOf(c), c.z, RF.G.TEX.purple, small ? 3 : 7);
+      RF.audio.fx(c.type === 'wisp' || c.type === 'bat' ? 'wispDie' : c.type === 'bramble' || c.type === 'splitling' ? 'brambleDie' : 'thornDie');
       const p = screenOf(c.x, 2.0, c.z);
       B.floatText('+' + cd.shards, p.x, p.y, '#e3b8ff', 15);
+      // Splitters break into Splitlings that keep running from the same spot.
+      if (cd.split && B.phase !== 'done') {
+        for (let i = 0; i < cd.split.count; i++) {
+          const off = (i - (cd.split.count - 1) / 2);
+          spawn(cd.split.into, c.hpScale, { s: Math.max(0, c.s + off * 0.5), lane: Math.max(-0.6, Math.min(0.6, c.lane + off * 0.7)) });
+        }
+        burst(c.x, 1.0, c.z, RF.G.TEX.cyan, 5);
+      }
     }
   }
 
@@ -1055,7 +1081,7 @@ window.RF = window.RF || {};
       const lv = stat(d);
       if (!lv.slow) return;
       B.creatures.forEach(function (c) {
-        if (c.type !== 'wisp' && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; }
+        if (onGround(c) && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { c.slow = Math.min(c.slow, lv.slow); c.tag = 'tag.slowed'; }
       });
     });
     B.defenders.forEach(function (d) {
@@ -1092,7 +1118,7 @@ window.RF = window.RF || {};
         return;
       }
       B.creatures.forEach(function (c) {
-        if (c.held || c.rooted > 0 || d.held.length >= lv.hold) return;
+        if (c.held || c.rooted > 0 || d.held.length >= lv.hold || isAir(c)) return;
         if (c.s >= d.pad.s - 1.6 && c.s <= d.pad.s - 0.4) { c.held = d; d.held.push(c); }
       });
       // Held creatures hit the golem; the golem hits back.
@@ -1124,7 +1150,7 @@ window.RF = window.RF || {};
       if (d.type !== 'barricade') return;
       const lv = stat(d);
       B.creatures.forEach(function (c) {
-        if (c.held || c.rooted > 0 || d.held.length >= lv.hold) return;
+        if (c.held || c.rooted > 0 || d.held.length >= lv.hold || isAir(c)) return;
         if (c.s >= d.pad.s - 1.6 && c.s <= d.pad.s - 0.4) { c.held = d; d.held.push(c); }
       });
       let incoming = 0;
@@ -1158,7 +1184,7 @@ window.RF = window.RF || {};
       }
       if (!d.held.length) {
         B.creatures.forEach(function (c) {
-          if (d.held.length >= lv.hold || c.type === 'wisp' || c.held || c.rooted > 0) return;
+          if (d.held.length >= lv.hold || !onGround(c) || c.held || c.rooted > 0) return;
           if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) > lv.radius) return;
           c.rooted = lv.root / (c.type === 'brute' ? spec.bruteBreak : 1);
           c.rootedBy = d;
@@ -1207,7 +1233,7 @@ window.RF = window.RF || {};
       const lv = stat(d);
       let any = false;
       B.creatures.slice().forEach(function (c) {
-        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { hurt(c, lv.dps * dt); any = true; }
+        if (!isAir(c) && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { hurt(c, lv.dps * dt); any = true; }
       });
       if (any) RF.audio.fxEvery('spike', d.pad.id, 0.7);
       if (!RF.settings.reducedMotion) d.obj.position.y = any ? Math.abs(Math.sin(RF.app.time * 18)) * 0.15 : 0;
@@ -1288,7 +1314,7 @@ window.RF = window.RF || {};
       if (d.cd > 0) return;
       let best = null;
       B.creatures.forEach(function (c) {
-        if (Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range && (!best || c.s > best.s)) best = c;
+        if (!isAir(c) && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.range && (!best || c.s > best.s)) best = c;
       });
       if (!best) return;
       d.cd = 1 / lv.rate;
@@ -1364,7 +1390,7 @@ window.RF = window.RF || {};
       const b = B.burns[i];
       b.life -= dt;
       B.creatures.slice().forEach(function (c) {
-        if (c.type !== 'wisp' && Math.hypot(c.x - b.x, c.z - b.z) <= b.r) hurt(c, b.dps * dt);
+        if (onGround(c) && Math.hypot(c.x - b.x, c.z - b.z) <= b.r) hurt(c, b.dps * dt);
       });
       b.spr.material.opacity = 0.7 * Math.min(1, b.life / 0.8);
       if (b.life <= 0) { B.world.dyn.remove(b.spr); B.burns.splice(i, 1); }
@@ -1410,7 +1436,7 @@ window.RF = window.RF || {};
     put(B.anchorLabel, B.world.camp.x, 6.4, B.world.camp.z);
     put(B.riftLabel, B.world.rift.x, 4.5, B.world.rift.z);
     B.creatures.forEach(function (c) {
-      put(c.label, c.x, c.type === 'wisp' ? 2.3 : c.type === 'bramble' ? 1.5 : c.type === 'brute' ? 3.5 : 2.5, c.z);
+      put(c.label, c.x, c.type === 'wisp' ? 2.3 : c.type === 'bat' ? 3.4 : c.type === 'bramble' || c.type === 'splitling' ? 1.5 : c.type === 'brute' ? 3.5 : 2.5, c.z);
       c.label.lastChild.firstChild.style.width = Math.max(0, c.hp / c.max * 100) + '%';
       // The shield tag always shows while the shield is up; slowed or held is added beside it.
       const t = c.shield ? RF.t('tag.shield') + (c.tag ? ' · ' + RF.t(c.tag) : '') : c.tag ? RF.t(c.tag) : '';

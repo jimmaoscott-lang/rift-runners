@@ -108,6 +108,8 @@ A structured literacy sequence built for older readers. Each world adds to every
 | 7 Word parts | -s, -es, -ed (3 sounds), -ing | doubling and drop e (hopping, baking) | -er, -est, -ly, -ful, -less, -ness | un-, re-, pre-, dis-, mis- | -tion, -sion | -ment, -able | roots port, struct, ject, rupt, spect | Passage with vocabulary questions |
 | 8 Fluency | phrase reading | punctuation | dialogue and expression | short timed passages | longer passages with questions | | | Final boss |
 
+**Levels 4 and 5 (built Session 17, Claude's call):** Level 4 (Wisp Hollow) brings in short u with all five vowel locks, rune share 30%. Level 5 (Old Watch Ruins) mixes all five with runes at 35% and a longer trail. To keep words fresh across five levels, World 1 gained hug, jug, tub and gum (short u) and four runes: baf, jat (short a), fep (short e), kib (short i). Every rift lock still needs 9 of the last 10 reads; a student's earlier reads of a, i, o and e carry in from Levels 1 to 3.
+
 **World 1 word rules (built in M2):** three letters, consonant + short vowel + consonant. No final r, w or y (they change the vowel), no c or g before e or i (soft sounds), and final blends like "bend" wait for World 2. Words live in `game/data/world1.json`.
 
 **Heart words:** each world allows a small list of high-frequency irregular words (for example: the, was, said, of, to, you, they, were). Heart words are taught directly and stored in `game/data/heart-words.json`.
@@ -207,6 +209,15 @@ Always on screen in a level, on the right side.
 
 Crystals per 10 items: World 1 about 80 (struggling), 145 (typical), 245 (strong, Mega Forges included); final level about 225, 300 and 380. Wave strength (`hp` per wave, `endless` steps) was raised in the middle waves and the endless steps set per level; World 1 starting crystals are unchanged (100, 100, 120) and the final level starts with 400. Numbers live in `game/data/levels-w1.json` and `game/data/units.json`. Run `python3 tools/sim_balance.py` after any change to waves, defenders or pay.
 
+**Levels 4 and 5 (Session 17, kill income off, hero powers on):** these runs use `--history 20`, so the simulated student arrives with 20 earlier reads of each vowel from the levels before, as a real student would. Level 3 under the same setup, for comparison: typical wins 4 of 10, struggling loses at wave 3 or 4.
+
+| Level | Strong | Typical | Struggling |
+|---|---|---|---|
+| 4 | wins all, 4 to 7 waves, no damage | wins 3 of 10, losses at wave 8 to 12 | loses at wave 4 to 6 |
+| 5 | wins all, 4 waves, no damage | wins 4 of 10 (all with damage), losses at wave 8 to 11 | loses at wave 4 to 6 |
+
+Both start with 150 crystals. The simulated builder does not adjust to bats (it still builds pits, golems and cannons), so real students who switch to Archer Towers and Lightning Spires should do a little better. Mr. Scott playtests before any retune.
+
 ---
 
 ## 6A. Defenders
@@ -244,6 +255,8 @@ Placed on build spots beside the trail (towers) or on the trail itself (blockers
 | Ballista | Tower | 110 (80, 120) | Very long reach. Fires one heavy bolt about every 2 seconds at the toughest creature in range. Bolts do 1.5 times damage to big creatures (Thornbacks, Shield Brutes, and fliers when Rift Bats arrive). It does not break shields, so cannons and spires keep that job. |
 | Healing Shrine | Tower | 90 (65, 95) | Repairs Stone Golems and Barricades in its ring. During a wave it also mends the Rift Anchor by 1 every 30, 24 or 18 seconds, never above full. |
 | Barricade | Trail | 30 (25, 40) | A cheap wall that holds creatures in place like a golem but never hits back. When it breaks it is gone, and the spot opens again. |
+
+Fliers (Session 17): Ember Cannons cannot hit Rift Bats, and trail defenders (pits, golems, snares, barricades) do nothing to them. See 6B.
 
 Choice (Claude): World 1 trails are fixed, so the Barricade only blocks there. Rerouting waits for the open maps of later worlds. Ballista, Shrine and Barricade unlock on Level 4 and 5 wins; until those levels are built, Test mode opens them for trying.
 
@@ -291,6 +304,8 @@ Balance (Claude's call): Mr. Scott liked the difficulty after kill income was re
 | Rift Bat | Flies over traps and blockers | Level 4 |
 | Splitter | Splits in two when defeated | Level 5 |
 | The Thorn King | World 1 boss: summons thorns, roots defenders | Boss |
+
+**Built in Session 17:** Rift Bat (hp 26, fast, flies at treetop height; `air` in `units.json`) and Splitter (hp 80, slow; when a defender kills it, two Splitlings run on from the same spot, hp 24 each and fast; a Splitter that reaches the camp does not split). Rules for fliers (Claude's call): bats pass over Spike Pits, Tar Pits, Stone Golems, Barricades, Vine Snares and burning ground, and Ember Cannon shells cannot hit them. Archer Towers, Lightning Spires, Frost Totems (slow and freeze), Ballistas (1.5 times damage), hero powers and the Mega Forge all hit them. Splitters count as big creatures for the Ballista. Defender descriptions say who hits fliers.
 
 **Built in M4:** Bramble Swarm (hp 9, fast, tight packs) and Shield Brute (hp 140, slow; its shield cuts archer, spike and golem damage by 80% until an Ember Cannon, a Lightning Spire or a Mega Forge breaks it). The first time a new creature appears in a battle, a short line says what beats it.
 
@@ -505,6 +520,7 @@ Each milestone is a playable, testable step.
 | M5 | Speak mode (built Session 10) | Forge words read aloud for a bonus; Speak first setting (0 to 3 voice tries before choices show) with teacher PIN lock; test mode |
 | M5b | Azure pronunciation check (built Session 11) | Speak mode scored sound by sound through the speech checker, Chrome as the backup; pin, pen, ten, win speakable again; spoken runes in Test mode |
 | M6 | Full arsenal | All World 1 defenders, tier 3 specialties, hero powers (done Session 16; Armory dropped) |
+| M6w | World 1 Levels 4 and 5 | Rift Bats and Splitters, short u, all five vowels mixed (done Session 17) |
 | M7 | Boss and Rift Seal | Thorn King, Rift Seal fluency passage with WCPM (read aloud, WCPM and personal best built in Session 14 for the final level; the karaoke beat and tempo choice come with the Thorn King) |
 | M8 | Placement mission | Opening mission that places students |
 | M9 | Worlds 2 to 8 | Content, maps, creatures and defenders for the rest |

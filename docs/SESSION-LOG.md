@@ -4,6 +4,45 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 17: November 21, 2026 (World 1 Levels 4 and 5: Rift Bats and Splitters)
+
+**Built**
+- **Level 4, Wisp Hollow:** short u joins the Forge, so all five vowel locks are in play. New creature: the **Rift Bat**, a fast flier. Bats fly over Spike Pits, Tar Pits, Golems, Barricades, Vine Snares and burning ground, and Ember Cannons cannot hit them. Archer Towers, Lightning Spires, Frost Totems, Ballistas (extra damage), hero powers and the Mega Forge all can. Winning opens the Ballista, the Healing Shrine and Level 5.
+- **Level 5, Old Watch Ruins:** all five short vowels mixed with more runes (35%) on the longest trail yet. New creature: the **Splitter**, a slow rock creature with a glowing crack. When a defender kills it, two small, fast Splitlings run on from the same spot. Winning opens the Barricade and the path to the Thorn King.
+- Flapping bat model and new Splitter and Splitling models, all built in code.
+- The first time each new creature shows up, a line says what beats it (English and Spanish, voiced automatically after the push).
+- Defender descriptions now say who hits fliers (Spike Pit, Ember Cannon, Lightning Spire, Ballista).
+- New words for variety: hug, jug, tub, gum; new runes: baf, jat, fep, kib. Decodability check passes.
+- Fixed: the "new creature" message sat under the Rift Warden power buttons, hiding part of long lines. It now shows just below them.
+- Balance tool: `--history 20` lets the simulated student arrive with earlier reads from past levels, like a real student.
+- Version v0.12.0.
+
+**Balance (Claude's call)**
+- Both levels start with 150 crystals. Simulated typical reader: Level 4 wins 3 of 10, Level 5 wins 4 of 10 (Level 3 is 4 of 10 the same way). Struggling readers lose at wave 4 to 6. Strong readers win every run with no damage.
+- The simulated builder does not adapt to bats, so real students who switch to Archer Towers and Lightning Spires should do a little better. No retune until Mr. Scott plays it.
+
+**Tested (by Claude, headless Chrome)**
+- Opened both levels from the world map, built every defender type, played waves with bats, splitters and splitlings. Splitters split on a kill, bats are ignored by pits, golems and cannons and are shot down by towers. No game errors. 120 full simulated runs with no game errors.
+
+**Model use:** done directly by Opus this session; each piece depended on the battle code already loaded, so handing parts off would have cost more than it saved.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.12.0).
+2. Settings, Teacher, Test mode On (or win Level 3 first). Play Level 4, Wisp Hollow.
+3. Watch what your pits, golems and cannons do when the bats come. Try Archer Towers and Lightning Spires against them.
+4. Play Level 5, Old Watch Ruins, and watch a Splitter break in two.
+5. Tell me: can you see the bats and splitters clearly? Is each level harder than Level 3 by the right amount?
+
+**Next up**
+- M7: the Thorn King boss level (short phrases and a short passage, Rift Seal read aloud with WCPM). Start the chat with Opus.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+
+**Open questions**
+- Still open: the final level Story lock bar (8 of 10, or 9 of 10 for the real World 8?).
+- New Spanish lines need a Spanish speaker's check.
+
+---
+
 ## Session 16: November 21, 2026 (M6 parts 2 and 3: tier 3 specialties, kill income removed, Rift Warden powers)
 
 **Built**

@@ -1,174 +1,183 @@
 {
-  "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
-  "updated": "2026-11-21",
-  "sessionsSoFar": 16,
-  "milestones": [
-    {
-      "id": "M0",
-      "name": "Project plan and design",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M1",
-      "name": "Title screen and settings",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M2",
-      "name": "First reading check (replaced by redesign)",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M2b",
-      "name": "Hold the Rift redesign and mockups",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M3",
-      "name": "Hold the Rift core: one playable level",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true,
-      "demo": true
-    },
-    {
-      "id": "M4",
-      "name": "World map, Levels 1 to 3, Level Clear screen",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true,
-      "demo": true
-    },
-    {
-      "id": "M5",
-      "name": "Speak mode (read into the mic)",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true,
-      "demo": true
-    },
-    {
-      "id": "M5b",
-      "name": "Azure pronunciation check (Chrome as backup)",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M6",
-      "name": "Full arsenal: defenders, specialties, hero powers (Armory dropped)",
-      "sessions": [
-        2,
-        2
-      ],
-      "done": true
-    },
-    {
-      "id": "M6x",
-      "name": "Final level preview (Heart of the Rift), tap mode",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true,
-      "demo": true
-    },
-    {
-      "id": "M6y",
-      "name": "Final level preview: read aloud with words per minute",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true,
-      "demo": true
-    },
-    {
-      "id": "M6z",
-      "name": "Waves from reading, every level retuned",
-      "sessions": [
-        1,
-        1
-      ],
-      "done": true
-    },
-    {
-      "id": "M7",
-      "name": "Thorn King boss and Rift Seal (read aloud and WCPM built in Session 14)",
-      "sessions": [
-        1,
-        2
-      ],
-      "done": false
-    },
-    {
-      "id": "M8",
-      "name": "Opening mission that places students",
-      "sessions": [
-        1,
-        2
-      ],
-      "done": false
-    },
-    {
-      "id": "M9",
-      "name": "Worlds 2 to 8 (46 levels)",
-      "sessions": [
-        11,
-        17
-      ],
-      "done": false
-    },
-    {
-      "id": "M10",
-      "name": "Teacher reports in Google Sheets (each WCPM shows how it was scored)",
-      "sessions": [
-        2,
-        3
-      ],
-      "done": false
-    },
-    {
-      "id": "M11",
-      "name": "Polish, music, classroom testing",
-      "sessions": [
-        3,
-        4
-      ],
-      "done": false
-    },
-    {
-      "id": "M12",
-      "name": "Phone layout (after the full game is set up)",
-      "sessions": [
-        1,
-        2
-      ],
-      "done": false
-    }
-  ]
+ "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
+ "updated": "2026-11-21",
+ "sessionsSoFar": 17,
+ "milestones": [
+  {
+   "id": "M0",
+   "name": "Project plan and design",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M1",
+   "name": "Title screen and settings",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M2",
+   "name": "First reading check (replaced by redesign)",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M2b",
+   "name": "Hold the Rift redesign and mockups",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M3",
+   "name": "Hold the Rift core: one playable level",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
+  },
+  {
+   "id": "M4",
+   "name": "World map, Levels 1 to 3, Level Clear screen",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
+  },
+  {
+   "id": "M5",
+   "name": "Speak mode (read into the mic)",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
+  },
+  {
+   "id": "M5b",
+   "name": "Azure pronunciation check (Chrome as backup)",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M6",
+   "name": "Full arsenal: defenders, specialties, hero powers (Armory dropped)",
+   "sessions": [
+    2,
+    2
+   ],
+   "done": true
+  },
+  {
+   "id": "M6x",
+   "name": "Final level preview (Heart of the Rift), tap mode",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
+  },
+  {
+   "id": "M6y",
+   "name": "Final level preview: read aloud with words per minute",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
+  },
+  {
+   "id": "M6z",
+   "name": "Waves from reading, every level retuned",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M6w",
+   "name": "World 1 Levels 4 and 5: Rift Bats and Splitters",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M7",
+   "name": "Thorn King boss and Rift Seal (read aloud and WCPM built in Session 14)",
+   "sessions": [
+    1,
+    2
+   ],
+   "done": false
+  },
+  {
+   "id": "M8",
+   "name": "Opening mission that places students",
+   "sessions": [
+    1,
+    2
+   ],
+   "done": false
+  },
+  {
+   "id": "M9",
+   "name": "Worlds 2 to 8 (46 levels)",
+   "sessions": [
+    11,
+    17
+   ],
+   "done": false
+  },
+  {
+   "id": "M10",
+   "name": "Teacher reports in Google Sheets (each WCPM shows how it was scored)",
+   "sessions": [
+    2,
+    3
+   ],
+   "done": false
+  },
+  {
+   "id": "M11",
+   "name": "Polish, music, classroom testing",
+   "sessions": [
+    3,
+    4
+   ],
+   "done": false
+  },
+  {
+   "id": "M12",
+   "name": "Phone layout (after the full game is set up)",
+   "sessions": [
+    1,
+    2
+   ],
+   "done": false
+  }
+ ]
 }

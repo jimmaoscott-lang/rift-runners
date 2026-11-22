@@ -353,6 +353,38 @@
         "het"
       ],
       "es": "choza"
+    },
+    {
+      "w": "hug",
+      "options": [
+        "hig",
+        "heg"
+      ],
+      "es": "abrazo"
+    },
+    {
+      "w": "jug",
+      "options": [
+        "jig",
+        "jeg"
+      ],
+      "es": "jarra"
+    },
+    {
+      "w": "tub",
+      "options": [
+        "tib",
+        "teb"
+      ],
+      "es": "tina"
+    },
+    {
+      "w": "gum",
+      "options": [
+        "gam",
+        "gom"
+      ],
+      "es": "chicle"
     }
   ],
   "runes": [
@@ -406,7 +438,8 @@
       ]
     },
     {
-      "w": "pid", "noSpeak": true,
+      "w": "pid",
+      "noSpeak": true,
       "options": [
         "pad",
         "pod"
@@ -434,10 +467,39 @@
       ]
     },
     {
-      "w": "fim", "noSpeak": true,
+      "w": "fim",
+      "noSpeak": true,
       "options": [
         "fam",
         "fum"
+      ]
+    },
+    {
+      "w": "baf",
+      "options": [
+        "bif",
+        "buf"
+      ]
+    },
+    {
+      "w": "jat",
+      "options": [
+        "jit",
+        "jut"
+      ]
+    },
+    {
+      "w": "fep",
+      "options": [
+        "fop",
+        "fup"
+      ]
+    },
+    {
+      "w": "kib",
+      "options": [
+        "kab",
+        "kub"
       ]
     }
   ],

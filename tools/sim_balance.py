@@ -10,6 +10,7 @@ Usage (from the repo root):
   python3 tools/sim_balance.py                 # every level, every reader, 6 runs each
   python3 tools/sim_balance.py --levels 0 3 --runs 10
   python3 tools/sim_balance.py --override tune.json   # try level numbers without editing files
+  python3 tools/sim_balance.py --history 20         # student arrives with 20 past reads per earlier vowel
 
 tune.json, if given, is merged into each level by id: {"w1-l1": {"startCrystals": 90}}.
 Extra keys: "_hp": [1.0, 1.3, ...] sets wave hp values, "_count": 1.2 scales group sizes,
@@ -41,7 +42,7 @@ READERS = {
 
 SIM_JS = r"""
 async (args) => {
-  const { levelIndex, reader, seed, override, maxMinutes, keep, noPowers } = args;
+  const { levelIndex, reader, seed, override, maxMinutes, keep, noPowers, history } = args;
   // Seeded random so runs repeat.
   let s = seed >>> 0 || 1;
   Math.random = function () { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
@@ -68,6 +69,14 @@ async (args) => {
   const md = RF.metrics.data();
   md.battles = md.battles.filter(function (b) { return b.sim !== true; });
   RF.data.levels.levels.slice(0, levelIndex).forEach(function (L) { md.battles.push({ id: L.id, result: 'win', sim: true }); });
+  // --history N: the student arrives with N earlier reads of each vowel taught in earlier levels,
+  // read at this reader's first-try rate (a real student's record carries from level to level).
+  if (history && !L0.story) {
+    const prev = levelIndex > 0 ? (RF.data.levels.levels[levelIndex - 1].vowels || []) : [];
+    prev.filter(function (v) { return L0.vowels.indexOf(v) >= 0; }).forEach(function (v) {
+      for (let i = 0; i < history; i++) RF.metrics.attempt({ battle: 'sim-past', w: 'sim', kind: 'real', pattern: 'cvc-' + v, mode: reader.mode, tries: Math.random() < reader.p ? 1 : 2, help: false, revealed: false, ms: 5000 });
+    });
+  }
   if (L0.story) RF.settings.testAll = true; // the final level preview is played in Test mode
   RF.startBattle(levelIndex);
   B.update = function () {};
@@ -211,6 +220,7 @@ def main():
     ap.add_argument("--minutes", type=float, default=40)
     ap.add_argument("--verbose", action="store_true")
     ap.add_argument("--no-powers", action="store_true", help="never use hero powers")
+    ap.add_argument("--history", type=int, default=0, help="earlier reads of each vowel from past levels (0 = fresh device)")
     a = ap.parse_args()
     override = json.load(open(a.override)) if a.override else None
     levels = json.load(open(os.path.join(ROOT, "game", "data", "levels-w1.json")))["levels"]
@@ -229,7 +239,7 @@ def main():
                 rows = []
                 for k in range(a.runs):
                     rows.append(pg.evaluate(SIM_JS, dict(levelIndex=li, reader=READERS[rn], seed=1000 + k * 7919 + li,
-                                                         override=override, maxMinutes=a.minutes, keep=False, noPowers=a.no_powers)))
+                                                         override=override, maxMinutes=a.minutes, keep=False, noPowers=a.no_powers, history=a.history)))
                     if a.verbose:
                         print("   ", rows[-1])
                 wins = sum(r["result"] == "win" for r in rows)
