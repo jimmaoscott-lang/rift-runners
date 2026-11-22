@@ -11,6 +11,7 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 | # | Report | Type | Goes with |
 |---|---|---|---|
 | B1 | ✅ Fixed in v0.16.1 (saved with the settings; tested across levels and a page reload). **2x speed resets when the level changes.** It should stay on until the player switches it back (save it with the settings). | Bug, small | Sonnet, any session |
+| B3 | **Mic too loose on story cards (World 8 read aloud, test mode):** Mr. Scott read "Warden" with a long e (/wɔrdin/) and "ready" with a long a (/reɪdi/) on purpose. Azure scored Warden 91 and ready 54, and both counted right (the pass line is 50; "ready" was flagged low but still passed). Wrong vowels must not pass. For the mic fix: check story words against the expected vowel the same way single words are (vowelMin), look at the vowel's phoneme score instead of the whole-word score, and consider raising the story pass line. Test with these two words. | Bug | Tightening plan item 8 (mic) |
 | B2 | **Mic missed 3 words he read correctly:** "top" (short o), "pin" (short i), "cut" (short u). Add these to the mic test set. | Bug | Tightening plan item 8 (mic) |
 | I1 | **New defender: Sticky Foam Gun.** Sprays a creature with sticky foam that slows it or holds it in place. Upgrades: longer-lasting foam; acid foam (adds Acid damage); one shot hits several creatures. | Idea | `docs/ARSENAL.md` |
 
