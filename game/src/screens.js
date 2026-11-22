@@ -259,6 +259,10 @@ window.RF = window.RF || {};
     row('teacher.lock', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.speakLock; }, function (v) { st.speakLock = v; });
     D.el('div', null, null, grid);
     D.line('teacher.lockHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';
+    // Runes can be spoken (Azure only; Chrome cannot match made-up words). Off by default (Mr. Scott, Nov 22).
+    row('teacher.speakRunes', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.speakRunes; }, function (v) { st.speakRunes = v; });
+    D.el('div', null, null, grid);
+    D.line('teacher.speakRunesHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';
     row('teacher.testAll', [{ v: false, id: 'settings.off' }, { v: true, id: 'settings.on' }], function () { return !!st.testAll; }, function (v) { st.testAll = v; });
     D.el('div', null, null, grid);
     D.line('teacher.testHint', '', grid).querySelector('.txt').style.cssText = 'font-size:calc(14px * var(--ts));color:#aab6ff';

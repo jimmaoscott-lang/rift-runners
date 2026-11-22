@@ -81,7 +81,7 @@ window.RF = window.RF || {};
     if (!w || w.noSpeak) return false;
     // Runes can be spoken when spokenRunes is on (Mr. Scott's test, Session 11: all but "pid" worked).
     // A rune Azure reads as an abbreviation (pid as "P-I-D") is marked noSpeak in world1.json.
-    if (azOK()) return w.kind !== 'rune' || !!cfg().spokenRunes;
+    if (azOK()) return w.kind !== 'rune' || !!cfg().spokenRunes || !!RF.settings.speakRunes;
     return MIC.chrome === 'ok' && chromeCan(w);
   };
 
