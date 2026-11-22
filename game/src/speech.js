@@ -433,22 +433,57 @@ window.RF = window.RF || {};
   }
   MIC.follow = follow;
 
+  // Vowel check for passages (Session 15, Claude's reading call after Mr. Scott's test: "if" read
+  // with a long i scored 94 as a word). Every vowel sound in the word is checked: it misses when Azure
+  // says it sounded most like a different vowel (and its own score is under passage.vowelClearMiss),
+  // or when its own score is under passage.vowelMin. Accent and normal speech are allowed: short i
+  // and long e (Spanish speakers), unstressed vowels sliding to schwa, the cot/caught merger, Gulf
+  // Coast long i as "ah" and pin/pen. Wrong vowels that change the word stay misses (long i for
+  // short i, long e for long o).
+  const PSAME = {
+    'æ': ['æ', 'a'], 'ɪ': ['ɪ', 'i', 'ə'], 'ɛ': ['ɛ', 'e', 'eɪ'], 'ɑ': ['ɑ', 'ɔ', 'a'], 'ɔ': ['ɔ', 'ɑ', 'o', 'oʊ'],
+    'ʌ': ['ʌ', 'ə', 'ɑ'], 'ə': ['ə', 'ʌ', 'ɪ', 'i', 'ʊ', 'ɚ', 'ɛ', 'ɑ'], 'ʊ': ['ʊ', 'u', 'ə'], 'i': ['i', 'ɪ'],
+    'u': ['u', 'ʊ'], 'eɪ': ['eɪ', 'e', 'ɛ'], 'aɪ': ['aɪ', 'a', 'ɑ'], 'aʊ': ['aʊ', 'a', 'æ'], 'ɔɪ': ['ɔɪ', 'ɔ', 'o'],
+    'oʊ': ['oʊ', 'o', 'ɔ'], 'ɝ': ['ɝ', 'ɚ', 'ə'], 'ɚ': ['ɚ', 'ɝ', 'ə']
+  };
+  function vowelMiss(aw) {
+    const pc = cfg().passage || {};
+    const ph = aw.phonemes || [];
+    for (let k = 0; k < ph.length; k++) {
+      const v = ph[k];
+      if (VOWELS.indexOf(v.p) < 0) continue;
+      let ok = (PSAME[v.p] || [v.p]).slice();
+      if ((v.p === 'ɪ' || v.p === 'ɛ') && ph[k + 1] && NASAL.indexOf(ph[k + 1].p) >= 0) ok = ok.concat(['ɪ', 'ɛ', 'i']);
+      const top = v.best && v.best[0] ? v.best[0].p : null;
+      const vs = v.score || 0;
+      const other = !!top && ok.indexOf(top) < 0 && VOWELS.indexOf(top) >= 0;
+      if (other && vs < (pc.vowelClearMiss != null ? pc.vowelClearMiss : 80)) return v.p + '>' + top;
+      if (vs < (pc.vowelMin != null ? pc.vowelMin : 35) && !(top && ok.indexOf(top) >= 0)) return v.p + ' ' + Math.round(vs);
+    }
+    return '';
+  }
   function wordOK(aw) {
     const pc = cfg().passage || {};
     if (!aw) return false;
-    if (aw.error === 'None') return true;
-    if (aw.error === 'Mispronunciation') return (aw.accuracy || 0) >= (pc.wordMin != null ? pc.wordMin : 50);
-    return false;
+    let ok = false;
+    if (aw.error === 'None') ok = true;
+    else if (aw.error === 'Mispronunciation') ok = (aw.accuracy || 0) >= (pc.wordMin != null ? pc.wordMin : 50);
+    if (ok && pc.vowelCheck !== false && vowelMiss(aw)) ok = false;
+    return ok;
+  }
+  MIC.passageMark = function (aw) { return mark(aw); }; // for tests
+  function mark(aw) {
+    return { ok: wordOK(aw), skipped: aw.error === 'Omission', acc: aw.accuracy, err: aw.error, vmiss: aw.phonemes ? vowelMiss(aw) : '' };
   }
   // Line Azure's word list up with the sentence's reference words.
   function azureMarks(ref, words) {
     const ws = (words || []).map(function (w) { return { t: String(w.w || '').toLowerCase().replace(/[^a-z0-9']/g, ''), w: w }; });
-    if (ws.length === ref.length) return ref.map(function (r, i) { return { ok: wordOK(ws[i].w), skipped: ws[i].w.error === 'Omission', acc: ws[i].w.accuracy, err: ws[i].w.error }; });
+    if (ws.length === ref.length) return ref.map(function (r, i) { return mark(ws[i].w); });
     const out = ref.map(function () { return { ok: false, skipped: true }; });
     let p = 0;
     ref.forEach(function (r, i) {
       for (let k = p; k < Math.min(ws.length, p + 3); k++) {
-        if (ws[k].t === r) { out[i] = { ok: wordOK(ws[k].w), skipped: ws[k].w.error === 'Omission', acc: ws[k].w.accuracy, err: ws[k].w.error }; p = k + 1; return; }
+        if (ws[k].t === r) { out[i] = mark(ws[k].w); p = k + 1; return; }
       }
     });
     return out;
@@ -591,7 +626,7 @@ window.RF = window.RF || {};
           const parts = azParts[s];
           return ref.map(function (w, wi) {
             total++;
-            let ok, acc = -1, err = '';
+            let ok, acc = -1, err = '', vm = '';
             if (parts.length) {
               usedAz++;
               // A long sentence may come in more than one clip: a word read right in any clip counts.
@@ -601,12 +636,12 @@ window.RF = window.RF || {};
               // so it "heard" mangled words and gave them back as right. Turn on with passage.chromeRescue.
               if (!ok && skipped && pc.chromeRescue && hitAt(s, wi)) ok = true;
               // Test mode shows each word's Azure score on the word (best clip if there were two).
-              parts.forEach(function (x) { if (x[wi] && x[wi].acc != null && x[wi].acc > acc) { acc = x[wi].acc; err = x[wi].err || ''; } });
+              parts.forEach(function (x) { if (x[wi] && x[wi].acc != null && x[wi].acc > acc) { acc = x[wi].acc; err = x[wi].err || ''; vm = x[wi].vmiss || ''; } });
               if (acc < 0 && skipped) err = 'Omission';
-              if (acc >= 0 && acc < 75) low.push(w + ' ' + Math.round(acc));
+              if (acc >= 0 && (acc < 75 || vm)) low.push(w + ' ' + Math.round(acc) + (vm ? ' (' + vm + ')' : ''));
             } else ok = hitAt(s, wi);
             if (ok) correct++;
-            return { w: w, ok: !!ok, acc: acc >= 0 ? Math.round(acc) : null, err: err, by: parts.length ? 'azure' : 'chrome' };
+            return { w: w, ok: !!ok, acc: acc >= 0 ? Math.round(acc) : null, err: err, vmiss: ok ? '' : vm, by: parts.length ? 'azure' : 'chrome' };
           });
         });
         const ms = firstVoice >= 0 ? Math.max(1000, (lastVoice - firstVoice + 1) * chunkMs) : 0;

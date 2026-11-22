@@ -8,8 +8,10 @@
 //                            -> { ok, status, heard, word: { accuracy, error, phonemes: [{ p, score, best: [{ p, score }] }] } }
 //   POST /passage?ref=text   body: 16 kHz mono 16-bit WAV, under 30 seconds (one sentence read aloud,
 //                            World 8 story cards and the Rift Seal, Session 14)
-//                            -> { ok, status, heard, words: [{ w, accuracy, error }] } in reading order,
-//                               error is None, Mispronunciation or Omission (insertions are left out)
+//                            -> { ok, status, heard, words: [{ w, accuracy, error, phonemes }] } in reading order,
+//                               error is None, Mispronunciation or Omission (insertions are left out).
+//                               phonemes (Session 15): [{ p, score, best: [{ p, score }] }] like /check, so the
+//                               game can catch a wrong vowel (long i in "if") that the word score misses.
 
 const ALLOWED = [
   /^https:\/\/jimmaoscott-lang\.github\.io$/,
@@ -36,6 +38,16 @@ function reply(body, status, origin) {
 
 // Azure answers in two shapes (REST and SDK). Read both.
 function pa(x) { return (x && x.PronunciationAssessment) || x || {}; }
+function phonemes(w) {
+  return (w.Phonemes || []).map(function (ph) {
+    const p = pa(ph);
+    return {
+      p: ph.Phoneme,
+      score: p.AccuracyScore,
+      best: (p.NBestPhonemes || ph.NBestPhonemes || []).slice(0, 3).map(function (n) { return { p: n.Phoneme, score: n.Score }; })
+    };
+  });
+}
 function trim(az) {
   const out = { ok: true, status: az.RecognitionStatus || 'Unknown', heard: az.DisplayText || '' };
   const best = (az.NBest || [])[0];
@@ -49,14 +61,7 @@ function trim(az) {
       w: w.Word,
       accuracy: pa(w).AccuracyScore,
       error: pa(w).ErrorType || 'None',
-      phonemes: (w.Phonemes || []).map(function (ph) {
-        const p = pa(ph);
-        return {
-          p: ph.Phoneme,
-          score: p.AccuracyScore,
-          best: (p.NBestPhonemes || ph.NBestPhonemes || []).slice(0, 3).map(function (n) { return { p: n.Phoneme, score: n.Score }; })
-        };
-      })
+      phonemes: phonemes(w)
     };
   }
   return out;
@@ -70,7 +75,7 @@ function trimPassage(az) {
   out.heard = best.Lexical || best.Display || out.heard;
   out.score = { accuracy: pa(best).AccuracyScore, fluency: pa(best).FluencyScore, completeness: pa(best).CompletenessScore };
   out.words = (best.Words || []).filter(function (w) { return pa(w).ErrorType !== 'Insertion'; }).map(function (w) {
-    return { w: w.Word, accuracy: pa(w).AccuracyScore, error: pa(w).ErrorType || 'None' };
+    return { w: w.Word, accuracy: pa(w).AccuracyScore, error: pa(w).ErrorType || 'None', phonemes: phonemes(w) };
   });
   return out;
 }
@@ -138,8 +143,10 @@ export default {
       const az = await azureCall(region, key, {
         ReferenceText: ref,
         GradingSystem: 'HundredMark',
-        Granularity: 'Word',
+        Granularity: 'Phoneme',
         Dimension: 'Comprehensive',
+        PhonemeAlphabet: 'IPA',
+        NBestPhonemeCount: 3,
         EnableMiscue: true
       }, audio);
       if (!az.ok) return reply({ ok: false, error: 'azure-' + az.status }, az.status === 429 ? 429 : 502, origin);

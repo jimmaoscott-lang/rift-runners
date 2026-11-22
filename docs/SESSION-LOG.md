@@ -44,6 +44,10 @@ Newest entry at the top. Each session adds one entry.
 
 **Added (Mr. Scott, Nov 21):** in Test mode, after a read aloud, every word shows its score as a small tag on the word: Azure's 0 to 100 score (green counted right, red missed), "skip" when Azure heard no word, "C" when Chrome scored it. Students never see it. Mr. Scott's first test with v0.9.4 showed 13 of 15 right after mangling several words, so the tags are for finding the right bar. v0.9.5.
 
+**Mr. Scott's test with score tags (Nov 21):** "if" read as "eyef" scored 94, "apart" mangled scored 94, "stays" mangled badly 58, "broken" with a long e 43, "worlds" mangled 30. The word score misses wrong vowels in short words.
+
+**Fixed (Claude's reading call): vowel check on every word read aloud.** The speech checker now sends each sound's score and what it sounded most like for passages (same as single words in World 1). A word read aloud now also misses when any vowel sounded most like a different vowel (unless that vowel still scored 80 or more), or scored under 35. Accent is allowed: short i as long e, unstressed vowels as schwa ("thuh" or "thee" for the), cot/caught, Gulf Coast long i as "ah", pin/pen. Short a as short o stays a miss (a close pair). The test tags now show the vowel that failed, like "94 ɪ>aɪ" (short i sounded like long i). Settings in `speech.json` passage: vowelCheck, vowelClearMiss, vowelMin. The speech checker on Cloudflare updates itself from GitHub a few minutes after the push. v0.9.6.
+
 **Next up**
 - M6 part 2: tier 3 specialties (each defender picks one of two at its third upgrade). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
