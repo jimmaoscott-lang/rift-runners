@@ -27,6 +27,7 @@ Newest entry at the top. Each session adds one entry.
 - **Could not build during the first wave:** every unlocked defender can now be built from step 4 on.
 - **New (his idea):** everything outside the current step is greyed out, with clear windows on the parts to use (round windows on build spots). Taps on the grey do nothing. No grey-out during the wave or while paused.
 - Fixed: the first word could still be a rune.
+- **v0.14.2, could not tap the Forge in step 1 (Mr. Scott):** the window around the whole Forge and the windows around its buttons overlapped, and overlapping windows cancel out, so the buttons were grey and blocked. Overlapping windows now merge into one. Checked with real clicks that the sound buttons, Forge, Archer Tower, build spots and Start wave all respond through the grey-out.
 - Tested again at his screen size with large text, real clicks, all five steps, Let's go, Replay and Skip. No game errors.
 
 **Tested (by Claude, headless Chrome)**
@@ -35,7 +36,7 @@ Newest entry at the top. Each session adds one entry.
 **Model use:** done directly by Opus; the tutorial hooks into the battle code in many small places, so splitting it up would have cost more than it saved.
 
 **To test (Mr. Scott)**
-1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.14.1). Refresh once if it still says v0.14.0.
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.14.2). Refresh until it does.
 2. Settings, Replay tutorial. (If you have played any level on this device before, it will not start on its own.)
 3. Go through all five steps. Listen to each line and watch where the arrow points.
 4. Tell me: does it feel like about 2 minutes? Is any line too long? Does the first wave feel right for a brand new student?

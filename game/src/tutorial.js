@@ -258,14 +258,35 @@ window.RF = window.RF || {};
     if (off) return;
     const W = window.innerWidth, H = window.innerHeight;
     let d = 'M0,0H' + W + 'V' + H + 'H0z';
+    // Windows that overlap would cancel each other out (the grey comes back where two overlap),
+    // so overlapping windows are merged into one. A round build-spot window that touches a
+    // panel window is dropped instead, so the merge never opens up a big part of the map.
+    let list = [];
     T.holes.concat([function () { return T.card; }]).forEach(function (f) {
       const t = f();
       const r = rectOf(t);
       if (!r) return;
-      const round = t && !t.getBoundingClientRect; // a spot on the battlefield gets a circle
+      const round = !!t && !t.getBoundingClientRect; // a spot on the battlefield gets a circle
       const pad = round ? 18 : 8;
-      d += roundRect(r.x - pad, r.y - pad, r.w + pad * 2, r.h + pad * 2, round ? 99 : 16);
+      list.push({ x: r.x - pad, y: r.y - pad, w: r.w + pad * 2, h: r.h + pad * 2, round: round });
     });
+    const hits = function (a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; };
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (let i = 0; i < list.length && !changed; i++) {
+        for (let j = i + 1; j < list.length && !changed; j++) {
+          const a = list[i], b = list[j];
+          if (!hits(a, b)) continue;
+          if (a.round !== b.round) { list.splice(a.round ? i : j, 1); changed = true; break; }
+          const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+          list[i] = { x: x, y: y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y, round: false };
+          list.splice(j, 1);
+          changed = true;
+        }
+      }
+    }
+    list.forEach(function (r) { d += roundRect(r.x, r.y, r.w, r.h, r.round ? 99 : 16); });
     T.shade.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     T.shadePath.setAttribute('d', d);
   }
