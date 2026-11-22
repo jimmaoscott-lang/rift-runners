@@ -401,6 +401,9 @@ function noise(x, z) {
   return Math.sin(x * 0.21 + 1.3) * Math.cos(z * 0.17 + 0.7) * 0.9 + Math.sin(x * 0.53 + z * 0.41) * 0.35 + Math.cos(x * 0.11 - z * 0.23) * 0.6;
 }
 function terrain(w, d, seg, heightFn, colorFn, parent) {
+  // Smooth ground (Mr. Scott, November 22): colors are set at each corner and blend across the
+  // triangles, with smooth lighting, so the ground has soft patches instead of a speckled
+  // checkerboard of flat triangles. Trees, towers and creatures keep their low-poly look.
   const geo = new THREE.PlaneGeometry(w, d, seg, Math.round(seg * d / w));
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
@@ -410,19 +413,12 @@ function terrain(w, d, seg, heightFn, colorFn, parent) {
     const x = pos.getX(i), z = pos.getZ(i);
     const y = heightFn(x, z);
     pos.setY(i, y);
+    colorFn(x, z, y, col);
+    colors.push(col.r, col.g, col.b);
   }
-  const g2 = geo.toNonIndexed();
-  const p2 = g2.attributes.position;
-  for (let i = 0; i < p2.count; i += 3) {
-    const cx = (p2.getX(i) + p2.getX(i + 1) + p2.getX(i + 2)) / 3;
-    const cz = (p2.getZ(i) + p2.getZ(i + 1) + p2.getZ(i + 2)) / 3;
-    const cy = (p2.getY(i) + p2.getY(i + 1) + p2.getY(i + 2)) / 3;
-    colorFn(cx, cz, cy, col);
-    for (let k = 0; k < 3; k++) colors.push(col.r, col.g, col.b);
-  }
-  g2.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  g2.computeVertexNormals();
-  const m = new THREE.Mesh(g2, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 }));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
   m.receiveShadow = true;
   parent.add(m);
   return m;

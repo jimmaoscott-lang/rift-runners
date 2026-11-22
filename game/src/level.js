@@ -73,6 +73,7 @@ window.RF = window.RF || {};
     });
 
     // ---- Terrain ----
+    const tmpA = new THREE.Color(), tmpB = new THREE.Color(), tmpC = new THREE.Color();
     G.terrain(110, 80, RF.lowPower ? 80 : 110, function (x, z) {
       const dp = G.pathDistance(samples, x, z);
       let h = G.noise(x, z) * 0.9 + 0.6;
@@ -84,26 +85,24 @@ window.RF = window.RF || {};
       if (Math.hypot(x - camp.x, z - camp.z) < 5) h = Math.min(h, 0.2);
       return h;
     }, function (x, z, y, col) {
+      // Colors blend smoothly: soft patches from a slow noise, and the trail and riverbanks fade
+      // into the grass instead of stepping in hard edges.
       const dp = G.pathDistance(samples, x, z);
       const rv = Math.abs(x - riverX(z));
       const riftNear = Math.max(0, 1 - Math.hypot(x - rift.x, z - rift.z) / 14);
-      if (core) {
-        if (rv < 2.6) col.setHex(G.rnd() < 0.5 ? 0xff6a1a : 0xe0480f);
-        else if (rv < 3.4) col.setHex(0x6a2a1e);
-        else if (dp < 1.9) col.setHex(G.rnd() < 0.5 ? 0x5a4048 : 0x4e3740);
-        else if (dp < 2.5) col.setHex(0x3e2c3e);
-        else if (y > 2.6) col.setHex(G.rnd() < 0.5 ? 0x3d3548 : 0x463c52);
-        else col.setHex([0x24202c, 0x2b2733, 0x201c28, 0x2f2a38][Math.floor(G.rnd() * 4)]);
-        if (riftNear > 0) col.lerp(new THREE.Color(0x6a1a70), riftNear * 0.7);
-        return;
-      }
-      if (rv < 2.6) col.setHex(0x3a6f8f);
-      else if (rv < 3.4) col.setHex(0xb59f74);
-      else if (dp < 1.9) col.setHex(G.rnd() < 0.5 ? 0x9b7a50 : 0x8d6d45);
-      else if (dp < 2.5) col.setHex(0x7a8a45);
-      else if (y > 2.6) col.setHex(G.rnd() < 0.5 ? 0x6f7f5a : 0x7d8b66);
-      else col.setHex([0x4f9a3f, 0x55a345, 0x4a9038, 0x5aa84a][Math.floor(G.rnd() * 4)]);
-      if (riftNear > 0) col.lerp(new THREE.Color(0x3a2a55), riftNear * 0.85);
+      const patch = Math.max(0, Math.min(1, (G.noise(x * 1.9 + 7, z * 1.9 - 3) + 1.85) / 3.7));
+      const pal = core
+        ? { g1: 0x201c28, g2: 0x2f2a38, h1: 0x3d3548, h2: 0x463c52, edge: 0x3e2c3e, d1: 0x4e3740, d2: 0x5a4048, bank: 0x6a2a1e, w1: 0xe0480f, w2: 0xff6a1a, tint: 0x6a1a70, tintAmt: 0.7 }
+        : { g1: 0x4a9038, g2: 0x5aa84a, h1: 0x6f7f5a, h2: 0x7d8b66, edge: 0x7a8a45, d1: 0x7a5a36, d2: 0x86663f, bank: 0xb59f74, w1: 0x3a6f8f, w2: 0x3a6f8f, tint: 0x3a2a55, tintAmt: 0.85 };
+      const ss = function (a, b, v) { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+      const two = function (a, b, t) { tmpA.setHex(a); tmpB.setHex(b); return tmpA.lerp(tmpB, t); };
+      col.copy(two(pal.g1, pal.g2, patch));
+      col.lerp(two(pal.h1, pal.h2, patch), ss(2.2, 3.0, y));
+      col.lerp(tmpC.setHex(pal.edge), (1 - ss(2.2, 2.9, dp)) * 0.8);
+      col.lerp(two(pal.d1, pal.d2, patch), 1 - ss(1.5, 2.2, dp));
+      col.lerp(tmpC.setHex(pal.bank), 1 - ss(2.9, 3.7, rv));
+      col.lerp(two(pal.w1, pal.w2, patch), 1 - ss(2.2, 2.9, rv));
+      if (riftNear > 0) col.lerp(tmpC.setHex(pal.tint), riftNear * pal.tintAmt);
     }, scene);
     const water = new THREE.Mesh(new THREE.PlaneGeometry(8, 90, 1, 1), core
       ? new THREE.MeshStandardMaterial({ color: 0xff5a14, emissive: 0xff4a0a, emissiveIntensity: 0.9, roughness: 0.6 })
