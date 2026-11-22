@@ -237,6 +237,8 @@ Both start with 150 crystals. The simulated builder does not adjust to bats (it 
 
 ## 6A. Defenders
 
+**November 22 proposal:** `docs/ARSENAL.md` plans one new defender and two new creatures every level, damage types and traits that force matching, camo creatures, Rift Intel cards and prices in words of reading. Once Mr. Scott approves it, it replaces the unlock order below.
+
 Placed on build spots beside the trail (towers) or on the trail itself (blockers and traps). Each has 3 levels, and a third upgrade picks one of two tier 3 specialties.
 
 | Defender | Role | Unlocks |
