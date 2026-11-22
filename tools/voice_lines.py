@@ -19,6 +19,8 @@ uses the Chromebook's built-in voice for any line without a file.
 """
 import glob
 import hashlib
+import shutil
+import subprocess
 import json
 import os
 import sys
@@ -68,6 +70,21 @@ WORD_RATE = "-25%"
 
 KEY = os.environ.get("AZURE_SPEECH_KEY", "").strip()
 REGION = os.environ.get("AZURE_SPEECH_REGION", "").strip()
+
+
+def trim_silence(path):
+    """Cut the long quiet start and end Azure adds (about 1.5 s per clip), keeping a short pad.
+    Used for the sound rule card, which plays many short clips in a row. Needs ffmpeg; skipped without it."""
+    if not shutil.which("ffmpeg"):
+        return
+    tmp = path + ".tmp.mp3"
+    flt = ("silenceremove=start_periods=1:start_threshold=-50dB,areverse,"
+           "silenceremove=start_periods=1:start_threshold=-50dB,areverse,adelay=90:all=1,apad=pad_dur=0.06")
+    r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", path, "-af", flt, "-ac", "1", "-ar", "24000", "-b:a", "48k", tmp])
+    if r.returncode == 0:
+        os.replace(tmp, path)
+    elif os.path.exists(tmp):
+        os.remove(tmp)
 
 
 def fingerprint(voice, text):
@@ -140,6 +157,8 @@ def main():
                     continue
                 with open(path, "wb") as f:
                     f.write(audio)
+                if line_id.startswith("rule."):
+                    trim_silence(path)
                 made += 1
             manifest[lang][line_id] = name
     with open(MANIFEST, "w", encoding="utf-8") as f:
@@ -230,6 +249,7 @@ def voice_words(voices):
                     continue
                 with open(path, "wb") as f:
                     f.write(audio)
+                trim_silence(path)
                 made += 1
             manifest["en"]["snd:" + ch] = name
     with open(WORDS_MANIFEST, "w", encoding="utf-8") as f:

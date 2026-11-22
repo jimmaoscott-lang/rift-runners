@@ -42,6 +42,8 @@ Newest entry at the top. Each session adds one entry.
 - New: single letter sound clips, voiced automatically after the push. If a letter sound is missing, the game stays quiet for that letter instead of saying the letter's name.
 - Tested in headless Chrome: the card holds the battle, Escape, P and clicks outside do nothing, Got it waits for the voice, the short card shows on the next miss of the same vowel. No game errors.
 
+**Fixed (Mr. Scott, Nov 21): the card took 17 seconds (v0.13.1).** Every voice clip from Azure carried about 1.5 seconds of silence, and the card plays about 10 clips. The letter sounds, key words and rule lines are now trimmed (119 seconds of audio down to 58), new ones are trimmed automatically, the card's sounds load when the level starts, the spoken "The letter U says" was dropped (the card still shows it), and Got it shows as the word starts. Expected now: about 8 seconds for the full card and about 4 to 5 for the short one.
+
 **To test the sound rule card (Mr. Scott)**
 1. Wait about 10 minutes after the push, then open the game (title says v0.13.0).
 2. Play any World 1 level and pick a wrong sound on purpose.

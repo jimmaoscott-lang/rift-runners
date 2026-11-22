@@ -178,6 +178,16 @@ window.RF = window.RF || {};
     // short card (vowel + blend).
     F.ruleSeen = {};
     F.ruleUp = false;
+    // Load the card's sounds now so they play with no wait when a miss happens.
+    (function preloadRule() {
+      const R = W1.rules; if (!R) return;
+      const wm = RF.wordManifest.en || {}, um = RF.voiceManifest[RF.lang()] || {};
+      const files = [];
+      Object.keys(wm).forEach(function (k) { if (k.indexOf('snd:') === 0) files.push('../assets/audio/words/' + wm[k]); });
+      Object.keys(R.vowels).forEach(function (v) { if (wm[R.vowels[v].word]) files.push('../assets/audio/words/' + wm[R.vowels[v].word]); });
+      [R.line, 'rule.like', 'rule.tryAgain', 'rule.sayIt'].forEach(function (id) { if (um[id]) files.push('../assets/audio/ui/' + um[id]); });
+      files.forEach(function (f) { try { fetch(RF.assetURL(f)).catch(function () {}); } catch (e) { /* preload is optional */ } });
+    })();
     function ruleFor(w) {
       const R = W1.rules;
       if (!R || !/^[a-z][aeiou][a-z]$/.test(w.w)) return null;
@@ -213,10 +223,13 @@ window.RF = window.RF || {};
       function lit(el) { return function () { [ruleRow, vRow, whole].concat(tileEls).forEach(function (e) { if (e) e.classList.remove('lit'); }); if (el) el.classList.add('lit'); }; }
       function seq(withRule) {
         const items = [];
-        if (withRule && ruleRow) items.push({ id: info.rule.line, on: lit(ruleRow) }, { pause: 300 });
-        items.push({ id: 'rule.v.' + info.v, on: lit(vRow) }, { snd: info.v }, { pause: 200 }, { id: 'rule.like' }, { word: info.key.word }, { pause: 400 });
-        w.w.split('').forEach(function (ch, k) { items.push({ snd: ch, on: lit(tileEls[k]) }, { pause: 250 }); });
-        items.push({ word: w.w, on: function () { lit(whole)(); tileEls.forEach(function (e) { e.classList.add('lit'); }); } });
+        // Kept short on purpose (Mr. Scott: 7 or 8 seconds is fine, 17 kills the game). The vowel
+        // line is shown in full but only its sound and key word are said: "/u/, like up".
+        if (withRule && ruleRow) items.push({ id: info.rule.line, on: lit(ruleRow) }, { pause: 150 });
+        items.push({ snd: info.v, on: lit(vRow) }, { id: 'rule.like' }, { word: info.key.word }, { pause: 250 });
+        w.w.split('').forEach(function (ch, k) { items.push({ snd: ch, on: lit(tileEls[k]) }, { pause: 120 }); });
+        // The word file ends in silence, so Got it shows a moment after the word starts.
+        items.push({ word: w.w, on: function () { lit(whole)(); tileEls.forEach(function (e) { e.classList.add('lit'); }); setTimeout(ready, 900); } });
         return items;
       }
       let done = false;
