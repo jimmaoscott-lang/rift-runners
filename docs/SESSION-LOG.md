@@ -22,6 +22,8 @@ Smallest first. One item per session where possible. Work top down; each item ge
 | 10 | **Better graphics:** needs Mr. Scott's direction first (what looks off: the map, the creatures, the towers, the effects?). | Large, ongoing | Opus |
 
 **Notes**
+- **Mic, found November 22 (v0.14.3, fixed):** narrator lines during listening (wave alerts, streak lines) turned music and battle sounds back up as soon as the line ended, while the mic was still recording, and echo cancellation is off in speak mode. Narrator lines now wait until the mic is done, and game sound stays low the whole time the mic listens.
+- **Why the Mic check passes when play fails:** the Mic check in Settings uses Chrome's recognizer and shows whatever it heard, so mumbled speech passes. In play, Azure scores the vowel sound itself (vowelMin 60), which is much stricter. The Mic check does not test the same thing. Item 8 should make the Mic check use the real word check, show the Test mode readout (vowel score, what it sounded like), and look at mic start-up lag (the mic opens fresh for every word).
 - Rift locks today count the last 10 tries on that sound from all play, not only this level. So a lock can start partly full, and a miss can make a square disappear. The math is right; the display is the problem (item 5).
 - Items 1 to 5 should fit before Wednesday. Items 8 and 9 are the big ones; 10 needs his input.
 

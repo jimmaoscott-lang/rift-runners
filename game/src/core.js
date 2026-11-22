@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.14.2';
+  RF.VERSION = 'v0.14.3';
   RF.W = 1280;
   RF.H = 720;
 
@@ -87,7 +87,8 @@ window.RF = window.RF || {};
   let speakToken = 0;
   RF.stopSpeaking = function () {
     speakToken++;
-    if (RF.audio) RF.audio.duck(0);
+    // While the mic is listening, game sound stays low so it does not end up in the recording.
+    if (RF.audio) RF.audio.duck(RF.mic && RF.mic.busy ? 2 : 0);
     if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   };
@@ -137,6 +138,12 @@ window.RF = window.RF || {};
     };
   }
   function run(jobs, isWord) {
+    // While the student is speaking into the mic, narrator lines wait until the mic is done, so they
+    // do not cut into the recording or turn game sound back up mid-word (Mr. Scott, November 22).
+    if (RF.mic && RF.mic.busy) {
+      return new Promise(function (res) { (function wait() { if (RF.mic && RF.mic.busy) setTimeout(wait, 150); else res(); })(); })
+        .then(function () { return run(jobs, isWord); });
+    }
     RF.stopSpeaking();
     const token = speakToken;
     // Music and battle sounds drop while a line is read aloud, and drop low for a word to decode.
