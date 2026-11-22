@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.16.0';
+  RF.VERSION = 'v0.16.1';
   RF.W = 1280;
   RF.H = 720;
 
@@ -39,7 +39,7 @@ window.RF = window.RF || {};
   // ---------- Settings ----------
   const SETTINGS_KEY = 'riftrunners.settings.v1';
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, music: 6, effects: 8, reducedMotion: prefersReduced, focus: false, captions: false, speakFirst: 0, speakLock: false, pinHash: null, testAll: false };
+  const DEFAULTS = { lang: null, textSize: 'normal', font: 'lexend', volume: 8, music: 6, effects: 8, reducedMotion: prefersReduced, focus: false, captions: false, speakFirst: 0, speakLock: false, pinHash: null, testAll: false, speed: 1 };
   RF.settings = Object.assign({}, DEFAULTS);
   RF.loadSettings = function () {
     try {

@@ -10,7 +10,7 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 | # | Report | Type | Goes with |
 |---|---|---|---|
-| B1 | **2x speed resets when the level changes.** It should stay on until the player switches it back (save it with the settings). | Bug, small | Sonnet, any session |
+| B1 | ✅ Fixed in v0.16.1 (saved with the settings; tested across levels and a page reload). **2x speed resets when the level changes.** It should stay on until the player switches it back (save it with the settings). | Bug, small | Sonnet, any session |
 | B2 | **Mic missed 3 words he read correctly:** "top" (short o), "pin" (short i), "cut" (short u). Add these to the mic test set. | Bug | Tightening plan item 8 (mic) |
 | I1 | **New defender: Sticky Foam Gun.** Sprays a creature with sticky foam that slows it or holds it in place. Upgrades: longer-lasting foam; acid foam (adds Acid damage); one shot hits several creatures. | Idea | `docs/ARSENAL.md` |
 

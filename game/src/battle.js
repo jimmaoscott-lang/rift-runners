@@ -50,7 +50,7 @@ window.RF = window.RF || {};
     // Waves from reading (DESIGN.md 6): every waveEvery finished words or cards brings a wave.
     B.every = L.waveEvery || 10; B.readCount = 0; B.wavesDue = 0; B.dueT = 0;
     B.creatures = []; B.defenders = []; B.shots = []; B.fx = []; B.burns = [];
-    B.paused = false; B.speed = 1; B.shake = 0;
+    B.paused = false; B.speed = RF.settings.speed === 2 ? 2 : 1; B.shake = 0; // 2x stays on between levels (bug B1)
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
     B.sealReady = false; B.sealDone = false; B.sealOpened = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
@@ -161,7 +161,7 @@ window.RF = window.RF || {};
     B.pauseBtn.addEventListener('click', function () { B.setPaused(!B.paused); });
     B.speedBtn = D.el('button', 'btn', '', ctr);
     B.speedBtn.style.fontSize = '15px';
-    B.speedBtn.addEventListener('click', function () { B.speed = B.speed === 1 ? 2 : 1; RF.sfx('tap'); B.renderTop(); });
+    B.speedBtn.addEventListener('click', function () { B.speed = B.speed === 1 ? 2 : 1; RF.settings.speed = B.speed; RF.saveSettings(); RF.sfx('tap'); B.renderTop(); });
     // Sound button: one tap opens Voice, Music and Effects sliders right on the battle screen
     // (November 22 plan, item 1). The battle keeps running; tap the button again or anywhere else to close.
     B.volBtn = D.el('button', 'btn', D.SPK, ctr);
