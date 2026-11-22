@@ -218,6 +218,10 @@ Shade Stalker plan (Mr. Scott's camo idea): one Shade Stalker scouts in wave 2 o
 
 ---
 
+### Ideas waiting for a slot
+
+- **Sticky Foam Gun (Mr. Scott, November 22):** sprays a creature with sticky foam that slows it or holds it in place. Upgrades: longer-lasting foam; acid foam (Acid damage, eats armor and stops Regen); one shot coats several creatures. Claude's suggestion: it fits World 3 (Frostfang Pass) or World 4, where fast creatures and Regen show up, and it could take the place of a weaker control defender. Decide its slot when that world is built.
+
 ## 5. Build bar with 50 defenders: a "Gear Up" loadout
 
 By World 3 the student owns more defenders than fit on the build bar. Proposal: before each level a **Gear Up** screen shows the level's briefing (the new creatures' intel cards) and the student picks **8 defenders** to bring. Reading the briefing is how you pick well. The level's new defender is always included. A **Recommended** button fills the 8 for students who need it (counted in the teacher report). Worlds 1 and 2 skip Gear Up because everything fits.

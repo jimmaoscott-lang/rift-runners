@@ -4,6 +4,18 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Bug reports and ideas (Mr. Scott, November 22, 2026)
+
+Newest at the top. Fix in a real session; move each one into a session entry when it is done.
+
+| # | Report | Type | Goes with |
+|---|---|---|---|
+| B1 | **2x speed resets when the level changes.** It should stay on until the player switches it back (save it with the settings). | Bug, small | Sonnet, any session |
+| B2 | **Mic missed 3 words he read correctly:** "top" (short o), "pin" (short i), "cut" (short u). Add these to the mic test set. | Bug | Tightening plan item 8 (mic) |
+| I1 | **New defender: Sticky Foam Gun.** Sprays a creature with sticky foam that slows it or holds it in place. Upgrades: longer-lasting foam; acid foam (adds Acid damage); one shot hits several creatures. | Idea | `docs/ARSENAL.md` |
+
+---
+
 ## Session 19b: November 22, 2026 (Arsenal and Rift Bestiary plan)
 
 **Planned (no code yet):** `docs/ARSENAL.md`. One new defender and two new creatures every level, from Archer Tower up to the Photon Fortress. Damage types (Pierce, Blast, Fire, Frost, Shock, Acid, Laser, Photon) and creature traits (Armored, Shielded, Flying, Camo, Fireproof, Mirror, Regen and more) so winning depends on matching defenders to creatures. Camo Shade Stalker and the Sniper Nest in World 1 Level 5. A scout comes alone first, then a Rift Intel card (no narrator) explains it. Intel cards ramp from about grade 2.5 to grade 9. Prices are set in words of reading; a small Rift Cache win bonus. Existing defenders move later so each level brings one (replaces plan item 3).
