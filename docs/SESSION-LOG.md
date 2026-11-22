@@ -46,7 +46,10 @@ Newest entry at the top. Each session adds one entry.
 2. Play Level 2 or 3 like a typical student. Watch the power bars fill as you read, and fire each power during a wave.
 3. Tell me: do the powers feel worth waiting for? Is the difficulty still where you liked it?
 
+**Fixed after the session (Mr. Scott, Nov 21): rune "fim" failed a correct read about half the time (v0.11.1).** Likely cause: Azure guesses how made-up words are said and sometimes expects a long i ("fime"). The speech check now judges the short vowel the spelling asks for, using what the vowel sounded most like when Azure's guess differs. Test mode's orange line says "azure expected aɪ, checked as ɪ" when this happens. A wrong long-vowel read on such a rune now misses (before it could pass).
+
 **Next up**
+- Mr. Scott: retry "fim" and other runes in speak mode. If one still fails, turn on Test mode and send the orange line.
 - M6 part 4: the Armory (spend the kill shard bank between levels on permanent upgrades). Keep upgrades small so difficulty holds. Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 

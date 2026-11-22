@@ -114,7 +114,14 @@ window.RF = window.RF || {};
   // ɑ/ɔ is the cot/caught merger. a/o and i/e stay apart (close pairs DESIGN 5 targets).
   const SAME = { 'æ': ['æ'], 'ɪ': ['ɪ', 'i'], 'ɛ': ['ɛ'], 'ɑ': ['ɑ', 'ɔ'], 'ɔ': ['ɔ', 'ɑ'], 'ʌ': ['ʌ', 'ə'] };
   const NASAL = ['m', 'n', 'ŋ'];
-  MIC.score = function (res) {
+  // The short vowel a CVC word asks for, from its spelling. Azure guesses how a made-up rune is
+  // said and sometimes guesses wrong (fim as "fime"), so the check uses the spelling (Session 16).
+  const SHORT = { a: 'æ', e: 'ɛ', i: 'ɪ', o: 'ɑ', u: 'ʌ' };
+  function shortVowel(w) {
+    const m = /^[^aeiou]*([aeiou])[^aeiouy]*$/.exec(String(w || '').toLowerCase());
+    return m ? SHORT[m[1]] : null;
+  }
+  MIC.score = function (res, target) {
     const s = cfg().score || {};
     const out = { outcome: 'nothing', note: '' };
     if (!res || res.status !== 'Success' || !res.word) {
@@ -128,19 +135,24 @@ window.RF = window.RF || {};
     if (vi < 0) { out.outcome = (w.accuracy || 0) >= (s.wordMin || 45) ? 'match' : 'miss'; out.note = 'no vowel found, word ' + w.accuracy; return out; }
     const v = ph[vi];
     const nasal = ph[vi + 1] && NASAL.indexOf(ph[vi + 1].p) >= 0;
-    let ok = (SAME[v.p] || [v.p]).slice();
-    if (nasal && (v.p === 'ɪ' || v.p === 'ɛ')) ok = ok.concat(['ɪ', 'ɛ', 'i']); // pin/pen, Gulf Coast
+    // Judge against the vowel the spelling asks for. When Azure expected a different vowel
+    // (its guess for a made-up word), its vowel score is about the wrong sound, so only
+    // "what it sounded most like" counts.
+    const want = shortVowel(target) || v.p;
+    const offGuess = want !== v.p;
+    let ok = (SAME[want] || [want]).slice();
+    if (nasal && (want === 'ɪ' || want === 'ɛ')) ok = ok.concat(['ɪ', 'ɛ', 'i']); // pin/pen, Gulf Coast
     const top = v.best && v.best[0] ? v.best[0].p : null;
     const topOK = !!top && ok.indexOf(top) >= 0;
     const topOther = !!top && !topOK && VOWELS.indexOf(top) >= 0;
     const vs = v.score || 0;
-    const vowelPass = (topOK && vs >= 25) || (vs >= (s.vowelMin || 60) && !(topOther && vs < (s.vowelClearMiss || 80)));
+    const vowelPass = offGuess ? topOK : (topOK && vs >= 25) || (vs >= (s.vowelMin || 60) && !(topOther && vs < (s.vowelClearMiss || 80)));
     const cons = ph.filter(function (p, k) { return k !== vi; }).map(function (p) { return p.score || 0; });
     const avg = cons.length ? cons.reduce(function (a, b) { return a + b; }, 0) / cons.length : 100;
     const consPass = avg >= (s.consonantAvgMin || 40) && cons.every(function (c) { return c >= (s.consonantEachMin || 15); });
     const wordPass = topOK || (w.accuracy || 0) >= (s.wordMin || 45);
     out.outcome = vowelPass && consPass && wordPass ? 'match' : 'miss';
-    out.note = 'vowel ' + v.p + ' ' + Math.round(vs) + (top ? ' (sounded most like ' + top + ')' : '') +
+    out.note = (offGuess ? 'azure expected ' + v.p + ', checked as ' + want + '; ' : '') + 'vowel ' + v.p + ' ' + Math.round(vs) + (top ? ' (sounded most like ' + top + ')' : '') +
       ', other sounds ' + cons.map(Math.round).join(' ') + ', word ' + Math.round(w.accuracy || 0);
     return out;
   };
@@ -323,7 +335,7 @@ window.RF = window.RF || {};
             if (done) return;
             if (!j.ok) return fallBack('checker error');
             AZ.failures = 0;
-            const sc = MIC.score(j);
+            const sc = MIC.score(j, word.w);
             finish({ matched: sc.outcome === 'match', heard: j.heard || '', outcome: sc.outcome, engine: 'azure', diag: 'azure: ' + sc.note });
           });
         })
