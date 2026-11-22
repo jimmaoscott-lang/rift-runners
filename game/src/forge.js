@@ -67,6 +67,8 @@ window.RF = window.RF || {};
     const msg = D.el('div', 'msg', null, root);
     const recent = D.el('div', 'recent', null, root);
     const heat = D.el('div', 'heat', null, root);
+    // The tutorial points at these.
+    F.els = { word: wordBox, opts: optsRow, forge: forgeBtn, mic: micBtn };
 
     function renderStreak() {
       streakChip.innerHTML = '<span style="font-size:18px">&#128293;</span> <span class="gold">x' + F.streak + '</span>';
@@ -84,6 +86,7 @@ window.RF = window.RF || {};
     // short i or short e before m or n (pin, pen, ten, win) and runes stay tap only. See speech.js.
     function micOn() { return F.cur && RF.mic && RF.mic.usable() && RF.mic.canCheck(F.cur); }
     function choicesHidden() { return F.cur.kind === 'real' && micOn() && !F.revealed && F.speakTries < speakFirst(); }
+    F.choicesHidden = function () { return !!F.cur && choicesHidden(); };
     function renderMode() {
       const hide = choicesHidden();
       optsRow.style.display = hide ? 'none' : '';
@@ -132,7 +135,9 @@ window.RF = window.RF || {};
 
     // ---- Words ----
     function pickWord() {
-      const pool = Math.random() < L.runeRate && runes.length ? runes : real;
+      // The tutorial's first words are real words only (opts.noRunes).
+      const noRunes = opts.noRunes && opts.noRunes();
+      const pool = !noRunes && Math.random() < L.runeRate && runes.length ? runes : real;
       const fresh = pool.filter(function (w) { return F.recentWords.indexOf(w.w) < 0; });
       const list = fresh.length ? fresh : pool;
       let total = 0;

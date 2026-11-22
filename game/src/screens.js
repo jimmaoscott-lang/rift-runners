@@ -151,6 +151,15 @@ window.RF = window.RF || {};
     bottom.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin-top:6px';
     D.button('settings.mic', function () { RF.sfx('open'); S.micTest(function () { S.settings(onBack); }); }, '', bottom);
     D.button('settings.teacher', function () { RF.sfx('open'); S.teacher(function () { S.settings(onBack); }); }, '', bottom, { icon: S.LOCK + ' ' });
+    // Replay tutorial: opens Level 1 with the tutorial, this time with a Skip button (DESIGN.md 4.3).
+    D.button('settings.replayTut', function () {
+      RF.sfx('open');
+      S.close();
+      if (RF.battle && RF.battle.active) RF.battle.cleanup();
+      if (RF.map && RF.map.hide) RF.map.hide();
+      RF.tutorial.replay = true;
+      RF.startBattle(0);
+    }, '', bottom);
     D.button('settings.back', function () { RF.sfx('back'); S.close(); onBack(); }, 'go', bottom).btn.dataset.first = '1';
     D.nav(box, function () { S.close(); onBack(); });
   };

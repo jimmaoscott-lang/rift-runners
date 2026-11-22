@@ -4,6 +4,44 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 18: November 21, 2026 (Level 1 tutorial)
+
+**Built**
+- **Level 1 tutorial**, five steps, as approved. Runs the first time a student opens Level 1. The battle holds still in each step until the student does the action. Each step has a narrator line, a text card (shows even with Battle captions off) and a green glow with a bouncing arrow.
+  1. Read one word in the Forge (a second line points out Say it when the mic works).
+  2. Tap the Archer Tower, then a glowing pad. Only the Archer Tower can be built here.
+  3. The Next wave counter and Start wave glow. Read 2 more words (the card counts them) or press Start wave.
+  4. A small first wave (6 wisps and a thornback). When a creature reaches the Rift Anchor, the narrator explains it.
+  5. The rift locks glow and the card explains them. **Let's go** starts normal play.
+- Parts not needed in a step are dimmed and locked (build bar in steps 1 and 3, the Forge in step 2). Tutorial words are real words only, no runes.
+- The tutorial wave counts as wave 1, and the level's own wave 1 comes after it, so Level 1 still has its full set of waves.
+- **Settings, Replay tutorial** opens Level 1 with the tutorial again, with a **Skip tutorial** button (replays only).
+- Tutorial words count toward the locks and progress record. Finishing it is saved on the device; Clear progress in Teacher settings brings it back. Students who already finished a battle before this update do not get it automatically.
+- New lines in English and Spanish (voiced automatically after the push). Version v0.14.0.
+- DESIGN.md section 4.3 added.
+
+**Tested (by Claude, headless Chrome)**
+- Played all five steps. Building and Start wave are blocked in step 1, only the Archer Tower builds in step 2, the wave starts after 2 reads, a creature reached the Anchor (20 to 19) and the line played, Let's go saved the done flag, the next Level 1 start had no tutorial, Replay tutorial showed Skip and Skip worked. No game errors.
+
+**Model use:** done directly by Opus; the tutorial hooks into the battle code in many small places, so splitting it up would have cost more than it saved.
+
+**To test (Mr. Scott)**
+1. Wait about 10 minutes, then open https://jimmaoscott-lang.github.io/rift-runners/ (title says v0.14.0).
+2. Settings, Replay tutorial. (If you have played any level on this device before, it will not start on its own.)
+3. Go through all five steps. Listen to each line and watch where the arrow points.
+4. Tell me: does it feel like about 2 minutes? Is any line too long? Does the first wave feel right for a brand new student?
+
+**Next up**
+- One-time tips the first time upgrades, hero powers and new defenders matter (part of the approved tutorial plan, not built yet). Start the chat with Sonnet: it follows the new creature line pattern.
+- Then M7: the Thorn King boss level (short phrases and a short passage, Rift Seal read aloud with WCPM). Start the chat with Opus.
+- Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
+
+**Open questions**
+- Still open: the final level Story lock bar (8 of 10, or 9 of 10 for the real World 8?).
+- New Spanish lines (including the tutorial) need a Spanish speaker's check.
+
+---
+
 ## Session 17: November 21, 2026 (World 1 Levels 4 and 5: Rift Bats and Splitters)
 
 **Built**

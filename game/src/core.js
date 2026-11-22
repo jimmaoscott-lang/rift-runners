@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.13.3';
+  RF.VERSION = 'v0.14.0';
   RF.W = 1280;
   RF.H = 720;
 

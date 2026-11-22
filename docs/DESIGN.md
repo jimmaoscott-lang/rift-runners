@@ -76,6 +76,20 @@ World names: World 1 "Escape the Thornwood" (forest), World 2 "Dunes of the Dead
 5. **Rewards:** the next level unlocks, often a new defender or upgrade, skins for 3 stars, crystals carried to the upgrade bank.
 6. **Level Clear screen** with growth (section 12A).
 
+### 4.3 Level 1 tutorial (built Session 18)
+
+Runs automatically the first time a student opens Level 1. It does not run on later plays of Level 1, or for a student whose record already has a finished battle. **Settings, Replay tutorial** opens Level 1 with the tutorial again; only replays show a **Skip tutorial** button.
+
+- Five steps, about 2 minutes. Each step has a narrator line, a short text card (shown even with Battle captions off, every line has its own speaker), and a green glow with a bouncing arrow on the right spot. Parts the student does not need in a step are dimmed and cannot be used.
+- The battle holds still in every step until the student does the action. No timers.
+- **Step 1, read to earn:** read one word in the Forge (tap the sounds, pick, Forge). If the mic works, a second line points out Say it. If a teacher set Speak first, the line asks the student to press Say it instead. Tutorial words are real words, no runes.
+- **Step 2, build:** arrow to the Archer Tower card, then to an open tower pad. Only the Archer Tower can be built here.
+- **Step 3, reading brings waves:** the Next wave counter and Start wave glow. The student reads 2 more words (the card counts them), or presses Start wave.
+- **Step 4, first wave:** a small tutorial wave (6 wisps, 1 thornback, weaker than wave 1). It counts as wave 1; the level's wave 1 comes next. When a creature reaches the Rift Anchor, the narrator says that creatures that get through hurt it.
+- **Step 5, rift locks:** the locks glow. "Read words right on the first try to fill these locks. Fill them all, survive the final wave, and the rift closes." **Let's go** ends the tutorial and starts normal play.
+- Tutorial words count toward the rift locks and the progress record like any other read (Mr. Scott). The finished tutorial is saved in the progress record on the device (`tutorial.done`); clearing progress in Teacher settings brings it back.
+- Upgrades, hero powers and later defenders are taught by one-time tips the first time each matters (like the new creature lines), not by tutorial steps.
+
 ---
 
 ## 5. Skill sequence

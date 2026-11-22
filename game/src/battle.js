@@ -66,10 +66,13 @@ window.RF = window.RF || {};
     B.refreshLocks(true);
     B.updatePads();
     canvasOn();
+    B.tut = null; B.tutHold = false; B.tutWave = null; B.waveOffset = 0;
+    RF.audio.music('calm');
+    // First time in Level 1 (or Replay tutorial): the tutorial takes over the opening (DESIGN.md 4.3).
+    if (RF.tutorial && RF.tutorial.shouldRun(B.levelIndex)) { RF.tutorial.start(B); return; }
     // Locks can already be full from earlier play: say when the final wave will be.
     const bs = [{ id: L.story ? 'hud.buildStartCards' : 'hud.buildStart' }];
     B.toast(null, true, B.sealReady ? bs.concat(B.allFullParts()) : bs);
-    RF.audio.music('calm');
   };
 
   // ---------- HUD ----------
@@ -132,7 +135,8 @@ window.RF = window.RF || {};
       level: B.L,
       restore: forgeRestore,
       onPay: function (amount, fromEl) { B.pay(amount, fromEl); },
-      onRead: function () { B.refreshLocks(false); B.readTick(); },
+      onRead: function () { B.refreshLocks(false); B.readTick(); if (B.tut) B.tut.on('read'); },
+      noRunes: function () { return !!(B.tut && B.tut.noRunes()); },
       onMega: function () { B.megaBlast(); },
       onSeal: function () { B.sealComplete(); },
       // Reading the Rift Seal aloud: the battle holds still so the reading is fair (DESIGN.md 7).
@@ -188,6 +192,7 @@ window.RF = window.RF || {};
     B.renderCards();
     B.renderPowers();
     if (B.locks) B.renderLocks();
+    if (B.tut) B.tut.rebuilt();
   };
 
   // ---------- Rift Warden powers ----------
@@ -389,7 +394,7 @@ window.RF = window.RF || {};
     B.waveChip.innerHTML = B.finalWave ? '<span class="gold">' + D.esc(RF.t('hud.finalWave')) + '</span>' : D.esc(RF.t('hud.wave')) + ' <span class="gold" style="font-size:22px">' + Math.max(1, B.wave) + '</span>' +
       (B.sealReady ? ' ' + D.esc(RF.t('res.of')) + ' <span class="gold" style="font-size:22px">' + B.finalWaveNum() + '</span>' : '');
     // Start wave is an early call: it shows between waves while no wave is already on its way.
-    const showStart = (B.phase === 'build' || B.phase === 'between') && !B.wavesDue;
+    const showStart = (B.phase === 'build' || B.phase === 'between') && !B.wavesDue && (!B.tut || B.tut.allowStart());
     B.startBtn.style.display = showStart ? '' : 'none';
     const nextFinal = B.sealReady && B.wave + 1 >= B.L.minWaves;
     B.startBtn.innerHTML = '&#9654; ' + (nextFinal ? D.esc(RF.t('hud.finalWave')) : D.esc(RF.t('hud.startWave')) + ' ' + (B.wave + 1));
@@ -460,6 +465,7 @@ window.RF = window.RF || {};
     e.style.cssText += ';left:' + x + 'px;top:' + y + 'px;color:' + color + ';font-size:' + size + 'px;display:flex;align-items:center;gap:4px';
     setTimeout(function () { e.remove(); }, 1000);
   };
+  B.screenOf = function (x, y, z) { return screenOf(x, y, z); };
   function screenOf(x, y, z) {
     const p = V3(x, y, z).project(B.world.camera);
     return { x: (p.x + 1) / 2 * window.innerWidth, y: (1 - p.y) / 2 * window.innerHeight, behind: p.z > 1 };
@@ -495,6 +501,9 @@ window.RF = window.RF || {};
   // so the count starts over. A wave already due just comes now.
   B.callWave = function () {
     if (!(B.phase === 'build' || B.phase === 'between')) return;
+    if (B.tut && !B.tut.allowStart()) return;
+    // The tutorial's small first wave stands in for wave 1, so real wave 1 comes next.
+    if (B.tut) { B.tutWave = B.tut.wave; B.waveOffset = 1; }
     if (B.wavesDue) B.wavesDue--; else B.readCount = 0;
     B.startWave();
   };
@@ -502,7 +511,8 @@ window.RF = window.RF || {};
     if (!(B.phase === 'build' || B.phase === 'between')) return;
     B.dueT = 0;
     B.finalWave = B.sealReady && B.wave + 1 >= B.L.minWaves;
-    let w = B.waveDef(B.wave + 1);
+    let w = B.tutWave || B.waveDef(Math.max(1, B.wave + 1 - B.waveOffset));
+    B.tutWave = null;
     if (B.finalWave) {
       const f = B.L.finalBoost;
       w = { hp: (w.hp || 1) * f, groups: w.groups.map(function (g) { return Object.assign({}, g, { count: Math.round(g.count * f) }); }) };
@@ -518,7 +528,8 @@ window.RF = window.RF || {};
     RF.audio.fx('waveStart');
     if (!B.paused) RF.audio.music('attack');
     B.renderTop(); B.renderPowers();
-    B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);    if (B.L.story) B.checkSeal(false);
+    if (B.tut) B.tut.on('wave');
+    else B.toast(null, true, B.finalWave ? [{ id: 'hud.finalWave' }] : [{ id: 'hud.wave' }, D.num(B.wave)]);    if (B.L.story) B.checkSeal(false);
   };
 
   // Fliers (Rift Bats, "air" in units.json) pass over Spike Pits, Tar Pits, Golems, Barricades,
@@ -599,6 +610,7 @@ window.RF = window.RF || {};
   B.place = function (type, pad) {
     const d = B.U.defenders[type];
     if (pad.def || d.kind !== pad.kind || !RF.unlocks.defenderOpen(type)) return false;
+    if (B.tut && !B.tut.allowBuild(type)) { RF.sfx('soft'); return false; }
     if (B.crystals < d.cost) { B.toast('hud.need', true); RF.sfx('soft'); return false; }
     B.crystals -= d.cost;
     const def = { type: type, lv: 1, pad: pad, spent: d.cost, cd: 0.2, obj: defModel(type, pad) };
@@ -623,6 +635,7 @@ window.RF = window.RF || {};
     RF.metrics.support('build');
     B.selectBuild(null);
     B.renderTop(); B.renderCards();
+    if (B.tut) B.tut.on('build', type);
     return true;
   };
   function scaleFrost(def) {
@@ -704,6 +717,7 @@ window.RF = window.RF || {};
 
   // ---------- Picking build spots ----------
   B.selectBuild = function (id) {
+    if (id && B.tut && !B.tut.allowBuild(id)) { RF.sfx('soft'); return; }
     B.closePopup();
     B.buildSel = id;
     B.padCursor = -1;
@@ -715,6 +729,7 @@ window.RF = window.RF || {};
     } else B.info.style.display = 'none';
     B.renderCards();
     B.updatePads();
+    if (B.tut) B.tut.on('select', id);
   };
   B.showInfo = function (id) {
     const d = B.U.defenders[id];
@@ -767,6 +782,7 @@ window.RF = window.RF || {};
     const pad = pickPad(ev);
     if (!pad) { B.selectBuild(null); B.closePopup(); return; }
     if (pad.def) { B.selectBuild(null); B.showDefPopup(pad.def); return; }
+    if (B.tut && B.tut.step !== 2 && !B.buildSel && !pad.def) return;
     if (B.buildSel) {
       if (B.U.defenders[B.buildSel].kind === pad.kind) B.place(B.buildSel, pad);
       else { B.toast(pad.kind === 'tower' ? 'hud.wrongTower' : 'hud.wrongTrail', true); RF.sfx('soft'); }
@@ -1030,7 +1046,7 @@ window.RF = window.RF || {};
   B.update = function (realDt) {
     const world = B.world;
     animatePads();
-    let dt = B.paused || B.readHold || B.phase === 'done' ? 0 : realDt * B.speed * (RF.settings.focus ? 0.5 : 1);
+    let dt = B.paused || B.readHold || B.tutHold || B.phase === 'done' ? 0 : realDt * B.speed * (RF.settings.focus ? 0.5 : 1);
     // Effects run on real time so menus still feel alive.
     for (let i = B.fx.length - 1; i >= 0; i--) {
       const e = B.fx[i];
@@ -1261,6 +1277,7 @@ window.RF = window.RF || {};
         world.anchorFlash = 0.6;
         if (!RF.settings.reducedMotion) B.shake = 0.25;
         RF.audio.fx('anchorHit');
+        if (B.tut) B.tut.on('anchorHit');
         kill(c, false);
         B.renderTop();
         if (B.anchor <= 0) return B.finish(false);
@@ -1428,6 +1445,7 @@ window.RF = window.RF || {};
       RF.audio.fx('waveClear');
       RF.audio.music('calm');
       B.toast('hud.waveCleared', true);
+      if (B.tut) B.tut.on('waveClear');
     }
   };
 
@@ -1476,6 +1494,8 @@ window.RF = window.RF || {};
       return;
     }
     if (ev.key === 'p' || ev.key === 'P') { B.setPaused(!B.paused); return; }
+    // Tutorial: no Forge keys while it points at the build bar or the locks.
+    if (B.tut && !B.tut.allowForge() && !(B.buildSel && ev.key === 'Enter') && ['1', '2', '3', 'f', 'F', 'm', 'M', 'h', 'H', 'Enter'].indexOf(ev.key) >= 0) return;
     if (ev.key === 's' || ev.key === 'S') { B.callWave(); return; }
     if (B.buildSel) {
       const cand = candidates();
@@ -1515,6 +1535,8 @@ window.RF = window.RF || {};
   };
   B.cleanup = function () {
     B.active = false;
+    if (B.tut) B.tut.stop();
+    B.tutHold = false;
     RF.audio.music(null);
     RF.stopSpeaking();
     clearTimeout(B.toastTimer);

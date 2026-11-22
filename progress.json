@@ -1,7 +1,7 @@
 {
  "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
  "updated": "2026-11-21",
- "sessionsSoFar": 17,
+ "sessionsSoFar": 18,
  "milestones": [
   {
    "id": "M0",
@@ -124,6 +124,16 @@
     1
    ],
    "done": true
+  },
+  {
+   "id": "M6v",
+   "name": "Level 1 tutorial (5 guided steps, Replay in Settings)",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true,
+   "demo": true
   },
   {
    "id": "M7",

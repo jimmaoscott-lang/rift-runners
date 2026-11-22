@@ -460,7 +460,23 @@
     "rule.gotIt": "Got it",
     "rule.tryAgain": "Your turn. Read it again and pick the match.",
     "rule.sayIt": "Your turn. Say each sound, then say the word.",
-    "settings.captions": "Battle captions"
+    "settings.captions": "Battle captions",
+    "tut.title": "Training",
+    "tut.s1": "Read the word. Tap the sounds, pick the one that matches, then press Forge.",
+    "tut.s1mic": "You can also press Say it and read the word out loud.",
+    "tut.s1say": "Read the word. Press Say it, then say the word out loud.",
+    "tut.s2a": "Reading earns crystals. Crystals build defenders. Tap the Archer Tower.",
+    "tut.s2b": "Now tap a glowing spot to build it there.",
+    "tut.s3a": "Reading also brings the waves. This shows how many words until the next one.",
+    "tut.s3b": "Start wave calls a wave early, any time you are ready.",
+    "tut.s3c": "Read 2 more words, and the first wave comes.",
+    "tut.s4a": "Here they come! Your tower fires on its own.",
+    "tut.s4b": "Creatures that get past your defenders hurt the Rift Anchor. If it breaks, you lose.",
+    "tut.s5": "Read words right on the first try to fill these locks. Fill them all, survive the final wave, and the rift closes.",
+    "tut.go": "Let's go",
+    "tut.skip": "Skip tutorial",
+    "tut.done": "Training done. Hold the rift!",
+    "settings.replayTut": "Replay tutorial"
   },
   "es": {
     "title.name": "Rift Runners",
@@ -922,6 +938,22 @@
     "rule.gotIt": "Entendido",
     "rule.tryAgain": "Tu turno. Léela otra vez y elige la que suena igual.",
     "rule.sayIt": "Tu turno. Di cada sonido y luego la palabra.",
-    "settings.captions": "Subtítulos de batalla"
+    "settings.captions": "Subtítulos de batalla",
+    "tut.title": "Entrenamiento",
+    "tut.s1": "Lee la palabra. Toca los sonidos, elige el que coincide y luego pulsa Forjar.",
+    "tut.s1mic": "También puedes pulsar Dilo y leer la palabra en voz alta.",
+    "tut.s1say": "Lee la palabra. Pulsa Dilo y luego di la palabra en voz alta.",
+    "tut.s2a": "Leer te da cristales. Los cristales construyen defensores. Toca la Torre de arqueros.",
+    "tut.s2b": "Ahora toca un lugar que brilla para construirla allí.",
+    "tut.s3a": "Leer también trae las oleadas. Esto muestra cuántas palabras faltan para la próxima.",
+    "tut.s3b": "Empezar oleada llama una oleada antes, cuando estés listo.",
+    "tut.s3c": "Lee 2 palabras más y llegará la primera oleada.",
+    "tut.s4a": "¡Ahí vienen! Tu torre dispara sola.",
+    "tut.s4b": "Las criaturas que pasan a tus defensores dañan el Ancla. Si se rompe, pierdes.",
+    "tut.s5": "Lee palabras bien al primer intento para llenar estos candados. Llénalos todos, sobrevive la oleada final y la grieta se cierra.",
+    "tut.go": "¡Vamos!",
+    "tut.skip": "Saltar tutorial",
+    "tut.done": "Entrenamiento listo. ¡Defiende la grieta!",
+    "settings.replayTut": "Repetir tutorial"
   }
 }
