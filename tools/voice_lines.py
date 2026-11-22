@@ -58,6 +58,9 @@ def story_words(text):
 def cvc_ipa(word):
     if len(word) == 3 and word[1] in "aeiou" and all(ch in IPA for ch in word):
         return "".join(IPA[ch] for ch in word)
+    # Two-letter closed syllables (ax, it, ox, up): the sound rule card's key words.
+    if len(word) == 2 and word[0] in "aeiou" and all(ch in IPA for ch in word):
+        return "".join(IPA[ch] for ch in word)
     return None
 LOCALES = {"en": "en-US", "es": "es-MX"}
 # Forge words are short and every vowel matters, so they are said slowly.
@@ -71,7 +74,7 @@ def fingerprint(voice, text):
     return hashlib.sha1((voice + "|" + text).encode("utf-8")).hexdigest()[:12]
 
 
-def synthesize(voice, locale, text, ipa=None, rate="-5%"):
+def synthesize(voice, locale, text, ipa=None, rate="-5%", strict=False):
     body = escape(text)
     if ipa:
         # A short silence first so the start of the word is never clipped when it plays.
@@ -97,6 +100,8 @@ def synthesize(voice, locale, text, ipa=None, rate="-5%"):
                 time.sleep(5 * (attempt + 1))  # free tier rate limit: wait and retry
                 continue
             print(f"Azure error {err.code} for: {text[:40]}")
+            if ipa and strict:
+                return None  # a letter sound must never fall back to the letter's name
             if ipa:
                 print("  Retrying without sound spelling.")
                 return synthesize(voice, locale, text, None, rate)
@@ -152,6 +157,8 @@ def voice_words(voices):
     english, spanish = set(), set()
     for path in sorted(glob.glob(os.path.join(DATA, "world*.json"))):
         data = json.load(open(path, encoding="utf-8"))
+        for v in ((data.get("rules") or {}).get("vowels") or {}).values():
+            english.add(v["word"])
         for group in ("words", "runes"):
             for item in data.get(group, []):
                 english.add(item["w"])
@@ -207,6 +214,24 @@ def voice_words(voices):
                     f.write(audio)
                 made += 1
             manifest[lang][text] = name
+    # Single letter sounds for the sound rule card ("snd:m" = the sound /m/), said slowly from IPA.
+    # Saved under keys the game looks up; it never falls back to the computer voice for these.
+    if guide:
+        for ch, ipa in sorted(IPA.items()):
+            if ch == "c":
+                ipa = "k"
+            key = guide + "|snd:" + ipa + "|s1"
+            name = f"en/{fingerprint(key, ch)}.mp3"
+            path = os.path.join(WORDS_OUT, name)
+            if not os.path.exists(path):
+                audio = synthesize(guide, "en-US", ch, ipa, WORD_RATE, strict=True)
+                time.sleep(0.4)
+                if audio is None:
+                    continue
+                with open(path, "wb") as f:
+                    f.write(audio)
+                made += 1
+            manifest["en"]["snd:" + ch] = name
     with open(WORDS_MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2, sort_keys=True)
         f.write("\n")

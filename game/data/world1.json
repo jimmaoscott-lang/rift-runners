@@ -513,5 +513,31 @@
       },
       "hp": 140
     }
-  ]
+  ],
+  "rules": {
+    "_note": "Sound rule card shown after a first miss (DESIGN.md 6, item 6). 'line' is the strings.json id for the rule. Each vowel has a key word (a closed syllable the student can decode) and how its sound is shown.",
+    "line": "rule.cvc",
+    "vowels": {
+      "a": {
+        "show": "/ă/",
+        "word": "ax"
+      },
+      "e": {
+        "show": "/ĕ/",
+        "word": "jet"
+      },
+      "i": {
+        "show": "/ĭ/",
+        "word": "it"
+      },
+      "o": {
+        "show": "/ŏ/",
+        "word": "ox"
+      },
+      "u": {
+        "show": "/ŭ/",
+        "word": "up"
+      }
+    }
+  }
 }

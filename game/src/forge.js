@@ -171,6 +171,89 @@ window.RF = window.RF || {};
       n.style.cssText = 'font-size:14px;color:#ffb89a';
       return n;
     }
+    // ---- Sound rule card (DESIGN.md 6, item 6) ----
+    // After the first miss on a word, a card explains the sound and blends the word. The battle
+    // holds still and the card cannot be closed until the voice finishes. The first miss of each
+    // vowel in a level gets the full card (rule + vowel + blend); later misses of that vowel get the
+    // short card (vowel + blend).
+    F.ruleSeen = {};
+    F.ruleUp = false;
+    function ruleFor(w) {
+      const R = W1.rules;
+      if (!R || !/^[a-z][aeiou][a-z]$/.test(w.w)) return null;
+      return { rule: R, v: w.w[1], key: R.vowels[w.w[1]] };
+    }
+    function showRule(after) {
+      const w = F.cur, info = ruleFor(w);
+      if (!info || !info.key) return after();
+      const full = !F.ruleSeen[info.v];
+      F.ruleSeen[info.v] = true;
+      F.ruleUp = true;
+      F.stats.rules = (F.stats.rules || 0) + 1;
+      RF.metrics.support('rule-' + info.v);
+      if (opts.onHold) opts.onHold(true, true);
+      if (RF.mic) RF.mic.stop();
+      const shade = D.el('div', 'ruleShade', null, document.body);
+      // Taps outside the card do nothing (the card has to be finished first).
+      shade.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      const card = D.el('div', 'ruleCard', null, shade);
+      D.el('div', 'ruleHead', D.esc(RF.t('rule.title')).toUpperCase(), card);
+      let ruleRow = null;
+      if (full) ruleRow = D.el('div', 'ruleLine read', D.esc(RF.t(info.rule.line)), card);
+      const vRow = D.el('div', 'ruleVowel read', null, card);
+      vRow.innerHTML = '<span class="rv">' + D.esc(info.v) + '</span><span class="rs">' + D.esc(RF.t('rule.says')) + '</span>' +
+        '<span class="rsnd">' + D.esc(info.key.show) + '</span><span class="rs">' + D.esc(RF.t('rule.like')) + '</span><span class="rkey">' + D.esc(info.key.word) + '</span>';
+      const tiles = D.el('div', 'ruleTiles read', null, card);
+      const tileEls = w.w.split('').map(function (ch, k) { return D.el('span', k === 1 ? 'v' : '', D.esc(ch), tiles); });
+      const whole = D.el('div', 'ruleWhole read', D.esc(w.w), card);
+      const foot = D.el('div', 'ruleFoot', null, card);
+      const again = D.el('button', 'btn', D.SPK + ' ' + D.esc(RF.t('rule.replay')), foot);
+      const go = D.el('button', 'btn big go', D.esc(RF.t('rule.gotIt')), foot);
+      again.style.visibility = go.style.visibility = 'hidden';
+      function lit(el) { return function () { [ruleRow, vRow, whole].concat(tileEls).forEach(function (e) { if (e) e.classList.remove('lit'); }); if (el) el.classList.add('lit'); }; }
+      function seq(withRule) {
+        const items = [];
+        if (withRule && ruleRow) items.push({ id: info.rule.line, on: lit(ruleRow) }, { pause: 300 });
+        items.push({ id: 'rule.v.' + info.v, on: lit(vRow) }, { snd: info.v }, { pause: 200 }, { id: 'rule.like' }, { word: info.key.word }, { pause: 400 });
+        w.w.split('').forEach(function (ch, k) { items.push({ snd: ch, on: lit(tileEls[k]) }, { pause: 250 }); });
+        items.push({ word: w.w, on: function () { lit(whole)(); tileEls.forEach(function (e) { e.classList.add('lit'); }); } });
+        return items;
+      }
+      let done = false;
+      function ready() {
+        if (done || !shade.parentNode) return;
+        done = true;
+        again.style.visibility = go.style.visibility = 'visible';
+        go.focus();
+      }
+      function play(withRule) {
+        // The Got it button waits for the voice, with a safety limit in case audio never ends.
+        const limit = setTimeout(ready, withRule ? 16000 : 12000);
+        RF.speakSeq(seq(withRule)).then(function () { clearTimeout(limit); setTimeout(ready, 300); });
+      }
+      again.addEventListener('click', function (ev) { ev.stopPropagation(); RF.sfx('tap'); play(false); });
+      go.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        if (!done) return;
+        RF.stopSpeaking();
+        RF.sfx('select');
+        shade.remove();
+        F.ruleUp = false;
+        F.closeRule = null;
+        if (opts.onHold) opts.onHold(false, true);
+        F.lastAction = performance.now();
+        after();
+      });
+      // Every word can be heard: once the card has finished, tap a letter, the key word or the word.
+      function tapHear(el, item) { el.style.cursor = 'pointer'; el.addEventListener('click', function (ev) { ev.stopPropagation(); if (done) RF.speakSeq([item]); }); }
+      tileEls.forEach(function (e, k) { tapHear(e, { snd: w.w[k] }); });
+      tapHear(vRow.querySelector('.rkey'), { word: info.key.word });
+      tapHear(vRow.querySelector('.rsnd'), { snd: info.v });
+      tapHear(whole, { word: w.w });
+      if (ruleRow) tapHear(ruleRow, { id: info.rule.line });
+      F.closeRule = function () { if (done) go.click(); };
+      play(true);
+    }
     function showTiles() {
       wordEl.className = 'tiles';
       wordEl.innerHTML = F.cur.w.split('').map(function (ch, k) { return '<span class="' + (k === 1 ? 'v' : '') + '">' + D.esc(ch) + '</span>'; }).join('');
@@ -209,7 +292,9 @@ window.RF = window.RF || {};
         const heardNote = RF.unlocks.testMode() ? testHeard(res.heard, res.engine + ' / ' + res.diag) : null;
         if (F.tries === 1) {
           showTiles();
-          say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true, heardNote);
+          // A real misread gets the sound rule card; "the mic heard nothing" is not a reading error.
+          if (res.outcome !== 'nothing' && ruleFor(w)) showRule(function () { say('rule.sayIt', true, heardNote); });
+          else say(res.outcome === 'nothing' ? 'forge.heardNothing' : 'forge.sayAgain', true, heardNote);
         } else if (!F.revealed) {
           F.revealed = true;
           optEls.forEach(function (o, k) { if (F.choices[k].ok) o.classList.add('glow'); });
@@ -256,7 +341,9 @@ window.RF = window.RF || {};
       }
       if (F.tries === 1) {
         showTiles();
-        if (!F.heatShowing) say('battle.breakUp', true);
+        if (F.heatShowing) { /* overheating: no card, the cooldown message stays */ }
+        else if (ruleFor(F.cur)) showRule(function () { say('rule.tryAgain', true); });
+        else say('battle.breakUp', true);
       } else {
         F.revealed = true;
         optEls.forEach(function (o, k) { if (F.choices[k].ok) o.classList.add('glow'); });
@@ -352,6 +439,10 @@ window.RF = window.RF || {};
     };
 
     F.key = function (ev) {
+      if (F.ruleUp) {
+        if ((ev.key === 'Enter' || ev.key === ' ') && F.closeRule) F.closeRule();
+        return true;
+      }
       if (ev.key === '1' || ev.key === '2' || ev.key === '3') { F.pick(+ev.key - 1); return true; }
       if (ev.key === 'f' || ev.key === 'F') { F.forge(); return true; }
       if (ev.key === 'm' || ev.key === 'M') { F.listen(); return true; }
@@ -364,7 +455,7 @@ window.RF = window.RF || {};
       return false;
     };
     F.state = function () { return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats }; };
-    F.destroy = function () { if (RF.mic) RF.mic.stop(); if (RF.audio) RF.audio.duck(0); if (opts.onHold) opts.onHold(false); if (root.parentNode) root.parentNode.removeChild(root); };
+    F.destroy = function () { document.querySelectorAll('.ruleShade').forEach(function (e) { e.remove(); }); F.ruleUp = false; if (RF.mic) RF.mic.stop(); if (RF.audio) RF.audio.duck(0); if (opts.onHold) opts.onHold(false); if (root.parentNode) root.parentNode.removeChild(root); };
 
     // ---- Story mode (World 8, DESIGN.md section 7 "Final level preview") ----
     // A story card to read (every word can be tapped), then a question with three answers.

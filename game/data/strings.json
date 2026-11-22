@@ -446,7 +446,20 @@
     "level.w1l4.reward": "Ballista, Healing Shrine and Old Watch Ruins open",
     "level.w1l5.enemies": "Splitters, plus Rift Bats, Shield Brutes and the whole Thornwood",
     "level.w1l5.words": "all five short vowels mixed, with more runes",
-    "level.w1l5.reward": "The Barricade opens, and the path to The Thorn King"
+    "level.w1l5.reward": "The Barricade opens, and the path to The Thorn King",
+    "rule.title": "Sound rule",
+    "rule.cvc": "One vowel, closed in by a consonant, says its short sound.",
+    "rule.v.a": "The letter A says",
+    "rule.v.e": "The letter E says",
+    "rule.v.i": "The letter I says",
+    "rule.v.o": "The letter O says",
+    "rule.v.u": "The letter U says",
+    "rule.says": "says",
+    "rule.like": "like",
+    "rule.replay": "Hear it again",
+    "rule.gotIt": "Got it",
+    "rule.tryAgain": "Your turn. Read it again and pick the match.",
+    "rule.sayIt": "Your turn. Say each sound, then say the word."
   },
   "es": {
     "title.name": "Rift Runners",
@@ -894,6 +907,19 @@
     "level.w1l4.reward": "Se abren la Balista, el Santuario de sanación y Old Watch Ruins",
     "level.w1l5.enemies": "Splitters, más murciélagos de la grieta, Shield Brutes y todo el Thornwood",
     "level.w1l5.words": "las cinco vocales cortas mezcladas, con más runas",
-    "level.w1l5.reward": "Se abren la Barricada y el camino a The Thorn King"
+    "level.w1l5.reward": "Se abren la Barricada y el camino a The Thorn King",
+    "rule.title": "Regla del sonido",
+    "rule.cvc": "Una vocal, cerrada por una consonante, hace su sonido corto.",
+    "rule.v.a": "La letra A dice",
+    "rule.v.e": "La letra E dice",
+    "rule.v.i": "La letra I dice",
+    "rule.v.o": "La letra O dice",
+    "rule.v.u": "La letra U dice",
+    "rule.says": "dice",
+    "rule.like": "como en",
+    "rule.replay": "Escúchalo otra vez",
+    "rule.gotIt": "Entendido",
+    "rule.tryAgain": "Tu turno. Léela otra vez y elige la que suena igual.",
+    "rule.sayIt": "Tu turno. Di cada sonido y luego la palabra."
   }
 }

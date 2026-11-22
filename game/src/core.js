@@ -5,7 +5,7 @@ window.RF = window.RF || {};
 (function (RF) {
   const INLINE = window.RF_INLINE || null;
   RF.isInline = !!INLINE;
-  RF.VERSION = 'v0.12.0';
+  RF.VERSION = 'v0.13.0';
   RF.W = 1280;
   RF.H = 720;
 
@@ -153,13 +153,29 @@ window.RF = window.RF || {};
     return run([function (token) { return speakNow(text, lang, token); }], true);
   };
   // Several in a row: items are { id } for a line, { word } for a battle word, { es } for a Spanish meaning.
+  // One letter sound, like /m/ or /a/ (voiced as a sound, never the letter name). If the file is
+  // missing, nothing is said: the computer voice would say the letter's name, which teaches the wrong thing.
+  function soundJob(letter) {
+    const file = (RF.wordManifest.en || {})['snd:' + letter];
+    return function (token) {
+      return file ? playFile('../assets/audio/words/' + file, '', 'en', token) : new Promise(function (r) { setTimeout(r, 450); });
+    };
+  }
+  // Several in a row: items are { id } for a line, { word } for a battle word, { es } for a Spanish
+  // meaning, { snd } for one letter sound, { pause: ms } for a short gap. { on } runs just before
+  // that item plays (used to light up letters as their sounds are said).
   RF.speakSeq = function (items) {
     return run(items.map(function (it) {
-      if (it.word) return wordJob(it.word, 'en');
-      if (it.es) return wordJob(it.es, 'es');
-      if (it.text != null) return function (token) { return speakNow(String(it.text), it.lang || RF.lang(), token); };
-      return lineJob(it.id, it.lang);
-    }), items.some(function (it) { return it.word || it.es; }));
+      let job;
+      if (it.pause) job = function () { return new Promise(function (r) { setTimeout(r, it.pause); }); };
+      else if (it.snd) job = soundJob(it.snd);
+      else if (it.word) job = wordJob(it.word, 'en');
+      else if (it.es) job = wordJob(it.es, 'es');
+      else if (it.text != null) job = function (token) { return speakNow(String(it.text), it.lang || RF.lang(), token); };
+      else job = lineJob(it.id, it.lang);
+      if (!it.on) return job;
+      return function (token) { it.on(); return job(token); };
+    }), items.some(function (it) { return it.word || it.es || it.snd; }));
   };
 
   // ---------- Sound effects (made in code, chiptune style, no files) ----------

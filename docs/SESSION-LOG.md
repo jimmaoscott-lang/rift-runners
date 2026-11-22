@@ -33,6 +33,21 @@ Newest entry at the top. Each session adds one entry.
 4. Play Level 5, Old Watch Ruins, and watch a Splitter break in two.
 5. Tell me: can you see the bats and splitters clearly? Is each level harder than Level 3 by the right amount?
 
+**Built after the session: sound rule card (v0.13.0, Mr. Scott's idea; he chose full first, then short).**
+- After the first miss on a word, a card covers the screen and the battle freezes. It cannot be closed or skipped until the voice finishes.
+- First miss of each vowel in a level: the rule ("One vowel, closed in by a consonant, says its short sound."), then "a says /ă/ like ax", then the word blended one sound at a time with each letter lighting up, then the whole word. Later misses of that vowel: just the vowel line and the blend.
+- Key words (Claude's call): ax, jet, it, ox, up. All are closed syllables a World 1 student can read.
+- Then **Got it** (or Enter) closes it; **Hear it again** replays it. Once the voice ends, any letter or word on the card can be tapped to hear it.
+- Works in tap and speak mode and for runes. Skipped when the mic heard nothing (not a reading error) and during an overheat cooldown. The second miss still lights the right choice, as before.
+- New: single letter sound clips, voiced automatically after the push. If a letter sound is missing, the game stays quiet for that letter instead of saying the letter's name.
+- Tested in headless Chrome: the card holds the battle, Escape, P and clicks outside do nothing, Got it waits for the voice, the short card shows on the next miss of the same vowel. No game errors.
+
+**To test the sound rule card (Mr. Scott)**
+1. Wait about 10 minutes after the push, then open the game (title says v0.13.0).
+2. Play any World 1 level and pick a wrong sound on purpose.
+3. Listen closely to the letter sounds, especially p, t, b, d, k and g. Computer voices sometimes add "uh" to these. Tell me any that sound wrong.
+4. Miss another word with the same vowel and check that the short card shows.
+
 **Next up**
 - M7: the Thorn King boss level (short phrases and a short passage, Rift Seal read aloud with WCPM). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.

@@ -131,6 +131,14 @@ def check_file(path):
                     errors.append(f"{name}: option '{o}' for '{w}' must change only the vowel")
                 elif world == 1 and len(o) == 3 and {o[1], w[1]} == {"i", "e"} and w[2] in "mn":
                     errors.append(f"{name}: option '{o}' for '{w}': short i and short e sound alike before m or n (pin/pen). Pick another vowel.")
+    # Sound rule card key words: a closed syllable with that vowel (ax, it, jet, ox, up).
+    for v, info in ((data.get("rules") or {}).get("vowels") or {}).items():
+        k = info.get("word", "")
+        count += 1
+        if blocked(k):
+            errors.append(f"{name}: rule key word '{k}' is on the blocked list.")
+        elif not re.fullmatch(r"[a-z]?" + v + r"[a-z]", k) or (len(k) == 3 and check(k)):
+            errors.append(f"{name}: rule key word '{k}' for '{v}' must be a closed syllable with short {v}")
     # Story cards and the Rift Seal (World 8): every word of every line we show.
     lines = []
     for card in data.get("cards", []):

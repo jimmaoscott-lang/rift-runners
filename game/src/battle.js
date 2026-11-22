@@ -134,10 +134,10 @@ window.RF = window.RF || {};
       onMega: function () { B.megaBlast(); },
       onSeal: function () { B.sealComplete(); },
       // Reading the Rift Seal aloud: the battle holds still so the reading is fair (DESIGN.md 7).
-      onHold: function (on) {
+      onHold: function (on, quiet) {
         if (!!B.readHold === !!on) return;
         B.readHold = !!on;
-        if (on) B.toast('read.hold', false);
+        if (on && !quiet) B.toast('read.hold', false);
       }
     });
 
@@ -1460,6 +1460,8 @@ window.RF = window.RF || {};
   // ---------- Keys ----------
   window.addEventListener('keydown', function (ev) {
     if (!B.active || B.phase === 'done' || document.querySelector('#ui .screen')) return;
+    // The sound rule card is up: only its own keys work (no pause menu, no wave call).
+    if (B.forge && B.forge.ruleUp) { B.forge.key(ev); ev.preventDefault(); return; }
     if (B.paused && B.pausePanel.style.display !== 'none' && (ev.key === 'Escape' || ev.key.indexOf('Arrow') === 0)) return;
     if (ev.key === 'Escape' && B.forge && (B.forge.reading || B.forge.checking) && B.forge.key(ev)) { ev.preventDefault(); return; }
     if (ev.key === 'Escape') {
