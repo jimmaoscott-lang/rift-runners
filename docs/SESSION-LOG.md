@@ -52,8 +52,11 @@ Newest entry at the top. Each session adds one entry.
 
 **Fixed (Mr. Scott, Nov 21): hero powers filled but could not be tapped.** The power buttons sat under the battlefield, so taps never reached them. Tested with a real mouse click in a wave: Meteor fired. v0.11.2.
 
+**Decided (Mr. Scott, Nov 21):** leave out the Armory; levels are easy enough. M6 is done.
+
 **Next up**
-- M6 part 4: the Armory (spend the kill shard bank between levels on permanent upgrades). Keep upgrades small so difficulty holds. Start the chat with Opus.
+- World 1 Levels 4 and 5 (short u, then all five vowels mixed), with Rift Bats (fliers) and Splitters, so World 1 plays from start to boss. Start the chat with Opus.
+- Then M7: the Thorn King boss.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 
 **Open questions**

@@ -276,7 +276,7 @@ Each pair trades power on one target against power on many, or damage against co
 
 Balance (Claude's call): Mr. Scott liked the difficulty after kill income was removed, so the powers stay small. A first version (8, 10 and 12 words, stronger effects) raised the simulated typical reader from 3 to 8 wins in 10 on Level 2. At these numbers: Level 2 goes from 3 to 5, Level 3 stays at 5. `sim_balance.py` fires each power when charged during a crowded wave (`--no-powers` turns that off).
 
-**Between levels:** the **Armory** spends banked crystals on permanent upgrades (stronger arrows, cheaper golems) and skins.
+**Armory: dropped (Mr. Scott, Session 16).** Levels are easy enough without permanent upgrades. Kill shards are still counted and saved with each battle (purple numbers on kills) but buy nothing.
 
 ---
 
@@ -504,7 +504,7 @@ Each milestone is a playable, testable step.
 | M4 | World map and Level 1 to 3 | World 1 map with locked levels, stars, Level Clear growth screen (done Nov 21) |
 | M5 | Speak mode (built Session 10) | Forge words read aloud for a bonus; Speak first setting (0 to 3 voice tries before choices show) with teacher PIN lock; test mode |
 | M5b | Azure pronunciation check (built Session 11) | Speak mode scored sound by sound through the speech checker, Chrome as the backup; pin, pen, ten, win speakable again; spoken runes in Test mode |
-| M6 | Full arsenal | All World 1 defenders, upgrades, hero powers, Armory |
+| M6 | Full arsenal | All World 1 defenders, tier 3 specialties, hero powers (done Session 16; Armory dropped) |
 | M7 | Boss and Rift Seal | Thorn King, Rift Seal fluency passage with WCPM (read aloud, WCPM and personal best built in Session 14 for the final level; the karaoke beat and tempo choice come with the Thorn King) |
 | M8 | Placement mission | Opening mission that places students |
 | M9 | Worlds 2 to 8 | Content, maps, creatures and defenders for the rest |

@@ -80,12 +80,12 @@
     },
     {
       "id": "M6",
-      "name": "Full arsenal: defenders, specialties, hero powers (done), Armory",
+      "name": "Full arsenal: defenders, specialties, hero powers (Armory dropped)",
       "sessions": [
-        1,
-        1
+        2,
+        2
       ],
-      "done": false
+      "done": true
     },
     {
       "id": "M6x",
