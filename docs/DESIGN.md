@@ -92,6 +92,25 @@ Runs automatically the first time a student opens Level 1. It does not run on la
 
 ---
 
+### 4.4 Cut scenes (planned, Mr. Scott approved the Level 1 outline, November 22)
+
+Short in-engine scenes (camera moves and simple animation on the game's own models, no video files) at the start and end of each level. Rules: 10 to 15 seconds (loss about 8), skippable after the first viewing, voice first with small optional captions (every word tappable). The first time a student opens Level 1, the start scene plays, then the tutorial (4.3) begins.
+
+**Characters**
+- **The Rift Warden:** a veteran guardian in her 30s who has held rifts closed for years. Striking and heroic: long dark-teal coat with leather straps, armored shoulder plates, hood usually down, hair pulled back, a scar over one eyebrow, and a tall staff topped with a cyan crystal that glows brighter when the player reads well. Stands like a soldier, speaks plainly, treats the Runner as a capable recruit. Her appeal is confidence, skill and attitude; she is never drawn or posed to be sexualized (teen-appropriate rule). Voice: one of Azure's female voices, picked by Mr. Scott from samples.
+- **The Runner (the student):** seen only from behind or in silhouette (hooded jacket, backpack, a glowing rune band on one wrist), so every student can be the Runner. Runes light up on the band when the student reads.
+- **Creatures:** Rift Wisps (fast violet light balls in packs), Thornbacks (slow four-legged beasts with crystal spikes), and a glimpse of the Thorn King (crystal thorn antlers, glowing eyes) to set up the World 1 boss.
+
+**Setting, Thornwood Edge:** old pine forest at dusk, a dirt trail from deep woods to a small camp (tents, campfire, wooden barricades) and the Rift Anchor (stone pillar with a blue glowing core). The rift is a jagged purple tear in the air deep in the trees, with crystal shards growing from the ground.
+
+**Level 1 start (about 15 s):** camera glides over the treetops at dusk; the rift cracks open and crystals burst from the ground; Wisps zip out, a Thornback roars. Camp: the Warden turns from the fire, staff flickering. "The rift is open, and the Thornwood is falling. I can't hold this line alone. The runes are the only thing that can power our defenses." Over the shoulder, the Runner steps in and the wrist band glows. "Read them, and the towers fight. Ready, Runner? Here they come." Camera drops into the battle view.
+
+**Level 1 win (about 12 s):** last creature bursts into sparks; the rift pulls inward, flashes white and snaps shut; crystals crumble. Quiet, birds return, first stars. The Warden lowers her staff and nods. "You held it. First rift sealed. Not bad for your first fight." Far off in the trees, two glowing eyes and a crown of thorn antlers. Quieter: "But that was the edge of the forest. Something bigger is pushing through from the inside. Rest up. We move at first light." Then the Level Clear growth screen.
+
+**Level 1 loss (about 8 s):** a Thornback slams the Anchor and its core goes dark. The Warden steps in front and slams her staff down; a shockwave pushes the creatures back. Steady, not angry: "They broke through, but we're not done. Every rune you read made us stronger. Back to the line." The core flickers back; Try again appears. The loss scene always reads as regrouping together, never failure.
+
+**Build:** after the mic fix and Arsenal steps. Opus writes and directs; camera work is a Sonnet job. Later worlds get their own story thread toward the Rift Core.
+
 ## 5. Skill sequence
 
 A structured literacy sequence built for older readers. Each world adds to everything before it.
