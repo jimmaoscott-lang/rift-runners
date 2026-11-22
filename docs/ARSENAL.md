@@ -1,6 +1,6 @@
 # Arsenal and Rift Bestiary (proposal, November 22, 2026)
 
-Status: **proposal, waiting on Mr. Scott's answers** (see "Questions for Mr. Scott" at the end). When approved, this file becomes the source of truth for defenders, creatures and prices, and DESIGN.md sections 6A, 6B and 6C point here.
+Status: **approved by Mr. Scott, November 22, 2026** (Gear Up loadout yes; intel audio fades out by world). When approved, this file becomes the source of truth for defenders, creatures and prices, and DESIGN.md sections 6A, 6B and 6C point here.
 
 ## Mr. Scott's request (November 22)
 
@@ -61,15 +61,19 @@ Every attack has a **damage type**, and every creature can have **traits**. Most
 
 1. **Scout:** the first time a new creature appears in a level, it comes **alone** in wave 1 or 2, mixed in with creatures the student already knows. One creature getting through costs very little.
 2. **Rift Intel card:** at the end of that wave, before the next wave can start, a card pops up: the creature's picture, its name and a short description of what it does and what beats it. **No narrator.** The defender that counters it is named in the text only (no picture of the defender), so reading the card is how you find out.
-3. Every word on the card can still be tapped to hear that one word (a project hard rule). There is no "read it all" button for students.
-4. **Teacher setting, off by default: "Read intel cards aloud."** For students whose IEP lists read-aloud as an accommodation. When it is on, the card is read by the narrator.
+3. **Audio support fades out as the student goes (Mr. Scott, November 22).** The card is there to get students reading, so the help shrinks world by world:
+   - Worlds 1 and 2: a **Read all** button plus tap any word to hear it.
+   - Worlds 3 and 4: tap any word to hear it (no Read all).
+   - Worlds 5 to 8: no audio on intel cards. The student reads it.
+   This is the one planned exception to the "every word can be heard" rule, approved by Mr. Scott.
+4. **Teacher setting, off by default: "Read intel cards aloud."** For students whose IEP lists read-aloud (or an EB plan calls for it). When it is on, the card keeps Read all and tap-a-word in every world, so the accommodation is always provided.
 5. The card stays until the student presses **Got it**. The battle is between waves, so nothing happens behind it.
 6. After that, the full pack comes in later waves of the same level.
 7. The world map level card lists the level's new creatures by name (tap to open their intel card again). A **Bestiary** page in the pause menu keeps every intel card the student has unlocked.
 
 ### Reading level of the intel cards (Claude's call, recorded here)
 
-Intel cards are **reading for meaning**, separate from the Forge, which stays strictly decodable. They follow a grade-level ramp instead of the decoding sequence, because the point is to understand what to build. Support: tap any word to hear it, the EB glossary (Spanish meaning on long press), and the teacher read-aloud setting. A new checker (`tools/check_intel.py`) will measure each card (sentence length, word length, syllables per word, Flesch-Kincaid grade) and flag cards above their world's target.
+Intel cards are **reading for meaning**, separate from the Forge, which stays strictly decodable. They follow a grade-level ramp instead of the decoding sequence, because the point is to understand what to build. Support fades as described above; the teacher read-aloud setting keeps full support for students who need it. A new checker (`tools/check_intel.py`) will measure each card (sentence length, word length, syllables per word, Flesch-Kincaid grade) and flag cards above their world's target.
 
 | World | Target grade | Sentences | Shape |
 |---|---|---|---|
@@ -228,8 +232,8 @@ By World 3 the student owns more defenders than fit on the build bar. Proposal: 
 
 Steps 1 to 4 are about four sessions.
 
-## Questions for Mr. Scott
+## Decisions (November 22)
 
-1. Gear Up loadout (pick 8 before each level from World 3 on): yes, or something else?
-2. Intel cards: no narrator for students, tap any word to hear it, and a teacher setting (off by default) that reads cards aloud for students whose IEP calls for read-aloud. OK?
-3. Start now with step 1, or finish the smaller playtest fixes first (narrator audio overlap, clearer rift locks, clear upgrades)?
+1. Gear Up loadout, pick 8 before each level from World 3 on: **yes**.
+2. Intel card audio: Read all and tap-a-word in Worlds 1 and 2, tap-a-word only in Worlds 3 and 4, none from World 5 on. Teacher read-aloud setting keeps full support for accommodations.
+3. Next build: step 1, the damage types and traits engine (Claude's call, since the roster needs it before anything else).

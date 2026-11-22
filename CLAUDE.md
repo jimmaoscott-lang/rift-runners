@@ -52,7 +52,7 @@ If a session is running long, stop at a clean point, update the log and push. Un
 
 - **No student data in this repo, ever.** The repo is public. No names, student IDs, scores, Lexile levels or recordings. Student progress is stored only on the student's own device (see DESIGN.md, Saving).
 - **Readable text comes first.** All text a student must read uses the reading font (Lexend), at large size with high contrast. Pixel fonts are for decoration only, never for words students decode.
-- **Every word can be heard.** Any word on screen can be tapped to hear it read aloud.
+- **Every word can be heard.** Any word on screen can be tapped to hear it read aloud. One approved exception: Rift Intel cards fade their audio by world (see `docs/ARSENAL.md`), unless the teacher read-aloud setting is on.
 - **No timers on learning screens.** Speed only matters in optional score modes (combos, rhythm bosses, speedrun replays).
 - **Speech recognition is never required.** Tap mode must always work as a full alternative.
 - **Content follows the skill sequence.** Words and passages in a level may only use patterns the student has been taught up to that point, plus that world's allowed "heart words." Run the decodability checker on all new content.

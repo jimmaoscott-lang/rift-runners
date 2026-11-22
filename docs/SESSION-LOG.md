@@ -4,6 +4,18 @@ Newest entry at the top. Each session adds one entry.
 
 ---
 
+## Session 19b: November 22, 2026 (Arsenal and Rift Bestiary plan)
+
+**Planned (no code yet):** `docs/ARSENAL.md`. One new defender and two new creatures every level, from Archer Tower up to the Photon Fortress. Damage types (Pierce, Blast, Fire, Frost, Shock, Acid, Laser, Photon) and creature traits (Armored, Shielded, Flying, Camo, Fireproof, Mirror, Regen and more) so winning depends on matching defenders to creatures. Camo Shade Stalker and the Sniper Nest in World 1 Level 5. A scout comes alone first, then a Rift Intel card (no narrator) explains it. Intel cards ramp from about grade 2.5 to grade 9. Prices are set in words of reading; a small Rift Cache win bonus. Existing defenders move later so each level brings one (replaces plan item 3).
+
+**Mr. Scott decided:** Gear Up loadout (pick 8) from World 3 on. Intel card audio fades: Read all plus tap-a-word in Worlds 1 and 2, tap-a-word in Worlds 3 and 4, none after. A teacher read-aloud setting keeps full support for IEP and EB accommodations. CLAUDE.md hard rule updated for this one exception.
+
+**Next up**
+- ARSENAL.md build step 1: damage types and traits engine in `units.json` and battle code. Start the chat with Opus: "Open rift-runners and continue from the session log: Arsenal build step 1."
+- Tightening plan items 4 to 6 still wait (narrator overlap, rift lock boxes, clear upgrades).
+
+---
+
 ## Session 19: November 22, 2026 (gameplay plan items 1 and 2: Sound sliders, clearer miss card)
 
 **Built (v0.16.0)**
