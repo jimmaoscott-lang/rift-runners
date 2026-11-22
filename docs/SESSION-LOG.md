@@ -29,7 +29,12 @@ Newest entry at the top. Each session adds one entry.
 3. Tap a level 3 defender, listen to both choices, and pick one. Try a few different ones.
 4. Tell me: are the choices easy to understand? Does any specialty feel too strong or not worth the price?
 
+**Mr. Scott's test (Nov 21):** after clearing progress, he maxed an Archer Tower and a Frost Totem by the end of wave 3, then pressed Start wave through wave 8 without reading. Kill shards paid for everything. Difficulty levels would not fix that, so kill income was removed.
+
+**Changed after the session: kills no longer pay crystals (v0.10.1).** Reading is the only income during a level. Shards from kills float up in purple and are saved with the battle for the Armory bank (M6 part 4). Simulated typical reader without kill income, waves unchanged: Level 1 wins 10 of 10, Level 2 3 of 10, Level 3 5 of 10 (most with heavy damage). Struggling readers lose at wave 3 to 5. Mr. Scott asked to play this version before any wave changes, since the simulated readers tend to find levels easier than real play.
+
 **Next up**
+- Mr. Scott plays v0.10.1 (Levels 1 to 3, reading like a typical student). Retune waves from his result.
 - M6 part 3: Rift Warden hero powers (Meteor, Time Freeze, Rally, charged by forging). Start the chat with Opus.
 - Before December 2: one check of the offline file and a classroom mic test on a student Chromebook.
 

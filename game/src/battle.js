@@ -874,13 +874,13 @@ window.RF = window.RF || {};
     if (byDefense) {
       const cd = B.U.creatures[c.type];
       B.kills++;
+      // Kills never pay spendable crystals: reading is the only income during a level (Session 16).
+      // Shards go to a bank for the Armory between levels (M6 part 4).
       B.shards += cd.shards;
-      B.crystals += cd.shards;
-      B.renderTop(); B.renderCards();
       burst(c.x, 1.0, c.z, RF.G.TEX.purple, c.type === 'wisp' || c.type === 'bramble' ? 3 : 7);
       RF.audio.fx(c.type === 'wisp' ? 'wispDie' : c.type === 'bramble' ? 'brambleDie' : 'thornDie');
       const p = screenOf(c.x, 2.0, c.z);
-      B.floatText('+' + cd.shards, p.x, p.y, '#7ef3ff', 16, true);
+      B.floatText('+' + cd.shards, p.x, p.y, '#e3b8ff', 15);
     }
   }
 
@@ -1355,7 +1355,7 @@ window.RF = window.RF || {};
       id: B.L.id, result: win ? 'win' : 'lose', stars: stars, waves: B.wave, anchor: Math.max(0, B.anchor),
       words: fs.forged, firstTry: fs.firstTry, misses: fs.misses, help: fs.help, forgeCrystals: fs.crystals,
       patterns: fs.byPat, runes: fs.runes, runeFirst: fs.runeFirst,
-      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0, aloud: fs.aloud || 0, aloudWords: fs.aloudWords || 0, aloudRight: fs.aloudRight || 0, aloudMs: fs.aloudMs || 0, sealRead: fs.sealRead ? { tries: fs.sealRead.tries, firstWcpm: fs.sealRead.first.wcpm, bestWcpm: fs.sealRead.best.wcpm } : null } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }),
+      story: B.L.story ? { cards: fs.cards, cardsFirst: fs.cardsFirst, cardsHelp: fs.cardsHelp, byType: fs.byType, sealDone: !!fs.sealDone, sealFirstTry: fs.sealFirstTry || 0, aloud: fs.aloud || 0, aloudWords: fs.aloudWords || 0, aloudRight: fs.aloudRight || 0, aloudMs: fs.aloudMs || 0, sealRead: fs.sealRead ? { tries: fs.sealRead.tries, firstWcpm: fs.sealRead.first.wcpm, bestWcpm: fs.sealRead.best.wcpm } : null } : undefined, locks: B.locks.map(function (k) { return { pat: k.pat, first: k.first, done: k.done }; }), shards: B.shards, kills: B.kills,
       ms: Date.now() - B.started
     });
     RF.audio.music(null);

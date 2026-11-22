@@ -192,7 +192,7 @@ Always on screen in a level, on the right side.
 - Still untimed: a student who stops reading is never attacked. Waves come from reading, never from a clock.
 - Story levels: finishing the Rift Seal brings the final wave right away (the Seal is the level's big read). World 1 levels: once every lock is full and the minimum waves are done, the next earned (or called) wave is the final one.
 
-**Income balance:** crystals come almost only from the Forge. Defeated creatures drop a few shards, too few to win without reading. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
+**Income balance:** crystals come only from the Forge. Defeated creatures drop shards, but since Session 16 shards are never spent during a level: they go to a bank for the Armory between levels. Mr. Scott found that kill income let a player max two defenders, then press Start wave and build for 5 waves without reading a word. Later levels cost more, so students forge steadily all level. Target: 6 to 10 words a minute during play.
 
 **Level 1 balance (tested with a simulated player):** 100 starting crystals (one Archer Tower plus one Spike Pit), creatures drop 1 or 2 shards. A player who never reads loses in wave 3. With waves until mastery (Session 6), accurate readers win in 4 to 9 waves and inaccurate ones lose later with progress saved. Pausing to forge always helps, and Focus halves the speed. Numbers live in `game/data/units.json` and `game/data/levels-w1.json`.
 
