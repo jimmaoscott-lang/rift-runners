@@ -46,6 +46,8 @@ Newest entry at the top. Each session adds one entry.
 
 **Changed (Mr. Scott, Nov 21): runes are tap only again (v0.13.2).** Runes show just the three sound buttons and Forge, no Say it button. One setting (`spokenRunes` in `speech.json`), so it can be turned back on later.
 
+**Decided (Mr. Scott, Nov 21):** keep the sound rule card as it is in v0.13.1 (full card on the first miss of each vowel per level, short card after). Claude offered a one-sentence version ("Closed in, so u says /ŭ/, like up") and a slide-in lock animation; he passed. The student's job after the card is to get the word right on the retry.
+
 **To test the sound rule card (Mr. Scott)**
 1. Wait about 10 minutes after the push, then open the game (title says v0.13.0).
 2. Play any World 1 level and pick a wrong sound on purpose.
