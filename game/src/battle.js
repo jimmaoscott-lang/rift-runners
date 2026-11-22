@@ -852,9 +852,16 @@ window.RF = window.RF || {};
   }
 
   // ---------- Popups on the battlefield ----------
-  function popupAt(x, y, z) {
+  function popupAt(x, y, z, idleSecs) {
     B.popup.style.display = '';
     placePopup(screenOf(x, y, z));
+    // Popups close on their own after a while with no touch (Mr. Scott, Nov 22), so the battle
+    // is never left covered. A pointer resting on the popup holds it open.
+    clearTimeout(B.popTimer);
+    const secs = idleSecs || 8;
+    const arm = function () { clearTimeout(B.popTimer); B.popTimer = setTimeout(function () { if (!B.popup.matches(':hover')) B.closePopup(); else arm(); }, secs * 1000); };
+    B.popup.onpointerdown = arm;
+    arm();
   }
   // The popup sits above its defender, but never off the screen (the specialty choice is tall).
   function placePopup(p) {
@@ -865,6 +872,7 @@ window.RF = window.RF || {};
     el.style.top = Math.min(Math.max(p.y / s, h + 8), vh - 8) + 'px';
   }
   B.closePopup = function () {
+    clearTimeout(B.popTimer);
     B.popup.style.display = 'none';
     D.clear(B.popup);
     B.selDef = null;
@@ -942,7 +950,8 @@ window.RF = window.RF || {};
     const x = D.el('button', 'btn', '&#10005;', row);
     x.setAttribute('aria-label', 'Close');
     x.addEventListener('click', function () { B.closePopup(); });
-    popupAt(def.pad.x, def.type === 'archer' ? 5.2 : 3.4, def.pad.z);
+    // Nothing left to buy: just a quick look, so it goes away sooner.
+    popupAt(def.pad.x, def.type === 'archer' ? 5.2 : 3.4, def.pad.z, def.lv >= 4 ? 3 : 8);
     // Show its reach.
     const lvl = stat(def);
     const r = lvl.range || lvl.radius || 1.6;
