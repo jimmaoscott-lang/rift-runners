@@ -165,7 +165,7 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 The opening mission doubles as a placement check. It quickly samples each world's pattern with real words and runes, then opens the worlds the student has already mastered. The student sees it as a tutorial mission, never a test.
 
-**Boot Camp (designed by Claude, November 26; Mr. Scott approved. His Gemini version has a similar boot camp with a few additions, to be merged here when he shares them):** a level before Level 1 that finds each student's starting world in 8 to 12 minutes without feeling like a test.
+**Boot Camp (designed by Claude, November 26; Mr. Scott approved. His Gemini version has a similar boot camp; this design adds to it, so build from this one):** a level before Level 1 that finds each student's starting world in 8 to 12 minutes without feeling like a test.
 
 - **One short drill per world, in skill order.** Each drill is 4 real words and 2 runes for that world's pattern (section 5 table). Runes carry the most weight because they show real decoding; a real word can be known by sight.
 - **Climb until they slip, then stop.** Start with World 1 (mixed short vowels). Passing a drill means 5 of 6 right on the first try, including at least one rune. Pass and the next world's drill begins. The first world not passed is the starting world. Two misses in a row ends a drill early (standard discontinue rule), so a struggling reader is done in about 3 minutes and never sees words far above their level.
