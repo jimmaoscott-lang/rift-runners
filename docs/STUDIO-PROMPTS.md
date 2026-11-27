@@ -20,9 +20,112 @@ CLAUDE TESTS AFTER:
 
 ---
 
-## S-03: Top bar fits small Chromebook screens
+## S-06: Level names and the silent e rule get recorded voices
+
+Status: ready (run after S-05)
+Goes with: CHECKLIST Step 4; Test 3 voice problem 3
+
+PASTE INTO AI STUDIO:
+
+```
+Task: record the missing level name lines and the silent e rule line in the Leda voice. Do only this task.
+
+1. Generate these clips with Leda, calm and clear. Say exactly this text, nothing added.
+   - rule.magice.v1: "When a silent e sits at the end, it makes the vowel say its long name."
+   - level.w1-l1: "Thornwood Edge"
+   - level.w1-l2: "Bramble Crossing"
+   - level.w1-l3: "Hollow Bridge"
+   - level.w1-l4: "Sunless Ruins"
+   - level.w1-l5: "Thornking's Heart"
+   - level.w2-l1: "Ashgate Outpost"
+   - level.w2-l2: "Smelter Causeway"
+   - level.w2-l3: "Ironrift Crossing"
+   - level.w2-l4: "Crucible Bastion"
+   - level.w2-l5: "The Furnace Core"
+   - level.w3-l1: "Dawnbreak Terrace"
+2. Batch the lines into as few TTS requests as you can. Add them to public/assets/audio/ui/sprite.mp3 (64 kbps mono) with entries under "en" in public/assets/audio/ui/manifest.json using those exact ids. Do not shift or change any existing clip.
+3. Keep the repo under 150 files: add no loose audio files. Report the tracked file count and total size before and after.
+4. This is not cutscene or story narration. Do not record the level story paragraph or touch any cutscene.
+5. Do not change anything else.
+6. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry.
+
+Done when:
+- The speaker on every level card says the level name in Leda's voice.
+- The silent e Sound Rule card reads its rule line in Leda's voice.
+- Older clips (Wave 1, Final wave, Mega Forge) still sound right.
+- If you could not generate a clip, say which one. Do not substitute the computer voice or another voice.
+```
+
+CLAUDE TESTS AFTER:
+- All 12 ids in the manifest, clips inside the sprite length, old entries unchanged.
+- `robot_voice_check.py`, plus level card speaker and silent e card: no computer voice.
+- File count and size.
+
+---
+
+## S-05: Walkthrough steps get a recorded voice
+
+Status: ready (run after S-04)
+Goes with: CHECKLIST Step 4; Test 3 voice problem 2
+
+PASTE INTO AI STUDIO:
+
+```
+Task: record the 7 Level 1 walkthrough steps in the Leda voice. Do only this task.
+
+1. For each step in WALKTHROUGH_STEPS (src/App.tsx), record one clip with Leda, calm and clear. Say the title, pause briefly, then the body, using the exact words in the code today. Say "Rift Locks and Hero Powers" for the "&" in step 6. Do not rewrite any text.
+2. Batch the lines into as few TTS requests as you can. Add them to public/assets/audio/ui/sprite.mp3 (64 kbps mono) with ids walk.step1 through walk.step7 under "en" in public/assets/audio/ui/manifest.json. Do not shift or change any existing clip.
+3. In src/components/BattleHUD.tsx, make the "Hear tutorial step" button call sound.speakUI with the id walk.step plus the step number, with the title and body as fallback text.
+4. Keep the repo under 150 files: add no loose audio files. Report the tracked file count and total size before and after.
+5. This is tutorial audio. It is not cutscene or story narration, so the cutscene pause does not block it. Touch no cutscene.
+6. Do not change anything else: no walkthrough order, text, highlights or Spanish text.
+7. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry.
+
+Done when:
+- All 7 speaker buttons play Leda's voice, and each clip matches the words on screen.
+- No clip is cut off or runs into the next one.
+- If you could not generate a clip, say which one. Do not substitute another voice.
+```
+
+CLAUDE TESTS AFTER:
+- walk.step1 to 7 in the manifest, old entries unchanged.
+- `robot_voice_check.py`: walkthrough speaker shows no computer voice.
+- File count and size.
+
+---
+
+## S-04: Hero powers use the recorded voice
 
 Status: ready
+Goes with: CHECKLIST Step 4; Test 3 voice problem 1
+
+PASTE INTO AI STUDIO:
+
+```
+Task: make the three hero powers play their recorded voice clips instead of the computer voice. Do only this task.
+
+Cause: castHeroPower in src/game/CanvasBattleEngine.ts sends the speech ids power.rally, power.meteor and power.freeze. public/assets/audio/ui/manifest.json has the recordings under hero.rally, hero.meteor and hero.freeze, so the game never finds them.
+
+1. Change the three ids in castHeroPower to hero.rally, hero.meteor and hero.freeze.
+2. Keep the on-screen messages exactly as they are.
+3. Tell me what words each of the three existing clips says, if you know from how they were made. If a clip says something that does not fit its power, tell me and do not re-record it yet.
+4. Do not change anything else: no audio files, numbers, gameplay, speech checking or save data.
+5. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry.
+
+Done when:
+- Rally, Meteor and Time Freeze each play a recorded clip. No computer voice.
+- The messages on screen look the same as before.
+```
+
+CLAUDE TESTS AFTER:
+- `robot_voice_check.py`: all three hero powers show no computer voice.
+- Diff: only the three ids and the session log changed.
+
+---
+
+## S-03: Top bar fits small Chromebook screens
+
+Status: tested (passed, Claude Test 3, Nov 27)
 Goes with: CHECKLIST Step 5; Test 1 problem 8
 
 PASTE INTO AI STUDIO:
@@ -50,7 +153,7 @@ CLAUDE TESTS AFTER:
 
 ## S-02: Builder-only difficulty dials (replaces the earlier Easy and Normal balance prompt)
 
-Status: ready
+Status: tested (passed, Claude Test 3, Nov 27)
 Goes with: CHECKLIST Step 2
 
 Why it changed: Mr. Scott played Easy and Normal and is happy with all four difficulties as they are (Nov 27). He wants dials only for himself while building future levels. Teachers and students never see or change them.

@@ -21,6 +21,16 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 29: November 27, 2026 (S-02 and S-03 tested, voice batch written)
+
+- S-02 and S-03 passed (Test 3, Studio commit b4049ab).
+- Found why hero powers sound robotic: wrong clip ids. The walkthrough, level names and silent e rule have no recordings.
+- Wrote S-04, S-05 and S-06. S-05 and S-06 add audio, so watch the GitHub sync.
+- New scripts in `tools/studio-tests/`: `builder_dials_check.py`, `topbar_check.py`, `robot_voice_check.py`.
+- Next up: Mr. Scott runs S-04 to S-06 one at a time, then a Sonnet chat tests them.
+
+---
+
 ## Session 28: November 27, 2026 (AI Studio connected, S-01 tested)
 
 - AI Studio now reads this repo: `AI-STUDIO.md` added; it copied Mr. Scott's decisions into its BUILD.md. Mr. Scott runs prompts with "Run S-##".

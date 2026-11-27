@@ -56,8 +56,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 2. Builder-only difficulty dials
 - [x] S-02 prompt written: Builder Mode (code `runner-build`) with dials for Easy, Normal, Hard and Expert; nothing saved; game unchanged at default (Nov 27)
-- [ ] Mr. Scott runs S-02 and syncs
-- [ ] Claude tests S-02 (Sonnet)
+- [x] Mr. Scott runs S-02 and syncs (Nov 27)
+- [x] Claude tests S-02: passed (Test 3, Nov 27)
 - [ ] Before release: remove Builder Mode and the dials (one prompt)
 
 ### Step 3. Keep the GitHub sync working
@@ -65,11 +65,14 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 4. Reading rules the Studio build is missing
 - [ ] Level card story paragraph gets a speaker: moved to the final static story pass, since its audio and text are redone then
-- [ ] Hero power names (Rally, Meteor, Time Freeze) play in a robotic voice; move them to recorded clips
+- [ ] S-04: hero powers (Rally, Meteor, Time Freeze) use the recorded clips (prompt ready)
+- [ ] S-05: walkthrough steps get a recorded voice (prompt ready)
+- [ ] S-06: level names and the silent e rule get recorded voices (prompt ready)
+- [ ] Claude tests S-04 to S-06 (Sonnet)
 - [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
 
 ### Step 5. Small fixes from Test 1
-- [ ] S-03: on a small Chromebook screen (125% zoom) the pause button covers "Send now" (prompt ready)
+- [x] S-03: top bar fits small Chromebook screens; passed (Test 3, Nov 27)
 
 ### Step 5b. Code cleanup (after Dec 2, one prompt at a time, game must play the same after each)
 - [ ] C-1: Speech scoring rule table. Today `scoreAzureWord` in `src/lib/speech.ts` is one 750-line function with a hand-written block per sound family. Turn it into one shared checker plus a table of rules, so new sounds (Worlds 4 to 8) are new table rows (Opus designs the table)

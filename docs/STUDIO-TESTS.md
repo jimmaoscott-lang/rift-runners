@@ -4,6 +4,54 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 3: November 27, 2026 (S-02 Builder Mode and S-03 top bar, Studio commit b4049ab)
+
+Result: **S-02 passed. S-03 passed.** Lint and build clean, no page errors.
+
+### S-02
+
+| Done when | Result |
+|---|---|
+| Student view and Teacher Mode show no dials | Pass |
+| Code runner-build shows the badge and 16 dial boxes | Pass |
+| Default dials: wave 1 matches the build before S-02 (creature counts, health, speed, words to wave) | Pass, identical on all four difficulties in Level 1 and World 2 Level 1 |
+| One dial at a time (Normal: count 50, extra words +2 and -3, health 200, speed 150) | Pass, only Normal changed each time |
+| Limits, Copy dial values, Reset to default | Pass |
+| Reload turns Builder Mode off and resets dials; no new saved data | Pass |
+| Changing a dial mid-battle | Pass, word counter went from 8 to 10 |
+
+Not tested by play: bosses staying at full count (confirmed by reading the code).
+
+### S-03
+
+| Done when | Result |
+|---|---|
+| No overlap, clipping, covered buttons or buttons under 32 x 32 | Pass at 1024 x 576, 1093 x 614, 1199 x 700, 1200 x 700, 1366 x 768 and 1920 x 1080; student, Teacher and Builder Mode; normal, last word, and bonus round with Finish |
+| 1366 x 768 looks as before | Pass, student view buttons are in the same positions |
+| Walkthrough banner clears the top bar | Pass at 1024 x 576 (step 1) |
+
+Small note, no prompt: when the bar runs out of room it wraps to a second row. In student view at some widths (seen at 1024 and 1200) the right-side buttons drop a row when the wave button text gets longer ("Build first!" or "Bonus").
+
+A scripted Level 1 run on Normal still built defenders, forged 52 words and ran waves to the end screen.
+
+### Robotic voice (CHECKLIST Step 4)
+
+Checked by catching every call to the browser's computer voice.
+
+| # | Problem | Cause | How sure |
+|---|---|---|---|
+| 1 | Rally, Meteor and Time Freeze speak in the computer voice | The engine asks for `power.rally`, `power.meteor`, `power.freeze`. Recorded clips exist under `hero.*` and are never used. | Certain (heard in test) |
+| 2 | Walkthrough speaker button uses the computer voice | No recordings for the 7 steps | Certain (heard in test) |
+| 3 | Silent e rule line and level card speaker use the computer voice on the live site | No `rule.magice.v1` or `level.*` recordings | High (from code and audio files; not played in test) |
+
+Good news: all 434 Rune Forge words and sound choices have recordings.
+
+### For Mr. Scott to check by hand
+- After S-04: listen to what the three hero clips say. Claude cannot hear them.
+- After S-05 and S-06: listen to every new line.
+
+---
+
 ## Test 2: November 27, 2026 (S-01 Teacher lock, Studio commit 8fbb0ee)
 
 Result: **S-01 passed.** Lint and build clean, no game errors.

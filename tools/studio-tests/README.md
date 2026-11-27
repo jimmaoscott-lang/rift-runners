@@ -11,4 +11,8 @@ Scripts (run with `python3 -I`, Playwright plus `/usr/bin/google-chrome`):
 - `screen_check.py WIDTH HEIGHT TAG`: opens Level 1, screenshots the battle, lists visible buttons, measures frame rate. Use 1366 768 and 1093 614.
 - `playtest_level.py DIFFICULTY ACCURACY TAG MINUTES`: plays Level 1 as a scripted student through Listen and Pick. ACCURACY is the share of words right on the first try (1.0 strong reader, 0.6 struggling reader). It waits 1.7 seconds before each Forge, places defenders near the trail, uses hero powers, and never upgrades, so it plays a little worse than a person.
 
+- `builder_dials_check.py`: S-02. Dials hidden from students and teachers, default creatures match the earlier build (serve it on port 8766), one dial at a time, limits, reset, reload.
+- `topbar_check.py`: S-03. Top bar overlap, clipping and button size at six window sizes.
+- `robot_voice_check.py`: lists lines that fall back to the computer voice (walkthrough speaker and hero powers).
+
 Screenshots go to `/home/claude/tests/shots/`. The scripts find the current word and sound choices by reading the game's React state; if a Studio update renames those, fix the script before trusting a result.
