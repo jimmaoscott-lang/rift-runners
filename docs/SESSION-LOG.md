@@ -38,7 +38,10 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
   8. Free placement polish: ghost preview, range ring and "On road" style warnings.
   9. World 2 and 3 content ideas (digraphs, blends, silent e), checked against our skill sequence.
 - **Open question for Mr. Scott:** graphics. Keep the 3D battlefield and use painted art for the map and level cards, or rebuild the battlefield with painted maps and sprites like the Gemini build (about 4 to 6 sessions)?
-- **Next up:** unchanged (mic fix, item 8), now with port items 1 and 2 folded in.
+- **Dec 2 demo:** Mr. Scott will show the Gemini version at the December 2 meeting (people will judge art and features). This repo no longer needs freezing before Dec 2, and the offline-file check before the meeting is not needed. The unblock request should cover `jimmaoscott-lang.github.io`, which hosts both versions. The speech checker already accepts that address, so speak mode works in both.
+- **Graphics direction (leaning):** animated 3D with free CC0 model packs (KayKit, Quaternius; confirm licenses), bloom, shadows and an outline shader, plus auto quality that turns effects down when the frame rate drops and a teacher Low graphics setting. Painted 2.5D (like the Gemini build) is the fallback if a Chromebook test stutters. Mockup of the painted option was shown in chat.
+- **Weekend plan:** Friday: mic fix (Opus), then an animated 3D test scene (Sonnet) for a Chromebook check. Saturday: teacher note, safe-word check, Slow Blend (Sonnet), and AI Studio work orders for World 1 map art and level cards. Then the full graphics conversion (5 to 8 sessions), voice fits, Spanish and new levels.
+- **Next up:** mic fix (item 8) with port items 1 and 2 folded in, then the animated test scene.
 
 ---
 
