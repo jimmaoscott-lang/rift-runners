@@ -76,7 +76,9 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] S-06: level names and the silent e rule get recorded voices; passed (Test 5, Nov 27)
 - [x] Claude tests S-05 and S-06 (Test 5, Nov 27)
 - [x] Mr. Scott listens to the new clips, starting with walkthrough steps 1 and 5 and the silent e rule: passed (Nov 27)
-- [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
+- [x] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Test 9, Nov 27; fixes picked)
+- [ ] Mr. Scott runs S-11 (word list fixes) and syncs
+- [ ] Claude tests S-11: word check shows 0 flags (Sonnet)
 
 ### Step 4b. Expert grace
 - [x] Claude checks how the Studio build handles misses (Test 7, Nov 27)
@@ -104,6 +106,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 8. More worlds
 - [ ] Claude picks the reading skills for World 3 Levels 2 to 5 and Worlds 4 to 8 from DESIGN.md, writes the word lists, and checks them before AI Studio builds each level (Opus)
+- [ ] Plan the World 2 patterns the Studio build skipped (ng, nk, tch, floss ff ll ss, three-letter blends, other l and r blends): extra World 2 levels or review in World 3 (Opus; Test 9 problem 6)
 
 ---
 

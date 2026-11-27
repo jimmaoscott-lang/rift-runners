@@ -21,6 +21,15 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 34: November 27, 2026 (Studio word lists checked, S-11 written)
+
+- Checked all 11 Studio levels (335 words and runes, 670 tap choices) at commit 4008919. Test 9. Studio repo only read.
+- Found tap choices that are slurs or crude words when spoken, 16 pin/pen choice pairs, one homophone choice (sun/son), three words with untaught patterns, one bad rune spelling. World 2 skips ng, nk, tch and floss (planned for later).
+- New tools: `tools/studio-tests/dump_words.ts`, `word_check.py`. Added two fingerprints to the blocked list in `check_decodable.py`.
+- Wrote S-11 (word list fixes). Tested on a scratch copy: 0 flags, no new audio needed.
+- Rules recorded in DESIGN.md section 5.
+- Next up: Mr. Scott runs S-11 and syncs. Then a Sonnet chat tests it.
+
 ## Session 33: November 27, 2026 (S-09 tested)
 
 - S-09 passed (Test 8, Studio commit 4008919). Studio repo only read.

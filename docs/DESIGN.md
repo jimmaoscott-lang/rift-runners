@@ -149,6 +149,13 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 **Heart words:** each world allows a small list of high-frequency irregular words (for example: the, was, said, of, to, you, they, were). Heart words are taught directly and stored in `game/data/heart-words.json`.
 
+**Studio build word rules (Claude, Nov 27, Test 9):** the AI Studio build is now the main build, and its word lists live in `src/data/level1.ts`. Its World 1 order is Level 1 a and i, Level 2 o and u, Level 3 e and i, Levels 4 and 5 all five mixed. Claude keeps that order (it plays, and each vowel still gets its own lock). Its World 2 covers sh, ch, th, wh, ck and the blends bl, cl, fr, gr, sp, st, nd, mp; ng, nk, tch, floss and the other blends are still to be placed (CHECKLIST Step 8). Rules for every level:
+- Tap choices are heard, not read. A choice never sounds like its word (sun and son), never sounds like a crude or hurtful word, and never pairs short i with short e before m or n (pin and pen sound alike in the Gulf Coast pin-pen merger).
+- In the level that teaches e versus i, target words avoid e before m or n, so the contrast is fair for merged speakers. Later mixed levels may use them (pen, ten) with choices that are not i.
+- Runes follow real spelling: no single v at the end.
+- New words and choices use words that already have a clip in the Studio word sprite, or get one recorded in Leda's voice.
+- Check: `tools/studio-tests/word_check.py` (see its README) must show 0 flags before a level ships.
+
 **Decodability checker:** `tools/check_decodable.py` checks every word and passage against the patterns taught so far plus allowed heart words, and flags anything that does not fit. All new content must pass it.
 
 ### 5.1 Mastery

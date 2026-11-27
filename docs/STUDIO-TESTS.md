@@ -4,6 +4,45 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 9: Every Studio word list (November 27, 2026)
+
+Studio commit 4008919 (same as Test 8). Code and data read only; nothing in the Studio repo was changed.
+
+**How:** pulled every level's words and choices out of `src/data/level1.ts` with `tools/studio-tests/dump_words.ts`, then ran the new `tools/studio-tests/word_check.py`. It reuses the blocked-word fingerprints and the sound-alike rule from `tools/check_decodable.py` and checks each level against the skill sequence the Studio build actually uses. 11 levels, 335 words and runes, 670 tap choices. Placement probe words were checked against their source levels (all present).
+
+**Key fact found while checking:** in tap mode the two wrong choices are **heard**, not read. The student sees the word and taps sound buttons. So a choice must never sound like the word, must never sound like a crude or hurtful word, and its spelling only matters for the audio file. Words and runes on screen still have to be decodable.
+
+**Result:** 33 flags before the fix (some flagged twice), 0 after S-11 on a scratch copy outside the Studio repo. Every replacement word already has a recorded clip, so S-11 adds no audio.
+
+### Ranked problems
+
+| # | Problem | Where | Why it matters | How sure |
+|---|---|---|---|---|
+| 1 | **Hurtful or crude words played aloud as tap choices.** One World 3 rune choice is a spelling of an anti-gay slur. One World 1 choice is a slur for Mexican people. Others are a weight insult (2 levels), crude slang (2 levels each, two words) and a soda word that also means a drug. A World 1 rune and a World 2 choice each sound like crude words when read aloud. | W1 L1 to L5, W2 L3 and L5, W3 L1 | Students hear these from the game's own voice. Many of Mr. Scott's students are Hispanic. This is the kind of thing that ends a pilot. | Certain. The slur spelling was missing from the blocked list; added as a fingerprint. |
+| 2 | **Short i and short e choices before m or n** (pin and pen, him and hem, ten and tin): 16 entries. | W1 L3, L4, L5 | These sound the same for many Gulf Coast speakers (the pin-pen merger). A student who hears two identical choices has to guess, and a right reader loses crystals and lock credit. W1 L3 is the e versus i level, so it hit hardest there. | High |
+| 3 | **A choice that sounds exactly like the word:** sun with the choice "son". | W1 L4 | Two buttons say the same thing. No way to be right except luck. | Certain |
+| 4 | **Words that use a pattern before it is taught:** frost (final st, taught in L4) and frill (ll, never taught) in W2 L3; blink (nk, never taught) in W2 L5. | W2 L3, L5 | Breaks the rule that every word on screen is decodable with what was taught. | Certain |
+| 5 | **Rune "tev"** ends in v. English words do not end in a single v, so the rune teaches a spelling that does not exist. | W1 L3 | Small, but runes are pure decoding practice and should follow real spelling rules. | Certain |
+| 6 | Skill sequence gaps in World 2: no ng, nk, tch, floss (ff, ll, ss), three-letter blends, or most l and r blends. World 1 adds o and u together in Level 2 (DESIGN.md had them one level at a time). | World 2, World 1 L2 | Students finish World 2 without patterns World 3 words will lean on. No fix now; Claude plans these with Step 8. The World 1 order stays as built. | Certain |
+
+### Fixes chosen (Claude's reading call)
+
+- W1 L3: hem, pen, men, den and ten are replaced by bed, leg, set, beg and let, so the e versus i level is fair for merged speakers. Short e keeps 12 real words and 6 runes.
+- Every i/e choice before m or n becomes a, o or u.
+- Runes: "fim" becomes "zim" (L1, L5); "tev" becomes "teb" (L3).
+- W2 L3: frost and frill come out (fr keeps 4 real words and 2 runes). W2 L5: blink becomes blip.
+- All flagged choices get ordinary replacements that already have recordings.
+- Full list: prompt S-11.
+
+### Not verified
+- Sound of the new choices in the game (all clips exist in the word sprite; not heard).
+- Spanish glosses for the 5 new W1 L3 words have no Spanish audio clip, same as the other levels after Level 1.
+
+### For Mr. Scott to check by hand
+- After S-11, play W1 L3 in tap mode for a minute: tap the choice buttons on "pin" and "bed". No two choices should sound alike.
+
+---
+
 ## Test 8: S-09 half crystals on Expert (November 27, 2026)
 
 Studio commit 4008919. **S-09 passed.** Lint and build clean. No page errors in the payout runs.

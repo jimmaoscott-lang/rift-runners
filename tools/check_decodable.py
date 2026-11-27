@@ -43,6 +43,8 @@ BLOCKED = {
     "9473d93666", "9ee972c591", "a1bfc156c4", "ab14d94055", "ac04b70e6d", "adccece39a",
     "bfabc6e658", "c3df16be39", "cc934d401b", "d5599ab17a", "dcb19ff840", "e347d21338",
     "ef43e05603", "f0b5bcedce", "f3765df4fd", "f4ce065b1d", "fcff8ed87a",
+    # Added Nov 27 (Studio word check, Test 9): a slur in two spellings.
+    "5a6b3a57b2", "737de76734",
 }
 
 

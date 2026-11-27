@@ -20,6 +20,66 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-11: Word list fixes (choices, runes and a few words)
+
+Status: ready
+Goes with: CHECKLIST Step 4 (word list check); Test 9, problems 1 to 5
+
+Why: Test 9 found tap choices that are slurs or crude words when the game says them aloud, short i and short e choice pairs before m or n that sound the same for many Gulf Coast speakers, one choice that sounds exactly like its word, three words that use patterns not taught yet, and one rune with a spelling English does not use. Every new word below already has a clip in the word sprite, so no audio is added.
+
+PASTE INTO AI STUDIO:
+
+```
+Task: replace some words and tap choices in the level word lists. Do only this task. Claude (the director) picked every word below; use them exactly.
+
+File: src/data/level1.ts only. Change only the entries listed. Keep each entry's other fields (es, sayAlso, azureRef, pattern, tiles) unless a new line is given in full.
+
+1. LEVEL1_RUNES and LEVEL5_RUNES: replace the rune entry "fim" with
+   { w: 'zim', kind: 'rune', options: ['zam', 'zum'] },
+2. LEVEL2_REAL_WORDS and LEVEL4_REAL_WORDS: "fog" options become ['fig', 'dog'].
+3. LEVEL2_RUNES: "fum" options become ['fam', 'fub'].
+4. LEVEL3_REAL_WORDS: replace these five entries, in the same spots:
+   hem -> { w: 'bed', kind: 'real', options: ['bad', 'bud'], es: 'cama' },
+   pen -> { w: 'leg', kind: 'real', options: ['lag', 'log'], es: 'pierna' },
+   men -> { w: 'set', kind: 'real', options: ['sit', 'sat'], es: 'poner' },
+   den -> { w: 'beg', kind: 'real', options: ['big', 'bag'], es: 'rogar' },
+   ten -> { w: 'let', kind: 'real', options: ['lot', 'lad'], es: 'dejar' },
+5. LEVEL3_REAL_WORDS, new options:
+   net ['nit', 'nap'], pin ['pan', 'pun'], fit ['fet', 'fot'], mix ['mux', 'max'], win ['wan', 'wun']
+6. LEVEL3_RUNES: replace "tev" with { w: 'teb', kind: 'rune', options: ['tab', 'tib'] }, and "zem" options become ['zum', 'zam'].
+7. LEVEL4_REAL_WORDS, new options:
+   net ['nit', 'nap'], pen ['pun', 'pan'], pin ['pan', 'pun'], win ['wan', 'wun'], sun ['sin', 'san']
+8. LEVEL5_REAL_WORDS, new options:
+   hem ['hum', 'ham'], den ['dan', 'dug'], fit ['fet', 'fot'], pin ['pan', 'pun']
+   LEVEL5_RUNES: "zem" options become ['zum', 'zam'].
+9. W2_L3_REAL_WORDS: delete the "frost" and "frill" entries.
+   W2_L3_RUNES: "frab" options become ['frib', 'frop'].
+10. W2_L5_REAL_WORDS: replace "blink" with
+   { w: 'blip', kind: 'real', pattern: 'bl', tiles: ['bl', 'i', 'p'], targetTileIdx: 0, options: ['lip', 'blob'], es: 'señal breve' },
+   W2_L5_RUNES: "thab" options become ['tab', 'shab'].
+11. W3_L1_REAL_WORDS: "cake" options become ['cap', 'bike'].
+    W3_L1_RUNES: "dake" options become ['dak', 'dime'].
+12. Do not change: placement probe words, any other entry, speech checking (src/lib/speech.ts), voice fits, the word audio sprite or manifest, Spanish supports, save data, difficulty, waves or defenders. Old saved progress must still load.
+13. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: word list rules (Claude): tap choices are heard, so a choice never sounds like its word, never sounds like a crude or hurtful word, and never pairs short i with short e before m or n (pin and pen sound alike for many Gulf Coast students). Words on screen use only patterns taught so far. Claude checks every word list before a level ships. Use only words that already have a clip in public/assets/audio/words, or record new ones in Leda's voice."
+14. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry; report how many files you changed and their total size.
+
+Done when:
+- In tap mode, World 1 Level 3 shows bed, leg, set, beg and let, and never hem, pen, men, den or ten.
+- No word anywhere has a choice that swaps short i and short e before m or n.
+- "sun" plays sin and san as its choices.
+- World 2 Level 3 has no frost or frill; World 2 Level 5 shows blip in place of blink.
+- Every choice button still plays a recorded voice (no computer voice).
+- Lint and build pass.
+```
+
+CLAUDE TESTS AFTER:
+- Re-run `dump_words.ts` and `word_check.py` on the new Studio commit: 0 flags.
+- Every word and choice is in the word audio manifest.
+- Only `src/data/level1.ts`, BUILD.md and the session log changed.
+- Play W1 L3 in tap mode in headless Chrome at 1093 x 614: new words appear, choices play, no console errors.
+
+---
+
 ## S-10: Expert grace, part 2: overtime waves stop growing on Expert
 
 Status: cancelled (Mr. Scott, Nov 27: missing many words should be able to cost the level; that is motivation to read carefully). Do not run.

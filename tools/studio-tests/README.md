@@ -14,5 +14,6 @@ Scripts (run with `python3 -I`, Playwright plus `/usr/bin/google-chrome`):
 - `builder_dials_check.py`: S-02. Dials hidden from students and teachers, default creatures match the earlier build (serve it on port 8766), one dial at a time, limits, reset, reload.
 - `topbar_check.py`: S-03. Top bar overlap, clipping and button size at six window sizes.
 - `robot_voice_check.py`: lists lines that fall back to the computer voice (walkthrough speaker and hero powers).
+- `dump_words.ts` and `word_check.py`: Test 9 word list check. From the Studio folder run `node_modules/.bin/tsx <this folder>/dump_words.ts` (writes `/home/claude/tests/studio_words.json`), then `python3 tools/studio-tests/word_check.py`. Checks decodability per level, tiles, heard choices (sound-alike, pin/pen, blocked words), runes that are real words, and placement probes. Run it before any level with new words ships.
 
 Screenshots go to `/home/claude/tests/shots/`. The scripts find the current word and sound choices by reading the game's React state; if a Studio update renames those, fix the script before trusting a result.
