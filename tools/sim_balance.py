@@ -67,6 +67,7 @@ async (args) => {
   }
   // Open the defenders a student would have on this level: earlier levels count as won.
   const md = RF.metrics.data();
+  md.tutorial = { done: 'sim' }; // the tutorial would hold the battle on Level 1
   md.battles = md.battles.filter(function (b) { return b.sim !== true; });
   RF.data.levels.levels.slice(0, levelIndex).forEach(function (L) { md.battles.push({ id: L.id, result: 'win', sim: true }); });
   // --history N: the student arrives with N earlier reads of each vowel taught in earlier levels,
@@ -217,6 +218,7 @@ def main():
     ap.add_argument("--readers", nargs="*", default=list(READERS))
     ap.add_argument("--runs", type=int, default=6)
     ap.add_argument("--override", default=None)
+    ap.add_argument("--old3d", action="store_true", help="play every level on the old 3D trails (?3d), to compare")
     ap.add_argument("--minutes", type=float, default=40)
     ap.add_argument("--verbose", action="store_true")
     ap.add_argument("--no-powers", action="store_true", help="never use hero powers")
@@ -226,7 +228,7 @@ def main():
     levels = json.load(open(os.path.join(ROOT, "game", "data", "levels-w1.json")))["levels"]
     idx = a.levels if a.levels is not None else list(range(len(levels)))
     srv = serve()
-    url = "http://127.0.0.1:%d/game/index.html?low" % srv.server_address[1]
+    url = "http://127.0.0.1:%d/game/index.html?low%s" % (srv.server_address[1], "&3d" if a.old3d else "")
     with sync_playwright() as p:
         br = p.chromium.launch(channel="chrome", args=["--use-gl=swiftshader", "--autoplay-policy=no-user-gesture-required"])
         pg = br.new_page(viewport={"width": 1280, "height": 720})

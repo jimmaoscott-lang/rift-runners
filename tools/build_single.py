@@ -64,6 +64,11 @@ def main():
                 if os.path.exists(path):
                     inline["files"][rel] = data_uri(path, "audio/mpeg")
 
+    # Pictures the painted battlefield draws (every file named in data/art.json)
+    pictures = re.findall(r'"(\.\./assets/art/[^"]+)"', read(os.path.join(GAME, "data", "art.json")))
+    for rel in sorted(set(pictures)):
+        inline["files"][rel] = data_uri(os.path.normpath(os.path.join(GAME, rel)), "image/webp")
+
     # Scripts -> inline
     block = re.search(r"<!-- BUILD:SCRIPTS -->(.*?)<!-- /BUILD:SCRIPTS -->", html, re.S)
     if not block:
@@ -80,7 +85,7 @@ def main():
             f.write(html)
     shutil.copy(os.path.join(ROOT, "tools", "apps-script", "Code.gs"), os.path.join(DIST, "apps-script", "Code.gs"))
     size_kb = len(html.encode("utf-8")) // 1024
-    print(f"Built dist/rift-runners-offline.html and dist/apps-script/ ({size_kb} KB, {len(inline['files'])} voice files).")
+    print(f"Built dist/rift-runners-offline.html and dist/apps-script/ ({size_kb} KB, {len(inline['files'])} voice and picture files).")
     return 0
 
 

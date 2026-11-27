@@ -21,6 +21,21 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 26: November 27, 2026 (painted battlefield, Level 1), v0.18.0
+
+Checklist Step 3c. **Level 1 and its tutorial now play on the painted map.** Levels 2 to 5 and the final level still use the 3D field. Boot Camp is not built yet.
+
+- **Painted engine:** `art.js` loads pictures, `paint.js` draws, `field.js` holds the placement rules. The old 3D drawing moved to `view3d.js`. `battle.js` is now rules only. Details in DESIGN 13.1.
+- **Free placement:** ghost preview, range ring, glowing open ground, and a red reason (On road, Put it on the road, Too close, Blocked) that can be heard. Touch: tap, then Build or tap again. Mouse: click.
+- **New game text:** seven strings in English and Spanish. The Spanish needs a Spanish speaker's review. Voices are made when this is published.
+- **Balance:** Level 1 walk speed set to 0.95. Simulated wins: strong 10 of 10, struggling 0 of 10, typical 26 of 30 (old field 27 of 30). The struggling reader also won 0 of 10 on the old field, losing around wave 5. Look at that in Step 5.
+- **Also:** the offline file now includes the pictures. The balance simulator now skips the tutorial (Level 1 games were timing out).
+- **Tested on the test computer:** tutorial, all 10 defenders, upgrades, a mixed wave of every creature, hero powers, touch, keyboard, pause and restart, `?3d`, the offline file. No game errors. Levels 2 to 5 and the final level each won in the simulator. The test computer held 60 frames a second with 21 to 26 creatures. **That is no Chromebook result** (Step 3g).
+- **Stand-ins:** Vine Snare, Healing Shrine and Barricade are drawn by code. Ballista uses the rail turret picture.
+- **Next up:** Opus review of 3c (look, feel, build spots, crowded health bars), then check the box and start 3d.
+
+---
+
 ## Session 25: November 27, 2026 (Studio art brought in)
 
 Checklist Step 3b. The game looks and plays the same; this adds the pictures and trail data that 3c will draw.

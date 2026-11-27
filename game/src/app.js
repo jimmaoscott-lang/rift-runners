@@ -19,8 +19,9 @@ window.RF = window.RF || {};
     RF.dom.fit();
     const q = new URLSearchParams(location.search);
     RF.lowPower = q.has('low') ? true : q.has('high') ? false : guessLowPower();
+    RF.use3d = q.has('3d'); // ?3d keeps the old 3D battlefield for side-by-side checks
 
-    const [strings, ui, words, world1, world8, units, levels, speech] = await Promise.all([
+    const [strings, ui, words, world1, world8, units, levels, speech, art] = await Promise.all([
       RF.loadJSON('data/strings.json'),
       RF.loadJSON('../assets/audio/ui/manifest.json').catch(function () { return { en: {}, es: {} }; }),
       RF.loadJSON('../assets/audio/words/manifest.json').catch(function () { return { en: {}, es: {} }; }),
@@ -28,12 +29,15 @@ window.RF = window.RF || {};
       RF.loadJSON('data/world8.json').catch(function () { return { cards: [], seal: null }; }),
       RF.loadJSON('data/units.json'),
       RF.loadJSON('data/levels-w1.json'),
-      RF.loadJSON('data/speech.json').catch(function () { return {}; })
+      RF.loadJSON('data/speech.json').catch(function () { return {}; }),
+      RF.loadJSON('data/art.json')
     ]);
     RF.strings = strings;
     RF.voiceManifest = ui;
     RF.wordManifest = words;
-    RF.data = { world1: world1, world8: world8, units: units, levels: levels, speech: speech };
+    RF.data = { world1: world1, world8: world8, units: units, levels: levels, speech: speech, art: art };
+    // Fetch the first painted level's pictures early, so they are there when it starts.
+    if (!RF.use3d && levels.levels[0].painted) RF.art.preload(levels.levels[0].map);
     // Speak mode: see if the Azure pronunciation check is online (falls back to Chrome if not).
     if (RF.mic) RF.mic.initAzure();
 
@@ -57,6 +61,10 @@ window.RF = window.RF || {};
         RF.map.update(dt);
         renderer.render(RF.map.scene, RF.map.camera);
         RF.map.afterRender();
+      } else if (RF.battle && RF.battle.active && RF.battle.view === RF.paint) {
+        // The painted battlefield draws itself; the 3D picture is hidden.
+        RF.battle.update(dt);
+        if (RF.battle.active) RF.battle.afterRender();
       } else {
         if (RF.battle && RF.battle.active) RF.battle.update(dt);
         else app.titleCam(dt);

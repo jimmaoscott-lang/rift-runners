@@ -1,0 +1,33 @@
+{
+  "_note": "Pictures for the painted battlefield (DESIGN.md 13.1). w = width or h = height in map units (the map is 64 x 36). foot = how far down the picture its feet are (0 top, 1 bottom). face = which way the picture looks: 1 right, -1 left, 0 straight ahead (never flipped). fly = height above the ground. walk (optional) = a list of walk frame files; the engine uses them when they arrive. Defenders with no file are drawn by art.js until a work order brings their pictures.",
+  "maps": {
+    "thornwood-edge": "../assets/art/maps/thornwood-edge.webp",
+    "bramble-crossing": "../assets/art/maps/bramble-crossing.webp",
+    "hollow-bridge": "../assets/art/maps/hollow-bridge.webp",
+    "thornking-heart": "../assets/art/maps/thornking-heart.webp",
+    "sunless-ruins": "../assets/art/maps/sunless-ruins.webp",
+    "furnace-core": "../assets/art/maps/furnace-core.webp"
+  },
+  "creatures": {
+    "thornback": { "file": "../assets/art/characters/thornback.webp", "w": 3.8, "foot": 0.92, "face": 1 },
+    "wisp": { "file": "../assets/art/characters/wisp.webp", "w": 2.8, "foot": 0.5, "face": 1, "fly": 1.2 },
+    "bramble": { "file": "../assets/art/characters/bramble.webp", "w": 2.3, "foot": 0.9, "face": 1 },
+    "brute": { "file": "../assets/art/characters/brute.webp", "w": 4.6, "foot": 0.93, "face": 1 },
+    "bat": { "file": "../assets/art/characters/bat.webp", "w": 3.8, "foot": 0.5, "face": 1, "fly": 2.2 },
+    "splitter": { "file": "../assets/art/characters/splitter.webp", "w": 4.0, "foot": 0.93, "face": 0 },
+    "splitling": { "file": "../assets/art/characters/splitter.webp", "w": 2.2, "foot": 0.93, "face": 0, "tint": "rgba(190,250,255,0.38)" }
+  },
+  "defenders": {
+    "archer": { "file": "../assets/art/characters/archer.webp", "h": 5.6, "foot": 0.9 },
+    "spike": { "file": "../assets/art/characters/spike.webp", "h": 2.9, "foot": 0.5, "flat": true },
+    "golem": { "file": "../assets/art/characters/golem.webp", "h": 3.8, "foot": 0.92, "face": 1 },
+    "frost": { "file": "../assets/art/characters/frost.webp", "h": 5.0, "foot": 0.9 },
+    "ember": { "file": "../assets/art/characters/ember.webp", "h": 4.6, "foot": 0.9, "face": -1 },
+    "lightning": { "file": "../assets/art/characters/lightning.webp", "h": 5.6, "foot": 0.9 },
+    "ballista": { "file": "../assets/art/characters/ballista.webp", "h": 4.6, "foot": 0.9 },
+    "vine": { "h": 3.2, "foot": 0.62, "flat": true },
+    "shrine": { "h": 4.0, "foot": 0.9 },
+    "barricade": { "h": 2.8, "foot": 0.75 }
+  },
+  "hero": { "file": "../assets/art/characters/warden.webp", "h": 4.0, "foot": 0.95 }
+}

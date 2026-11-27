@@ -589,14 +589,23 @@ If a number drops (common when a new world brings harder words), the screen show
 2. A new `paint.js` draws each frame from that state: map, shadows, creatures, defenders, shots, health bars, floating numbers. It also turns a screen tap into a map point and a map point into a screen point (`screenOf`, which the tutorial already uses, keeps its name and job).
 3. A new `art.js` loads the pictures listed in `game/data/art.json` (one entry per creature, defender, hero and map, with draw size, foot point and optional walk frames).
 
-**Map units stay the same size,** so no balance number changes. The painted map is 1600 x 900 picture points and covers 64 x 36 map units (25 picture points per unit). Defender ranges and creature speeds keep their numbers. Trail length was checked (Session 24): Level 1's painted trail is the same length as today's (84 units against 87), but Levels 2 to 5 and the final level are 22 to 41% shorter, so creatures would reach the anchor sooner. Each level therefore gets a `trailTime` setting that scales creature speed so the walk from rift to anchor takes as long as it does now. The Normal difficulty decision (Step 5) is then only about feel.
+**As built (Step 3c, v0.18.0).** The old 3D drawing moved into `view3d.js`. `paint.js` and `view3d.js` answer the same calls, so `battle.js` holds rules only and picks one: painted when the level has `"painted": true` and the address has no `?3d`. A new `field.js` holds the painted map geometry and the placement rules (road width 3 units, towers 3.2 apart, trail defenders 3.4 apart and 5 from the rift and the anchor; taps within 2.8 of the road center snap trail defenders onto it). Only Level 1 is painted so far.
+
+- Each painted level keeps a set of suggested spots (made from the old pad lists). Arrow keys step through them, and the balance simulator builds on them.
+- Tapping open ground with nothing picked opens the same build menu the pads did.
+- The rift and anchor name labels sit below their spots so the top buttons never cover them.
+- Health bar word tags (such as SLOWED) show once per crowded patch so they do not stack on each other.
+- Vine Snare, Healing Shrine and Barricade are drawn by code until their pictures arrive.
+- Address switches: `?zones` shows where building is allowed, `?fps` shows the speed meter, `?3d` shows the old battlefield.
+
+**Map units stay the same size,** so no balance number changes. The painted map is 1600 x 900 picture points and covers 64 x 36 map units (25 picture points per unit). Defender ranges and creature speeds keep their numbers. Trail length was checked (Session 24): Level 1's painted trail is the same length as today's (84 units against 87), but Levels 2 to 5 and the final level are 22 to 41% shorter, so creatures would reach the anchor sooner. Each level therefore gets a `trailTime` setting that scales creature speed so the walk from rift to anchor takes as long as it does now. Level 1 is set to 0.95 (Session 26): in 30 simulated games for a typical reader, 1.0 won 21, the old 3D field won 27 and 0.95 won 26. The Normal difficulty decision (Step 5) is then only about feel.
 
 **Level data.** Each level in `levels-w1.json` gains:
 - `map`: which painted map to show
 - `pathUv`: the trail as points from 0 to 1 across the picture (the Studio levels already have these, traced on the same pictures)
 - `riftUv` and `anchorUv`: where creatures appear and where the Rift Anchor stands
 - `noBuild`: circles and outlines where nothing can be placed (rivers, cliffs, thick forest, the HUD corners)
-- `trailTime`: speed scale so the walk down a shorter painted trail takes as long as before (1.0 for Level 1)
+- `trailTime`: speed scale so the walk down a shorter painted trail takes as long as before (0.95 for Level 1)
 - `hintSpots`: two or three good open spots the tutorial arrow can point to
 
 `towerPads` and `trailPads` retire once every level runs on the painted battlefield (Step 3e). Waves, words, rune rate and mastery settings do not change.

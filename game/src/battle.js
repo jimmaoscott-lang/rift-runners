@@ -1,45 +1,22 @@
 // Hold the Rift battle (DESIGN.md sections 4.2, 6A, 6B). Rift creatures march down the trail toward
 // the Rift Anchor. Crystals from the Rune Forge build defenders, and the defenders fight in real time.
+// This file holds the rules only. B.view draws the battle: paint.js (painted map) or view3d.js (3D).
 window.RF = window.RF || {};
 (function (RF) {
   const D = RF.dom;
   const B = { active: false };
   RF.battle = B;
-  const V3 = function (x, y, z) { return new THREE.Vector3(x, y, z); };
   const tmp = {};
-  const ray = new THREE.Raycaster();
-
-  // ---------- Icons for the build bar (made once from the 3D models) ----------
-  function icons() {
-    if (RF.icons) return RF.icons;
-    const G = RF.G;
-    const spec = {
-      archer: [function (s) { G.archerTower(0, 0, s); }, [5, 5, 7], [0, 1.9, 0]],
-      spike: [function (s) { G.spikePit(0, 0, s); }, [3, 3.4, 3], [0, 0.2, 0]],
-      golem: [function (s) { G.golem(0, 0, s); }, [4, 3.5, -5], [0, 1.5, 0]],
-      frost: [function (s) { const g = G.frostTotem(0, 0, s); g.children.slice(-2).forEach(function (c) { c.visible = false; }); }, [4, 4, 5], [0, 1.7, 0]],
-      ember: [function (s) { G.emberCannon(0, 0, s); }, [3.5, 3.5, 4], [0, 0.9, 0]],
-      lightning: [function (s) { G.lightningSpire(0, 0, s); }, [5, 4, 6], [0, 2.2, 0]],
-      vine: [function (s) { G.vineSnare(0, 0, s); }, [3, 3, 3.5], [0, 0.9, 0]],
-      ballista: [function (s) { G.ballista(0, 0, s); }, [3.5, 3, 3.5], [0, 0.7, 0]],
-      shrine: [function (s) { G.healShrine(0, 0, s); }, [3.5, 3, 4], [0, 1.0, 0]],
-      barricade: [function (s) { G.barricade(0, 0, s); }, [2.5, 2, 3], [0, 0.8, 0]]
-    };
-    RF.icons = {};
-    Object.keys(spec).forEach(function (k) {
-      const sp = spec[k];
-      RF.icons[k] = G.iconOf(sp[0], V3.apply(null, sp[1]), V3.apply(null, sp[2]));
-    });
-    return RF.icons;
-  }
+  function icons() { return B.view.icons(); }
 
   // ---------- Start ----------
   RF.startBattle = function (levelIndex, restore) {
     if (B.active) B.cleanup();
     const app = RF.app;
-    app.useLevel(levelIndex || 0); // builds this level's 3D world if another one is showing
-    const world = app.world;
     const L = RF.data.levels.levels[levelIndex || 0];
+    // Levels marked "painted" use the painted battlefield; ?3d keeps the old one for comparison.
+    B.view = RF.paint && L.painted && !RF.use3d ? RF.paint : RF.view3d;
+    const world = B.view.start(levelIndex || 0);
     const U = RF.data.units;
     B.L = L; B.U = U; B.world = world; B.levelIndex = levelIndex || 0;
     B.active = true;
@@ -54,18 +31,13 @@ window.RF = window.RF || {};
     B.buildSel = null; B.selDef = null; B.padCursor = -1;
     B.kills = 0; B.shards = 0; B.started = Date.now();
     B.sealReady = false; B.sealDone = false; B.sealOpened = false; B.finalWave = false; B.locksFull = {}; B.golemFalls = 0; B.barricadeFalls = 0; B.seenFoes = {};
-    world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; });
-    world.anchorFlash = 0;
     // Rift Warden (DESIGN.md 6A): three powers charged only by reading.
     B.power = { rally: 0, meteor: 0, freeze: 0 }; B.rallyT = 0; B.freezeT = 0; B.powersUsed = 0;
-    B.warden = wardenModel(world);
 
-    app.setView(374, 140);
-    app.battleCam();
     B.buildHUD();
     B.refreshLocks(true);
     B.updatePads();
-    canvasOn();
+    B.view.pointerOn();
     B.tut = null; B.tutHold = false; B.tutWave = null; B.waveOffset = 0;
     RF.audio.music('calm');
     // First time in Level 1 (or Replay tutorial): the tutorial takes over the opening (DESIGN.md 4.3).
@@ -236,8 +208,7 @@ window.RF = window.RF || {};
     D.clear(labels);
     B.anchorLabel = D.el('div', 'label', '', labels);
     B.riftLabel = D.el('div', 'label', '', labels);
-    B.creatures.forEach(function (c) { c.label = makeBar(false); labels.appendChild(c.label); });
-    B.defenders.forEach(function (d) { if (d.type === 'golem' || d.type === 'barricade') { d.label = makeBar(true); labels.appendChild(d.label); } });
+    B.view.relabel();
     B.renderTop();
     B.renderCards();
     B.renderPowers();
@@ -246,23 +217,6 @@ window.RF = window.RF || {};
   };
 
   // ---------- Rift Warden powers ----------
-  function wardenModel(world) {
-    const G = RF.G;
-    const g = new THREE.Group();
-    g.position.set(world.camp.x + 2.6, 0, world.camp.z - 1.2);
-    world.dyn.add(g);
-    G.mesh(new THREE.ConeGeometry(0.75, 2.0, 7), G.M.roof, 0, 1.0, 0, g); // long coat
-    G.mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.7, 7), G.M.stoneDark, 0, 2.05, 0, g); // shoulders
-    G.mesh(new THREE.SphereGeometry(0.3, 8, 6), G.M.cloth, 0, 2.6, 0, g); // head
-    const hood = G.mesh(new THREE.ConeGeometry(0.42, 0.8, 7), G.M.roof, 0, 2.85, -0.05, g);
-    hood.rotation.x = -0.15;
-    const staff = G.mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.0, 5), G.M.woodDark, 0.6, 1.5, 0.1, g);
-    staff.rotation.z = -0.08;
-    const gem = G.mesh(new THREE.OctahedronGeometry(0.26, 0), G.M.anchor, 0.72, 3.15, 0.1, g);
-    const glow = G.sprite(G.TEX.cyan, 1.4, 0.72, 3.15, 0.1, g, 0.8);
-    g.rotation.y = Math.PI * 0.75;
-    return { obj: g, gem: gem, glow: glow };
-  }
   // Every finished word (or story card) charges all three powers. Called from readTick.
   B.chargePowers = function () {
     const H = B.U.hero;
@@ -308,21 +262,14 @@ window.RF = window.RF || {};
     if (k === 'rally') { B.rallyT = pw.time; RF.audio.fx('upgrade'); }
     else if (k === 'freeze') {
       B.freezeT = pw.time;
-      B.creatures.forEach(function (c) { c.stun = Math.max(c.stun, pw.time); c.stunTag = 'tag.frozen'; burst(c.x, heightOf(c), c.z, RF.G.TEX.ice, 2); });
+      B.creatures.forEach(function (c) { c.stun = Math.max(c.stun, pw.time); c.stunTag = 'tag.frozen'; burst(c.x, heightOf(c), c.z, 'ice', 2); });
       RF.audio.fx('frost');
-      const fl = RF.G.sprite(RF.G.TEX.ice, 70, B.world.camp.x * 0.5, 10, B.world.camp.z * 0.5, B.world.dyn, 0.6);
-      B.fx.push({ life: 0.8, t: 0, update: function (f) { fl.material.opacity = 0.6 * (1 - f); }, end: function () { B.world.dyn.remove(fl); } });
+      B.view.freezeFlash();
     } else meteor(pw);
     B.renderPowers();
   };
   function wardenCast(k) {
-    const w = B.warden;
-    if (!w) return;
-    const tex = { rally: RF.G.TEX.yellow, meteor: RF.G.TEX.orange, freeze: RF.G.TEX.ice }[k];
-    const p = w.obj.position;
-    burst(p.x, 3.4, p.z, tex, 8);
-    w.glow.material.map = tex;
-    B.fx.push({ life: 0.8, t: 0, update: function (f) { w.glow.scale.setScalar(1.4 + Math.sin(f * Math.PI) * 3); }, end: function () { w.glow.scale.setScalar(1.4); w.glow.material.map = RF.G.TEX.cyan; } });
+    B.view.heroCast({ rally: 'yellow', meteor: 'orange', freeze: 'ice' }[k]);
   }
   // Meteor falls on the biggest group (most creatures within its blast, tougher ones count more).
   function meteor(pw) {
@@ -333,18 +280,13 @@ window.RF = window.RF || {};
       if (v > bestV) { bestV = v; best = c; }
     });
     if (!best) return;
-    const tx = best.x, tz = best.z, G = RF.G;
-    const rock = G.mesh(new THREE.DodecahedronGeometry(0.9, 0), G.M.ember, tx + 6, 22, tz - 4, B.world.dyn);
-    const glow = G.sprite(G.TEX.orange, 4, 0, 0, 0, rock, 0.9);
-    const mark = G.sprite(G.TEX.orange, pw.radius * 2, tx, 0.3, tz, B.world.dyn, 0.5);
-    B.fx.push({ life: 0.7, t: 0, update: function (f) { rock.position.set(tx + 6 * (1 - f), 22 * (1 - f) + 0.5, tz - 4 * (1 - f)); rock.rotation.x += 0.3; mark.material.opacity = 0.3 + f * 0.5; },
+    const tx = best.x, tz = best.z;
+    B.view.meteor(tx, tz, pw.radius, 0.7);
+    B.fx.push({ life: 0.7, t: 0, update: function () {},
       end: function () {
-        B.world.dyn.remove(rock); B.world.dyn.remove(mark); rock.geometry.dispose();
         if (B.phase === 'done') return;
         B.creatures.slice().forEach(function (c) { if (Math.hypot(c.x - tx, c.z - tz) <= pw.radius) hurt(c, pw.dmg, true, 'break'); });
-        burst(tx, 1, tz, G.TEX.orange, 14); burst(tx, 1, tz, G.TEX.purple, 6);
-        const ring = G.sprite(G.TEX.orange, pw.radius * 2, tx, 0.6, tz, B.world.dyn, 1);
-        B.fx.push({ life: 0.45, t: 0, update: function (f) { ring.material.opacity = 1 - f; ring.scale.setScalar(pw.radius * (2 + f * 2)); }, end: function () { B.world.dyn.remove(ring); } });
+        B.view.meteorHit(tx, tz, pw.radius);
         if (!RF.settings.reducedMotion) B.shake = 0.35;
         RF.audio.fx('emberBoom'); RF.audio.fx('mega');
       } });
@@ -433,11 +375,6 @@ window.RF = window.RF || {};
     });
   };
 
-  function makeBar(green) {
-    const e = D.el('div', 'label', '<div class="tag"></div><div class="bar"><i style="width:100%' + (green ? ';background:#7dff9c' : '') + '"></i></div>');
-    return e;
-  }
-
   B.renderTop = function () {
     B.crystalChip.innerHTML = D.CRYSTAL(30) + ' <span class="cyan">' + B.crystals + '</span>';
     // Once every lock is full, the chip counts down to the final wave: "Wave 1 of 3".
@@ -511,15 +448,14 @@ window.RF = window.RF || {};
     setTimeout(function () { fly.remove(); done(); }, 560);
   };
   B.floatText = function (text, x, y, color, size, crystal) {
+    // A soft cap keeps big waves smooth: damage and shard numbers are skipped when many are up.
+    if (!crystal && document.getElementById('labels').childElementCount > 30) return;
     const e = D.el('div', 'float', (crystal ? '' : '') + D.esc(text) + (crystal ? ' ' + D.CRYSTAL(size * 0.8) : ''), document.getElementById('labels'));
     e.style.cssText += ';left:' + x + 'px;top:' + y + 'px;color:' + color + ';font-size:' + size + 'px;display:flex;align-items:center;gap:4px';
     setTimeout(function () { e.remove(); }, 1000);
   };
   B.screenOf = function (x, y, z) { return screenOf(x, y, z); };
-  function screenOf(x, y, z) {
-    const p = V3(x, y, z).project(B.world.camera);
-    return { x: (p.x + 1) / 2 * window.innerWidth, y: (1 - p.y) / 2 * window.innerHeight, behind: p.z > 1 };
-  }
+  function screenOf(x, y, z) { return B.view.screenOf(x, y, z); }
 
   // ---------- Waves ----------
   // Wave k (1, 2, 3...). The first ones come from the level file; after that they keep growing.
@@ -587,22 +523,16 @@ window.RF = window.RF || {};
   // snares, tar and fire, as before.
   function isAir(c) { return !!B.U.creatures[c.type].air; }
   function onGround(c) { return c.type !== 'wisp' && !isAir(c); }
+  function addShot(sh) { B.view.addShot(sh); B.shots.push(sh); }
   function spawn(type, hpScale, at) {
-    const G = RF.G;
     const cdef = B.U.creatures[type];
     const hp = Math.round(cdef.hp * (hpScale || 1));
     const wide = type === 'wisp' ? 1.8 : type === 'bat' ? 2.2 : 1.0;
-    const c = { type: type, hp: hp, max: hp, hpScale: hpScale || 1, s: at ? at.s : 0, speed: cdef.speed * (0.92 + Math.random() * 0.16), lane: at ? at.lane : (Math.random() - 0.5) * wide, slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false, stun: 0 };
-    if (type === 'thornback') c.obj = G.thornback(0, 0, B.world.dyn, 0.95);
-    else if (type === 'bramble') c.obj = G.bramble(0, 0, B.world.dyn, 1.0);
-    else if (type === 'brute') { c.obj = G.shieldBrute(0, 0, B.world.dyn); c.obj.scale.setScalar(1.15); c.shield = true; c.lane = (Math.random() - 0.5) * 0.5; }
-    else if (type === 'bat') { c.obj = G.riftBat(0, 2.4, 0, B.world.dyn); c.obj.scale.setScalar(1.5); }
-    else if (type === 'splitter') { c.obj = G.splitter(0, 0, B.world.dyn); c.obj.scale.setScalar(1.05); }
-    else if (type === 'splitling') c.obj = G.splitling(0, 0, B.world.dyn);
-    else c.obj = G.wisp(0, 1.4, 0, B.world.dyn);
-    c.label = makeBar(false);
-    if (type === 'bramble' || type === 'splitling') c.label.lastChild.style.width = '26px'; // tiny bar for tiny creatures
-    document.getElementById('labels').appendChild(c.label);
+    // A shorter painted trail slows creatures so the walk takes as long as before (DESIGN.md 13.1).
+    const pace = B.view.kind === 'paint' ? B.L.trailTime || 1 : 1;
+    const c = { type: type, hp: hp, max: hp, hpScale: hpScale || 1, s: at ? at.s : 0, speed: cdef.speed * pace * (0.92 + Math.random() * 0.16), lane: at ? at.lane : (Math.random() - 0.5) * wide, slow: 1, held: null, alive: true, bob: Math.random() * 6, shield: false, stun: 0 };
+    if (type === 'brute') { c.shield = true; c.lane = (Math.random() - 0.5) * 0.5; }
+    B.view.addCreature(c);
     B.creatures.push(c);
     placeCreature(c);
     // First time a newer creature shows up in a battle: say what it does and what beats it.
@@ -614,73 +544,29 @@ window.RF = window.RF || {};
   function placeCreature(c) {
     const p = B.world.path.at(c.s, c.lane, tmp);
     c.x = p.x; c.z = p.z;
-    c.obj.position.x = p.x; c.obj.position.z = p.z;
-    if (c.type === 'wisp') {
-      c.obj.position.y = 1.4 + (RF.settings.reducedMotion ? 0 : Math.sin(RF.app.time * 4 + c.bob) * 0.25);
-    } else if (c.type === 'bat') {
-      const still = RF.settings.reducedMotion;
-      c.obj.position.y = 2.4 + (still ? 0 : Math.sin(RF.app.time * 3 + c.bob) * 0.3);
-      c.obj.rotation.y = p.rot;
-      const f = still ? 0.2 : Math.sin(RF.app.time * (c.stun > 0 ? 0 : 16) + c.bob) * 0.6;
-      const w = c.obj.userData.wings;
-      if (w) { w[0].rotation.y = f; w[1].rotation.y = -f; }
-    } else {
-      c.obj.rotation.y = p.rot;
-      if (!RF.settings.reducedMotion && !c.held) c.obj.rotation.z = Math.sin(RF.app.time * 7 + c.bob) * 0.06;
-      if (c.type === 'bramble') c.obj.position.y = RF.settings.reducedMotion ? 0 : Math.abs(Math.sin(RF.app.time * 9 + c.bob)) * 0.18; // little hops
-    }
+    B.view.moveCreature(c, p);
   }
   // How high a creature's middle is, for aiming and bolts.
   function heightOf(c) { return c.type === 'wisp' ? 1.4 : c.type === 'bat' ? 2.4 : c.type === 'bramble' || c.type === 'splitling' ? 0.5 : c.type === 'brute' ? 1.3 : 1.0; }
 
   // ---------- Defenders ----------
-  function defModel(type, pad) {
-    const G = RF.G;
-    const y = pad.kind === 'tower' ? 0.45 : 0;
-    let g;
-    if (type === 'archer') g = G.archerTower(pad.x, pad.z, B.world.dyn);
-    else if (type === 'frost') g = G.frostTotem(pad.x, pad.z, B.world.dyn);
-    else if (type === 'spike') g = G.spikePit(pad.x, pad.z, B.world.dyn);
-    else if (type === 'ember') g = G.emberCannon(pad.x, pad.z, B.world.dyn);
-    else if (type === 'lightning') g = G.lightningSpire(pad.x, pad.z, B.world.dyn);
-    else if (type === 'vine') g = G.vineSnare(pad.x, pad.z, B.world.dyn);
-    else if (type === 'ballista') {
-      g = G.ballista(pad.x, pad.z, B.world.dyn);
-      g.children[1].rotation.order = 'YXZ'; // turn first, then tilt up, so it can aim any way
-    }
-    else if (type === 'shrine') g = G.healShrine(pad.x, pad.z, B.world.dyn);
-    else if (type === 'barricade') g = G.barricade(pad.x, pad.z, B.world.dyn, pad.rot); // wall faces across the trail
-    else {
-      g = G.golem(pad.x, pad.z, B.world.dyn, 0.8);
-      g.rotation.y = pad.rot - Math.PI;
-    }
-    g.position.y = y;
-    return g;
-  }
   B.place = function (type, pad) {
     const d = B.U.defenders[type];
     if (pad.def || d.kind !== pad.kind || !RF.unlocks.defenderOpen(type)) return false;
+    if (!B.view.canBuild(pad)) return false;
     if (B.tut && !B.tut.allowBuild(type)) { RF.sfx('soft'); return false; }
     if (B.crystals < d.cost) { B.toast('hud.need', true); RF.sfx('soft'); return false; }
     B.crystals -= d.cost;
-    const def = { type: type, lv: 1, pad: pad, spent: d.cost, cd: 0.2, obj: defModel(type, pad) };
-    if (type === 'frost') def.rings = def.obj.children.slice(-2); // the two range circles, kept so upgrade rings never get mixed up with them
-    if (type === 'golem') {
-      def.hp = d.levels[0].hp; def.max = def.hp; def.down = 0; def.held = [];
-      def.label = makeBar(true);
-      document.getElementById('labels').appendChild(def.label);
-    }
-    if (type === 'barricade') {
-      def.hp = d.levels[0].hp; def.max = def.hp; def.held = [];
-      def.label = makeBar(true);
-      document.getElementById('labels').appendChild(def.label);
-    }
+    const def = { type: type, lv: 1, pad: pad, spent: d.cost, cd: 0.2 };
+    if (type === 'golem') { def.hp = d.levels[0].hp; def.max = def.hp; def.down = 0; def.held = []; }
+    if (type === 'barricade') { def.hp = d.levels[0].hp; def.max = def.hp; def.held = []; }
     if (type === 'vine') { def.held = []; def.regrow = 0; }
     if (type === 'shrine') def.anchorT = 0;
-    if (type === 'frost') scaleFrost(def);
     pad.def = def;
+    B.view.addDefender(def);
+    if (type === 'frost') scaleFrost(def);
     B.defenders.push(def);
-    popIn(def.obj);
+    B.view.popIn(def);
     RF.audio.fx('build');
     RF.metrics.support('build');
     B.selectBuild(null);
@@ -688,12 +574,7 @@ window.RF = window.RF || {};
     if (B.tut) B.tut.on('build', type);
     return true;
   };
-  function scaleFrost(def) {
-    const r = stat(def).range;
-    // The circles sit inside the totem, which grows with each level, so undo that growth here.
-    const g = def.obj.scale.x || 1;
-    def.rings.forEach(function (m) { m.scale.set(r / 3.7 / g, r / 3.7 / g, 1); });
-  }
+  function scaleFrost(def) { B.view.frostRange(def, stat(def).range); }
   // A defender's numbers right now: its level, or its tier 3 specialty (DESIGN.md 6A).
   function stat(def) {
     const d = B.U.defenders[def.type];
@@ -702,17 +583,6 @@ window.RF = window.RF || {};
     return def.st;
   }
   B.stat = stat;
-  // A defender's size: grows a little with each level. A vine shrinks while it regrows.
-  function applyScale(def) {
-    const base = (def.type === 'golem' ? 0.8 : 1) * (1 + 0.08 * (def.lv - 1));
-    def.obj.scale.setScalar(base * (def.regrow > 0 ? 0.55 : 1));
-  }
-  function popIn(obj) {
-    if (RF.settings.reducedMotion) return;
-    const target = obj.scale.x;
-    obj.scale.setScalar(0.01);
-    B.fx.push({ life: 0.35, t: 0, update: function (f) { obj.scale.setScalar(target * Math.min(1, 0.2 + f * 1.1)); }, end: function () { obj.scale.setScalar(target); } });
-  }
   // The third upgrade (level 3 to 4) picks specialty 'a' or 'b'.
   B.upgrade = function (def, pick) {
     const d = B.U.defenders[def.type];
@@ -723,41 +593,23 @@ window.RF = window.RF || {};
     def.spent += cost;
     def.lv++;
     if (def.lv === 4) { def.spec = pick; def.st = null; }
-    applyScale(def);
-    const RR = { archer: [1.15, 1.72, 0.12], ember: [1.3, 0.12, 0.15], lightning: [1.05, 0.2, 0.15], vine: [1.05, 0.15, 0.12], ballista: [1.3, 0.3, 0.15], shrine: [1.2, 0.2, 0.15], barricade: [1.15, 0.12, 0.1] };
-    const rr = RR[def.type] || [0.9, 0.45, 0.15];
-    const ring = RF.G.mesh(new THREE.TorusGeometry(rr[0], 0.07, 4, 16), RF.G.M.gold, 0, rr[1] + (def.lv - 2) * rr[2], 0, def.obj);
-    ring.rotation.x = Math.PI / 2;
-    if (def.spec) specCrown(def);
+    B.view.upgradeDefender(def);
     if (def.type === 'golem' || def.type === 'barricade') { const nl = stat(def); def.max = nl.hp; def.hp = nl.hp; }
     if (def.type === 'frost') scaleFrost(def);
     RF.audio.fx(def.spec ? 'mega' : 'upgrade');
-    if (def.spec) { B.toast(d.spec[pick].name, true); burst(def.pad.x, 2.5, def.pad.z, def.spec === 'a' ? RF.G.TEX.orange : RF.G.TEX.cyan, 10); }
+    if (def.spec) { B.toast(d.spec[pick].name, true); burst(def.pad.x, 2.5, def.pad.z, def.spec === 'a' ? 'orange' : 'cyan', 10); }
     RF.metrics.support('upgrade');
     B.renderTop(); B.renderCards();
     B.showDefPopup(def);
   };
-  // A specialty gets a glowing gem above the defender: orange for the first choice, blue for the second,
-  // so a student can tell at a glance which one each defender took.
-  function specCrown(def) {
-    const o = def.obj, sc = o.scale.x || 1;
-    o.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(o);
-    const top = (box.max.y - o.position.y) / sc + 0.5;
-    const a = def.spec === 'a';
-    const gem = RF.G.mesh(new THREE.OctahedronGeometry(0.34, 0), a ? RF.G.M.ember : RF.G.M.anchor, 0, top, 0, o);
-    gem.scale.y = 1.4;
-    RF.G.sprite(a ? RF.G.TEX.orange : RF.G.TEX.cyan, 1.6, 0, top, 0, o, 0.85);
-    def.gem = gem;
-  }
   B.sell = function (def) {
     const refund = Math.round(def.spent * 0.6);
     B.crystals += refund;
-    B.world.dyn.remove(def.obj);
-    if (def.label) def.label.remove();
+    B.view.removeDefender(def);
     if (def.held) def.held.forEach(function (c) { c.held = null; c.rooted = 0; c.rootedBy = null; });
     def.held = [];
     def.pad.def = null;
+    B.view.releasePad(def.pad);
     if (B.selDef === def) B.selDef = null;
     B.defenders.splice(B.defenders.indexOf(def), 1);
     RF.sfx('back');
@@ -793,62 +645,20 @@ window.RF = window.RF || {};
     nm.querySelector('.txt').style.cssText = 'font-size:calc(20px * var(--ts));font-weight:700;color:#ffd76a';
     nm.appendChild(D.el('span', 'chip', D.CRYSTAL(16) + d.cost)).style.cssText += ';margin-left:auto;padding:2px 10px';
     D.line(d.desc, '', p);
-    D.line(d.kind === 'tower' ? 'hud.spotTower' : 'hud.spotTrail', '', p).querySelector('.txt').style.color = '#9cf2c0';
+    D.line(B.view.spotLine(d.kind), '', p).querySelector('.txt').style.color = '#9cf2c0';
     if (B.crystals < d.cost) D.line('hud.need', '', p).querySelector('.txt').style.color = '#ff9a9a';
   };
+  // Open places for the picked defender: stone pads (3D) or suggested spots (painted map).
+  // The arrow keys step through them, and the balance simulator builds on them.
   function candidates() {
     if (!B.buildSel) return [];
-    const kind = B.U.defenders[B.buildSel].kind;
-    return B.world.pads.filter(function (p) { return !p.def && p.kind === kind; });
+    return B.view.spots(B.U.defenders[B.buildSel].kind);
   }
-  B.updatePads = function () {
-    const cand = candidates();
-    B.world.pads.forEach(function (p) {
-      p.marker.visible = !p.def;
-      p.ringMat.color.setHex(p.kind === 'tower' ? 0x7ef3ff : 0xd9a8ff);
-      p.ringMat.opacity = B.buildSel ? (cand.indexOf(p) >= 0 ? 0.9 : 0.08) : 0.35;
-    });
-  };
+  B.candidates = candidates;
+  B.updatePads = function () { B.view.updatePads(candidates()); };
   function animatePads() {
     if (!B.buildSel) return;
-    const cand = candidates();
-    const t = RF.app.time;
-    cand.forEach(function (p, i) {
-      const on = i === B.padCursor;
-      p.ringMat.color.setHex(on ? 0xffffff : 0xffd76a);
-      p.ringMat.opacity = on ? 1 : RF.settings.reducedMotion ? 0.85 : 0.6 + Math.abs(Math.sin(t * 3)) * 0.4;
-    });
-  }
-
-  // ---------- Pointer ----------
-  function pickPad(ev) {
-    const v = new THREE.Vector2(ev.clientX / window.innerWidth * 2 - 1, -(ev.clientY / window.innerHeight) * 2 + 1);
-    ray.setFromCamera(v, B.world.camera);
-    const hits = ray.intersectObjects(B.world.pads.map(function (p) { return p.hit; }));
-    return hits.length ? hits[0].object.userData.pad : null;
-  }
-  function onClick(ev) {
-    if (!B.active || B.phase === 'done') return;
-    const pad = pickPad(ev);
-    if (!pad) { B.selectBuild(null); B.closePopup(); return; }
-    if (pad.def) { B.selectBuild(null); B.showDefPopup(pad.def); return; }
-    if (B.tut && !B.tut.allowPads() && !B.buildSel && !pad.def) return;
-    if (B.buildSel) {
-      if (B.U.defenders[B.buildSel].kind === pad.kind) B.place(B.buildSel, pad);
-      else { B.toast(pad.kind === 'tower' ? 'hud.wrongTower' : 'hud.wrongTrail', true); RF.sfx('soft'); }
-      return;
-    }
-    B.showPadMenu(pad);
-  }
-  function onMove(ev) {
-    if (!B.active) return;
-    const pad = pickPad(ev);
-    RF.app.renderer.domElement.style.cursor = pad ? 'pointer' : 'default';
-  }
-  function canvasOn() {
-    const c = RF.app.renderer.domElement;
-    c.onclick = onClick;
-    c.onpointermove = onMove;
+    B.view.animatePads(candidates(), B.padCursor);
   }
 
   // ---------- Popups on the battlefield ----------
@@ -876,7 +686,7 @@ window.RF = window.RF || {};
     B.popup.style.display = 'none';
     D.clear(B.popup);
     B.selDef = null;
-    if (B.rangeRing) B.rangeRing.visible = false;
+    if (B.view) B.view.hideRange();
   };
   // Tap an empty spot: build right there.
   B.showPadMenu = function (pad) {
@@ -951,18 +761,11 @@ window.RF = window.RF || {};
     x.setAttribute('aria-label', 'Close');
     x.addEventListener('click', function () { B.closePopup(); });
     // Nothing left to buy: just a quick look, so it goes away sooner.
-    popupAt(def.pad.x, def.type === 'archer' ? 5.2 : 3.4, def.pad.z, def.lv >= 4 ? 3 : 8);
+    popupAt(def.pad.x, B.view.defTop(def), def.pad.z, def.lv >= 4 ? 3 : 8);
     // Show its reach.
     const lvl = stat(def);
     const r = lvl.range || lvl.radius || 1.6;
-    if (!B.rangeRing) {
-      B.rangeRing = new THREE.Mesh(new THREE.RingGeometry(0.97, 1, 64), new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.9, depthWrite: false }));
-      B.rangeRing.rotation.x = -Math.PI / 2;
-      B.world.scene.add(B.rangeRing);
-    }
-    B.rangeRing.scale.set(r, r, 1);
-    B.rangeRing.position.set(def.pad.x, 0.15, def.pad.z);
-    B.rangeRing.visible = def.type !== 'golem' && def.type !== 'barricade';
+    if (def.type !== 'golem' && def.type !== 'barricade') B.view.showRange(def, r);
     RF.speakSeq(def.lv === 3 && d.spec ? head.concat([{ id: 'hud.specLast' }]) : head);
   };
 
@@ -998,25 +801,15 @@ window.RF = window.RF || {};
 
   // ---------- Mega Forge ----------
   B.megaBlast = function () {
-    const G = RF.G;
-    const flash = G.sprite(G.TEX.yellow, 70, -6, 12, 0, B.world.dyn, 0.95);
-    B.fx.push({ life: 1.0, t: 0, update: function (f) { flash.material.opacity = 0.95 * (1 - f); flash.scale.setScalar(70 + f * 20); }, end: function () { B.world.dyn.remove(flash); } });
+    B.view.megaFlash();
     const dmg = B.U.forge.megaBlast;
-    B.creatures.slice().forEach(function (c) { hurt(c, dmg, false, 'break'); burst(c.x, 1.2, c.z, G.TEX.yellow, 4); });
+    B.creatures.slice().forEach(function (c) { hurt(c, dmg, false, 'break'); burst(c.x, 1.2, c.z, 'yellow', 4); });
     if (!RF.settings.reducedMotion) B.shake = 0.4;
     RF.audio.fx('mega');
   };
 
   // ---------- Effects ----------
-  function burst(x, y, z, tex, n) {
-    const G = RF.G;
-    if (RF.settings.reducedMotion) n = Math.min(n, 2);
-    for (let i = 0; i < n; i++) {
-      const s = G.sprite(tex, 0.6, x, y, z, B.world.dyn, 0.9);
-      const vx = (Math.random() - 0.5) * 4, vy = 1 + Math.random() * 3, vz = (Math.random() - 0.5) * 4;
-      B.fx.push({ life: 0.5 + Math.random() * 0.3, t: 0, update: function (f, dt) { s.position.x += vx * dt; s.position.y += vy * dt; s.position.z += vz * dt; s.material.opacity = 0.9 * (1 - f); s.scale.setScalar(0.6 + f * 1.2); }, end: function () { B.world.dyn.remove(s); } });
-    }
-  }
+  function burst(x, y, z, color, n) { B.view.burst(x, y, z, color, n); }
   // src 'break' (ember splash, lightning, mega blast) pops a Shield Brute's shield first and then hits full.
   // Everything else (archers, spikes, golems) is cut while the shield is up.
   function hurt(c, dmg, showNum, src) {
@@ -1027,6 +820,7 @@ window.RF = window.RF || {};
     }
     c.hp -= dmg;
     if (showNum) {
+      B.view.hitCreature(c, dmg);
       const p = screenOf(c.x, 2.4, c.z);
       B.floatText('-' + Math.round(dmg), p.x, p.y, '#ffd76a', 20);
     }
@@ -1035,47 +829,30 @@ window.RF = window.RF || {};
   function breakShield(c) {
     if (!c.shield) return;
     c.shield = false;
-    (c.obj.userData.shield || []).forEach(function (m) { m.visible = false; });
-    burst(c.x, 1.4, c.z, RF.G.TEX.purple, 8);
-    burst(c.x, 1.4, c.z, RF.G.TEX.cyan, 4);
+    B.view.breakShield(c);
+    burst(c.x, 1.4, c.z, 'purple', 8);
+    burst(c.x, 1.4, c.z, 'cyan', 4);
     RF.audio.fx('shieldBreak');
     if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.12);
   }
-  // A bolt that fades out fast.
-  function zap(a, b) {
-    const grp = new THREE.Group();
-    B.world.dyn.add(grp);
-    RF.G.boltLine(a, b, grp, 0xfff7b0);
-    RF.G.boltLine(a, b, grp, 0xffffff); // second jagged line makes the bolt thicker
-    RF.G.sprite(RF.G.TEX.yellow, 2.4, b.x, b.y, b.z, grp, 0.9);
-    const mats = [];
-    grp.traverse(function (o) { if (o.material) { o.material.transparent = true; mats.push([o.material, o.material.opacity]); } });
-    B.fx.push({ life: 0.22, t: 0, update: function (f) { mats.forEach(function (m) { m[0].opacity = m[1] * (1 - f); }); }, end: function () {
-      grp.traverse(function (o) { if (o.geometry) o.geometry.dispose(); });
-      B.world.dyn.remove(grp);
-    } });
-    burst(b.x, b.y, b.z, RF.G.TEX.yellow, 2);
-  }
   // Ember shell lands: hurt everything in the radius, pop shields, show an orange burst.
   function splash(x, z, lv) {
-    const G = RF.G;
     B.creatures.slice().forEach(function (c) {
       if (!isAir(c) && Math.hypot(c.x - x, c.z - z) <= lv.radius) hurt(c, lv.dmg, c.max > 20, 'break');
     });
-    burst(x, 0.8, z, G.TEX.orange, 8);
+    burst(x, 0.8, z, 'orange', 8);
     if (lv.burnDps) {
-      const spr = G.sprite(G.TEX.orange, lv.burnRadius * 2, x, 0.3, z, B.world.dyn, 0.7);
-      B.burns.push({ x: x, z: z, r: lv.burnRadius, dps: lv.burnDps, life: lv.burnLife, spr: spr });
+      const b = { x: x, z: z, r: lv.burnRadius, dps: lv.burnDps, life: lv.burnLife };
+      B.view.burnAdd(b);
+      B.burns.push(b);
     }
-    const ring = G.sprite(G.TEX.orange, lv.radius * 1.2, x, 0.6, z, B.world.dyn, 0.9);
-    B.fx.push({ life: 0.35, t: 0, update: function (f) { ring.material.opacity = 0.9 * (1 - f); ring.scale.setScalar(lv.radius * (1.2 + f * 1.6)); }, end: function () { B.world.dyn.remove(ring); } });
+    B.view.splashRing(x, z, lv.radius);
     if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.08);
     RF.audio.fx('emberBoom');
   }
   function kill(c, byDefense) {
     c.alive = false;
-    B.world.dyn.remove(c.obj);
-    c.label.remove();
+    B.view.removeCreature(c, byDefense);
     if (c.held) { const h = c.held.held; const i = h.indexOf(c); if (i >= 0) h.splice(i, 1); c.held = null; }
     if (c.rootedBy) { const h = c.rootedBy.held; const i = h.indexOf(c); if (i >= 0) h.splice(i, 1); c.rootedBy = null; c.rooted = 0; }
     B.creatures.splice(B.creatures.indexOf(c), 1);
@@ -1086,7 +863,7 @@ window.RF = window.RF || {};
       // Shards go to a bank for the Armory between levels (M6 part 4).
       B.shards += cd.shards;
       const small = c.type === 'wisp' || c.type === 'bramble' || c.type === 'bat' || c.type === 'splitling';
-      burst(c.x, heightOf(c), c.z, RF.G.TEX.purple, small ? 3 : 7);
+      burst(c.x, heightOf(c), c.z, 'purple', small ? 3 : 7);
       RF.audio.fx(c.type === 'wisp' || c.type === 'bat' ? 'wispDie' : c.type === 'bramble' || c.type === 'splitling' ? 'brambleDie' : 'thornDie');
       const p = screenOf(c.x, 2.0, c.z);
       B.floatText('+' + cd.shards, p.x, p.y, '#e3b8ff', 15);
@@ -1096,7 +873,7 @@ window.RF = window.RF || {};
           const off = (i - (cd.split.count - 1) / 2);
           spawn(cd.split.into, c.hpScale, { s: Math.max(0, c.s + off * 0.5), lane: Math.max(-0.6, Math.min(0.6, c.lane + off * 0.7)) });
         }
-        burst(c.x, 1.0, c.z, RF.G.TEX.cyan, 5);
+        burst(c.x, 1.0, c.z, 'cyan', 5);
       }
     }
   }
@@ -1114,15 +891,10 @@ window.RF = window.RF || {};
       e.update(f, realDt);
       if (f >= 1) { if (e.end) e.end(); B.fx.splice(i, 1); }
     }
-    // Camera shake
-    const cam = world.camera;
-    if (B.shake > 0) {
-      B.shake -= realDt;
-      RF.app.battleCam();
-      cam.position.x += (Math.random() - 0.5) * 0.5;
-      cam.position.y += (Math.random() - 0.5) * 0.5;
-      if (B.shake <= 0) RF.app.battleCam();
-    }
+    // Screen shake counts down here; the view draws it.
+    const shaking = B.shake > 0;
+    if (shaking) B.shake -= realDt;
+    B.view.frame(realDt, shaking, shaking && B.shake <= 0);
     if (!dt) return;
 
     // A wave earned by reading comes after a short breath (game time, so Pause and Focus slow it too).
@@ -1180,7 +952,7 @@ window.RF = window.RF || {};
           inRing.forEach(function (c) {
             if (!c.alive) return;
             c.stun = Math.max(c.stun, lv.freeze / (c.type === 'brute' ? 2 : 1)); c.stunTag = 'tag.frozen';
-            burst(c.x, heightOf(c), c.z, RF.G.TEX.ice, 2);
+            burst(c.x, heightOf(c), c.z, 'ice', 2);
           });
           RF.audio.fx('frost');
         }
@@ -1193,7 +965,7 @@ window.RF = window.RF || {};
       const lv = stat(d);
       if (d.down > 0) {
         d.down -= dt * d.rebuild;
-        if (d.down <= 0) { d.obj.visible = true; d.hp = d.max; popIn(d.obj); }
+        if (d.down <= 0) { B.view.defenderDown(d, false); d.hp = d.max; B.view.popIn(d); }
         return;
       }
       B.creatures.forEach(function (c) {
@@ -1210,15 +982,15 @@ window.RF = window.RF || {};
         d.cd = 1 / lv.rate;
         RF.audio.fxEvery('golem', d.pad.id, 0.5);
         // Quake Golem: every slam hits everything it holds.
-        if (lv.quake) { d.held.slice().forEach(function (c) { hurt(c, lv.dmg, true); }); burst(d.pad.x, 0.4, d.pad.z, RF.G.TEX.orange, 4); if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.06); }
+        if (lv.quake) { d.held.slice().forEach(function (c) { hurt(c, lv.dmg, true); }); burst(d.pad.x, 0.4, d.pad.z, 'orange', 4); if (!RF.settings.reducedMotion) B.shake = Math.max(B.shake, 0.06); }
         else hurt(d.held[0], lv.dmg, true);
-        if (!RF.settings.reducedMotion) { d.obj.rotation.x = -0.25; setTimeout(function () { d.obj.rotation.x = 0; }, 160); }
+        B.view.strike(d, d.held[0]);
       }
       if (d.hp <= 0) {
         d.down = lv.respawn || U.defenders.golem.respawn;
         B.golemFalls++;
-        d.obj.visible = false;
-        burst(d.pad.x, 1.2, d.pad.z, RF.G.TEX.cyan, 6);
+        B.view.defenderDown(d, true);
+        burst(d.pad.x, 1.2, d.pad.z, 'cyan', 6);
         d.held.forEach(function (c) { c.held = null; });
         d.held = [];
         RF.sfx('soft');
@@ -1240,11 +1012,11 @@ window.RF = window.RF || {};
       if (d.hp <= 0) {
         d.held.forEach(function (c) { c.held = null; });
         d.held = [];
-        burst(d.pad.x, 1.0, d.pad.z, RF.G.TEX.orange, 6);
-        B.world.dyn.remove(d.obj);
-        if (d.label) d.label.remove();
+        burst(d.pad.x, 1.0, d.pad.z, 'orange', 6);
+        B.view.removeDefender(d);
         if (B.selDef === d) B.closePopup();
         d.pad.def = null;
+        B.view.releasePad(d.pad);
         B.defenders.splice(B.defenders.indexOf(d), 1);
         B.barricadeFalls++;
         RF.sfx('soft');
@@ -1258,7 +1030,7 @@ window.RF = window.RF || {};
       const lv = stat(d);
       if (d.regrow > 0) {
         d.regrow -= dt;
-        if (d.regrow <= 0) { d.regrow = 0; applyScale(d); }
+        if (d.regrow <= 0) { d.regrow = 0; B.view.scaleDefender(d); }
         return;
       }
       if (!d.held.length) {
@@ -1268,7 +1040,7 @@ window.RF = window.RF || {};
           c.rooted = lv.root / (c.type === 'brute' ? spec.bruteBreak : 1);
           c.rootedBy = d;
           d.held.push(c);
-          burst(c.x, 0.6, c.z, RF.G.TEX.cyan, 2);
+          burst(c.x, 0.6, c.z, 'cyan', 2);
         });
         if (d.held.length) RF.audio.fxEvery('spike', d.pad.id, 0.7);
         return;
@@ -1278,7 +1050,7 @@ window.RF = window.RF || {};
         hurt(c, lv.dps * dt); // a kill takes it off d.held
         if (c.alive && c.rooted <= 0) { c.rooted = 0; c.rootedBy = null; d.held.splice(d.held.indexOf(c), 1); }
       });
-      if (!d.held.length) { d.regrow = lv.regrow; applyScale(d); }
+      if (!d.held.length) { d.regrow = lv.regrow; B.view.scaleDefender(d); }
     });
     // Healing Shrines repair golems and barricades, and slowly mend the Rift Anchor during a wave.
     B.defenders.forEach(function (d) {
@@ -1289,7 +1061,7 @@ window.RF = window.RF || {};
         if ((o.type !== 'golem' && o.type !== 'barricade') || o.down > 0 || o.hp >= o.max) return;
         if (Math.hypot(o.pad.x - d.pad.x, o.pad.z - d.pad.z) > lv.range) return;
         o.hp = Math.min(o.max, o.hp + lv.heal * dt);
-        if (d.fxT <= 0) burst(o.pad.x, 1.4, o.pad.z, RF.G.TEX.cyan, 2);
+        if (d.fxT <= 0) burst(o.pad.x, 1.4, o.pad.z, 'cyan', 2);
       });
       if (d.fxT <= 0) d.fxT = 0.8;
       if (B.phase === 'wave') {
@@ -1299,7 +1071,7 @@ window.RF = window.RF || {};
           if (B.anchor < B.anchorMax) {
             B.anchor++;
             B.renderTop();
-            const p = screenOf(B.world.camp.x, 5.4, B.world.camp.z);
+            const p = screenOf(B.world.camp.x, B.view.anchorTextY, B.world.camp.z);
             B.floatText('+1', p.x, p.y, '#7dff9c', 24);
             RF.audio.fx('upgrade');
           }
@@ -1315,7 +1087,7 @@ window.RF = window.RF || {};
         if (!isAir(c) && Math.hypot(c.x - d.pad.x, c.z - d.pad.z) <= lv.radius) { hurt(c, lv.dps * dt); any = true; }
       });
       if (any) RF.audio.fxEvery('spike', d.pad.id, 0.7);
-      if (!RF.settings.reducedMotion) d.obj.position.y = any ? Math.abs(Math.sin(RF.app.time * 18)) * 0.15 : 0;
+      B.view.spikeActive(d, any);
     });
     // Creatures move
     B.creatures.slice().forEach(function (c) {
@@ -1333,7 +1105,7 @@ window.RF = window.RF || {};
       if (c.s >= world.path.len) {
         const cd = U.creatures[c.type];
         B.anchor -= cd.anchor;
-        world.anchorFlash = 0.6;
+        B.view.anchorHurt();
         if (!RF.settings.reducedMotion) B.shake = 0.25;
         RF.audio.fx('anchorHit');
         if (B.tut) B.tut.on('anchorHit');
@@ -1356,9 +1128,8 @@ window.RF = window.RF || {};
       d.cd = 1 / lv.rate;
       const sc = 1 + 0.08 * (d.lv - 1);
       inR.forEach(function (best) {
-        const a = RF.G.arrow(d.pad.x, 3.2 * sc, d.pad.z, world.dyn);
-        if (d.spec === 'a') a.scale.setScalar(1.6);
-        B.shots.push({ obj: a, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
+        B.view.aim(d, best.x, best.z);
+        addShot({ kind: 'arrow', x: d.pad.x, y: 3.2 * sc, z: d.pad.z, size: d.spec === 'a' ? 1.6 : 0, target: best, dmg: lv.dmg, speed: 26, tx: best.x, tz: best.z });
       });
       RF.audio.fxEvery('archer', d.pad.id, 0.3);
     });
@@ -1378,12 +1149,10 @@ window.RF = window.RF || {};
       });
       if (!best) return;
       d.cd = 1 / lv.rate;
-      const top = d.obj.children[1];
-      top.rotation.set(0.2, Math.atan2(-(best.x - d.pad.x), -(best.z - d.pad.z)), 0);
-      const a = RF.G.arrow(d.pad.x, 1.9 * (1 + 0.08 * (d.lv - 1)), d.pad.z, world.dyn);
-      a.scale.setScalar(d.spec === 'a' ? 3.2 : 2.2);
+      B.view.aim(d, best.x, best.z);
+      B.view.recoil(d);
       RF.audio.fxEvery('archer', d.pad.id, 0.3);
-      B.shots.push({ obj: a, target: best, dmg: lv.dmg * (spec.big.indexOf(best.type) >= 0 ? (lv.bigBonus || spec.bigBonus) : 1), speed: spec.boltSpeed, tx: best.x, tz: best.z, src: lv.breaks ? 'break' : null });
+      addShot({ kind: 'bolt', x: d.pad.x, y: 1.9 * (1 + 0.08 * (d.lv - 1)), z: d.pad.z, size: d.spec === 'a' ? 3.2 : 2.2, target: best, dmg: lv.dmg * (spec.big.indexOf(best.type) >= 0 ? (lv.bigBonus || spec.bigBonus) : 1), speed: spec.boltSpeed, tx: best.x, tz: best.z, src: lv.breaks ? 'break' : null });
     });
     // Ember Cannons lob a slow shell at the creature furthest along the trail.
     B.defenders.forEach(function (d) {
@@ -1404,15 +1173,12 @@ window.RF = window.RF || {};
       // Aim where it will be, unless it is held.
       let tx = best.x, tz = best.z;
       if (!best.held) { const p = world.path.at(Math.min(world.path.len, best.s + best.speed * best.slow * T), best.lane, tmp); tx = p.x; tz = p.z; }
-      const yoke = d.obj.children[1];
       const ang = Math.atan2(-(tx - d.pad.x), -(tz - d.pad.z));
-      yoke.rotation.y = ang;
+      B.view.aim(d, tx, tz);
       const sx = d.pad.x - Math.sin(ang) * 1.1 * sc, sz = d.pad.z - Math.cos(ang) * 1.1 * sc, sy = 2.1 * sc;
-      const ball = RF.G.mesh(new THREE.SphereGeometry(0.26, 8, 6), RF.G.M.ember, sx, sy, sz, world.dyn);
-      const glow = RF.G.sprite(RF.G.TEX.orange, 1.3, 0, 0, 0, ball, 0.9);
-      B.shots.push({ shell: true, obj: ball, glow: glow, fx: sx, fy: sy, fz: sz, tx: tx, tz: tz, T: T, t: 0, lv: lv, arc: sh.arc, def: d });
-      if (!RF.settings.reducedMotion) { yoke.position.z = 0.25; setTimeout(function () { yoke.position.z = 0; }, 120); }
-      burst(sx, sy, sz, RF.G.TEX.orange, 2);
+      addShot({ shell: true, x: sx, y: sy, z: sz, fx: sx, fy: sy, fz: sz, tx: tx, tz: tz, T: T, t: 0, lv: lv, arc: sh.arc, def: d });
+      B.view.recoil(d);
+      burst(sx, sy, sz, 'orange', 2);
       RF.audio.fxEvery('ember', d.pad.id, 0.4);
     });
     // Lightning Spires zap the furthest creature, then jump to nearby ones.
@@ -1429,13 +1195,14 @@ window.RF = window.RF || {};
       if (!best) return;
       d.cd = 1 / lv.rate;
       const sc = 1 + 0.08 * (d.lv - 1);
-      let prev = V3(d.pad.x, 0.45 + 4.1 * sc, d.pad.z);
+      let prev = { x: d.pad.x, y: 0.45 + 4.1 * sc, z: d.pad.z };
+      B.view.recoil(d);
       const hit = [best];
       let cur = best, dmg = lv.dmg;
       for (let j = 0; j <= lv.chain && cur; j++) {
-        const pt = V3(cur.x, heightOf(cur), cur.z);
-        zap(prev, pt);
-        if (lv.stun) zap(prev, pt); // Thunder Spire: one fat bolt
+        const pt = { x: cur.x, y: heightOf(cur), z: cur.z };
+        B.view.zap(prev, pt);
+        if (lv.stun) B.view.zap(prev, pt); // Thunder Spire: one fat bolt
         hurt(cur, dmg, true, 'break');
         if (lv.stun && cur.alive) { cur.stun = Math.max(cur.stun, lv.stun); cur.stunTag = 'tag.stunned'; }
         prev = pt;
@@ -1457,11 +1224,11 @@ window.RF = window.RF || {};
       if (!sh.shell) continue;
       sh.t += dt;
       const f = Math.min(1, sh.t / sh.T);
-      sh.obj.position.set(sh.fx + (sh.tx - sh.fx) * f, sh.fy + (0.4 - sh.fy) * f + Math.sin(f * Math.PI) * sh.arc, sh.fz + (sh.tz - sh.fz) * f);
+      sh.x = sh.fx + (sh.tx - sh.fx) * f; sh.y = sh.fy + (0.4 - sh.fy) * f + Math.sin(f * Math.PI) * sh.arc; sh.z = sh.fz + (sh.tz - sh.fz) * f;
+      B.view.moveShot(sh);
       if (f >= 1) {
         splash(sh.tx, sh.tz, sh.lv);
-        sh.obj.geometry.dispose();
-        world.dyn.remove(sh.obj);
+        B.view.removeShot(sh);
         B.shots.splice(i, 1);
       }
     }
@@ -1472,8 +1239,8 @@ window.RF = window.RF || {};
       B.creatures.slice().forEach(function (c) {
         if (onGround(c) && Math.hypot(c.x - b.x, c.z - b.z) <= b.r) hurt(c, b.dps * dt);
       });
-      b.spr.material.opacity = 0.7 * Math.min(1, b.life / 0.8);
-      if (b.life <= 0) { B.world.dyn.remove(b.spr); B.burns.splice(i, 1); }
+      B.view.burnTick(b);
+      if (b.life <= 0) { B.view.burnRemove(b); B.burns.splice(i, 1); }
     }
     // Arrows fly
     for (let i = B.shots.length - 1; i >= 0; i--) {
@@ -1481,18 +1248,16 @@ window.RF = window.RF || {};
       if (sh.shell) continue;
       if (sh.target.alive) { sh.tx = sh.target.x; sh.tz = sh.target.z; }
       const ty = heightOf(sh.target);
-      const p = sh.obj.position;
-      const dx = sh.tx - p.x, dy = ty - p.y, dz = sh.tz - p.z;
+      const dx = sh.tx - sh.x, dy = ty - sh.y, dz = sh.tz - sh.z;
       const dist = Math.hypot(dx, dy, dz);
       const step = sh.speed * dt;
       if (dist <= step) {
-        if (sh.target.alive) { RF.audio.fxEvery('arrowHit', 'arrowHit', 0.09); hurt(sh.target, sh.dmg, true, sh.src); burst(sh.tx, ty, sh.tz, RF.G.TEX.yellow, 2); }
-        world.dyn.remove(sh.obj);
+        if (sh.target.alive) { RF.audio.fxEvery('arrowHit', 'arrowHit', 0.09); hurt(sh.target, sh.dmg, true, sh.src); burst(sh.tx, ty, sh.tz, 'yellow', 2); }
+        B.view.removeShot(sh);
         B.shots.splice(i, 1);
       } else {
-        p.x += dx / dist * step; p.y += dy / dist * step; p.z += dz / dist * step;
-        sh.obj.lookAt(sh.tx, ty, sh.tz);
-        sh.obj.rotateY(Math.PI);
+        sh.x += dx / dist * step; sh.y += dy / dist * step; sh.z += dz / dist * step;
+        B.view.moveShot(sh, ty);
       }
     }
     // Wave over?
@@ -1508,33 +1273,16 @@ window.RF = window.RF || {};
     }
   };
 
-  // Move labels to follow things on the battlefield.
+  // What a creature's health bar says. The shield tag always shows while the shield is up;
+  // slowed or held is added beside it.
+  B.creatureTag = function (c) { return c.shield ? RF.t('tag.shield') + (c.tag ? ' · ' + RF.t(c.tag) : '') : c.tag ? RF.t(c.tag) : ''; };
+  B.tagColor = function (c) { return c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' || c.tag === 'tag.frozen' ? '#bff3ff' : c.tag === 'tag.rooted' ? '#9cf2c0' : '#ffd76a'; };
+
+  // Draw health bars and keep an open popup beside its defender.
   B.afterRender = function () {
-    const put = function (el, x, y, z) {
-      const p = screenOf(x, y, z);
-      el.style.transform = 'translate(' + Math.round(p.x) + 'px,' + Math.round(p.y) + 'px) translate(-50%,-100%)';
-    };
-    put(B.anchorLabel, B.world.camp.x, 6.4, B.world.camp.z);
-    put(B.riftLabel, B.world.rift.x, 4.5, B.world.rift.z);
-    B.creatures.forEach(function (c) {
-      put(c.label, c.x, c.type === 'wisp' ? 2.3 : c.type === 'bat' ? 3.4 : c.type === 'bramble' || c.type === 'splitling' ? 1.5 : c.type === 'brute' ? 3.5 : 2.5, c.z);
-      c.label.lastChild.firstChild.style.width = Math.max(0, c.hp / c.max * 100) + '%';
-      // The shield tag always shows while the shield is up; slowed or held is added beside it.
-      const t = c.shield ? RF.t('tag.shield') + (c.tag ? ' · ' + RF.t(c.tag) : '') : c.tag ? RF.t(c.tag) : '';
-      if (c.label.firstChild.textContent !== t) {
-        c.label.firstChild.textContent = t;
-        c.label.firstChild.style.color = c.shield ? '#e3b8ff' : c.tag === 'tag.slowed' ? '#bff3ff' : c.tag === 'tag.rooted' ? '#9cf2c0' : c.tag === 'tag.frozen' ? '#bff3ff' : '#ffd76a';
-      }
-    });
-    B.defenders.forEach(function (d) {
-      if (!d.label) return;
-      put(d.label, d.pad.x, 3.2, d.pad.z);
-      d.label.lastChild.firstChild.style.width = (d.down > 0 ? 0 : Math.max(0, d.hp / d.max * 100)) + '%';
-      const t = d.down > 0 ? RF.t('tag.rebuild') : '';
-      if (d.label.firstChild.textContent !== t) d.label.firstChild.textContent = t;
-    });
+    B.view.afterRender();
     if (B.selDef && B.popup.style.display !== 'none') {
-      placePopup(screenOf(B.selDef.pad.x, B.selDef.type === 'archer' ? 5.2 : 3.4, B.selDef.pad.z));
+      placePopup(screenOf(B.selDef.pad.x, B.view.defTop(B.selDef), B.selDef.pad.z));
     }
   };
 
@@ -1602,13 +1350,7 @@ window.RF = window.RF || {};
     if (B.volPanel) B.toggleVolume(false);
     if (B.hud) { B.hud.remove(); B.hud = null; }
     D.clear(document.getElementById('labels'));
-    const dyn = B.world.dyn;
-    while (dyn.children.length) dyn.remove(dyn.children[0]);
-    if (B.rangeRing) B.rangeRing.visible = false;
-    B.world.pads.forEach(function (p) { p.def = null; p.marker.visible = true; p.ringMat.opacity = 0.35; p.ringMat.color.setHex(p.kind === 'tower' ? 0x7ef3ff : 0xd9a8ff); });
-    const c = RF.app.renderer.domElement;
-    c.onclick = null; c.onpointermove = null; c.style.cursor = 'default';
-    RF.app.setView(0, 0);
+    B.view.stop();
   };
 
   // For testing: RF.battle.cheat(500) adds crystals.

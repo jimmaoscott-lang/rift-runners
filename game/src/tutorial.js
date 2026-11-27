@@ -155,7 +155,7 @@ window.RF = window.RF || {};
     if (on) {
       RF.sfx('select');
       // Every open tower pad gets its own round window; the arrow points at the best one.
-      spot([], padPoint, 'down', padHoles().concat([function () { return B.cards.archer; }, function () { return B.info; }]));
+      spot([], padPoint, 'down', padHoles().concat([function () { return B.cards.archer; }, function () { return B.info; }, function () { return B.view.confirmEl ? B.view.confirmEl() : null; }]));
       RF.speak('tut.s2b');
     } else {
       spot([function () { return B.cards.archer; }], function () { return B.cards.archer; }, 'down', [function () { return B.crystalChip; }]);
@@ -239,9 +239,14 @@ window.RF = window.RF || {};
     T.arrowDir = dir || 'down';
     T.holes = holes === null ? null : targets.concat(holes || []);
   }
+  // The glowing build spots: open stone pads (3D) or the level's hint spots (painted map).
+  function tutSpots() {
+    const V = T.B.view;
+    return V.tutSpots ? V.tutSpots('tower') : V.spots('tower');
+  }
   function padHoles() {
     const B = T.B;
-    return B.world.pads.filter(function (p) { return !p.def && p.kind === 'tower'; }).map(function (p) {
+    return tutSpots().map(function (p) {
       return function () { return p.def ? null : B.screenOf(p.x, 0.3, p.z); };
     });
   }
@@ -307,8 +312,7 @@ window.RF = window.RF || {};
     const cx = (window.innerWidth - 374 * s) / 2, cy = (window.innerHeight - 140 * s) / 2;
     const covers = [T.card, B.info, B.locksBox, B.powerBox].filter(Boolean).map(function (e) { return e.getBoundingClientRect(); });
     let best = null, bd = 1e9;
-    B.world.pads.forEach(function (p) {
-      if (p.def || p.kind !== 'tower') return;
+    tutSpots().forEach(function (p) {
       const q = B.screenOf(p.x, 0.3, p.z);
       if (q.x > window.innerWidth - 380 * s || q.y > window.innerHeight - 150 * s) return;
       if (covers.some(function (r) { return r.width && q.x > r.left - 30 && q.x < r.right + 30 && q.y > r.top - 70 && q.y < r.bottom + 90; })) return;
