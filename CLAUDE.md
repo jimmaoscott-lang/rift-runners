@@ -23,12 +23,16 @@ Read this file first in every session. Then read `CHECKLIST.md` (the master plan
 
 ## How each session runs
 
-1. Read this file, `CHECKLIST.md`, the newest SESSION-LOG entry and the newest test report.
+**Batch loop (approved Nov 27):** Claude writes 2 to 4 small prompts at once, in order. Mr. Scott runs them one at a time in AI Studio, checks each "Done when" list himself, and syncs to GitHub after each. He comes back to Claude after the batch, or sooner if something breaks. Small cosmetic changes (a color, a button spot, a typo) he gives AI Studio directly. Claude handles anything touching words and runes, speech checking, balance, difficulty or these rules.
+
+**One decision record:** Mr. Scott's decisions live in a "Mr. Scott's decisions" section of the Studio repo's `BUILD.md`, which AI Studio reads every time. Every prompt that follows a new decision tells AI Studio to add it there. Claude reads that section at the start of every session and never re-flags a decided item.
+
+1. Read this file, `CHECKLIST.md`, the newest SESSION-LOG entry, the newest test report, and the "Mr. Scott's decisions" section of the Studio `BUILD.md`.
 2. **Get the latest Studio build:** clone or pull `jimmaoscott-lang/rift-runners-studio` (read only), then run `npm install --legacy-peer-deps`, `npm run lint` and a build with `VITE_BASE_PATH=/rift-runners-studio/`.
 3. **Test it** the way students will meet it: serve the built `dist` folder under `/rift-runners-studio/`, play it in headless Chrome at 1366 x 768 and at 1093 x 614 (a Chromebook at 125% zoom), check the console, and play through what the last prompt changed. Keep test scripts outside the Studio folder (for example `/home/claude/tests/`).
 4. **Check the last prompt's results** against its "Done when" list. Mark it done, or write a follow-up fix prompt.
 5. **Write a ranked problem list** into `docs/STUDIO-TESTS.md` (newest at the top): what broke, why it matters for students, and how sure Claude is.
-6. **Write the next prompt** in `docs/STUDIO-PROMPTS.md` and give it to Mr. Scott in chat, ready to copy.
+6. **Write the next batch of prompts** (2 to 4) in `docs/STUDIO-PROMPTS.md` and give them to Mr. Scott in chat, ready to copy, in order. Test scripts are in `tools/studio-tests/`; reuse them.
 7. Update `CHECKLIST.md` and add a SESSION-LOG entry. Commit and push this repo.
 8. End by telling him which model to start the next chat with, plus a one-line starting message.
 

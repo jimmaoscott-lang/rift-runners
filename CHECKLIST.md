@@ -65,6 +65,14 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ### Step 5. Small fixes from Test 1
 - [ ] S-07: on a small Chromebook screen (125% zoom) the pause button covers "Send now"
 
+### Step 5b. Code cleanup (after Dec 2, one prompt at a time, game must play the same after each)
+- [ ] First prompt of the next batch: AI Studio adds a "Mr. Scott's decisions" section to its BUILD.md with every decision above
+- [ ] C-1: Speech scoring rule table. Today `scoreAzureWord` in `src/lib/speech.ts` is one 750-line function with a hand-written block per sound family. Turn it into one shared checker plus a table of rules, so new sounds (Worlds 4 to 8) are new table rows (Opus designs the table)
+- [ ] C-2: Word lists out of `src/data/level1.ts` (4,300 lines) into one file per world, so Claude can run the decodability checker on them directly
+- [ ] C-3: Defender recipe format. Each defender's behavior is special-cased in about 26 places in `src/game/CanvasBattleEngine.ts` (4,860 lines); move to one recipe per defender
+- [ ] C-4: Small leftovers (World 1 names typed into save loading and fallbacks). Low priority
+- [ ] Rule added to BUILD.md with C-1: new sounds, defenders and levels use the shared formats; no new special-case blocks
+
 ### Step 6. Playtest (Mr. Scott)
 - [ ] Play 2 or 3 levels on Normal, then decide Normal difficulty
 

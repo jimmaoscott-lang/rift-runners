@@ -35,3 +35,17 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 ### For Mr. Scott to check by hand
 - Play Level 1 on Normal once: too hard, about right, or too easy?
 - On a Chromebook: SAY IT on "pin", "cut" and "top" (the words the old build's mic missed).
+
+---
+
+## Code structure review: November 27, 2026
+
+Mr. Scott asked whether AI Studio is writing the same things over and over. Findings, biggest first:
+
+1. **Speech scoring:** `scoreAzureWord` (`src/lib/speech.ts`, lines 681 to about 1420) is one function of about 750 lines. Each sound family (short vowels, sh/ch, th, wh, -ck, L and R blends, S blends, final blends, silent e) has its own hand-written block with its own numbers. Every new world adds another block. Risk: inconsistent rules and bugs that are hard to find. Fix: one checker plus a rules table (C-1).
+2. **Level data:** `src/data/level1.ts` is about 4,300 lines holding all 12 levels, word lists, waves, creatures, defenders and cut scene text. Works, but word lists are hard to check and every level adds to one file (C-2).
+3. **Battle engine:** `src/game/CanvasBattleEngine.ts` is about 4,860 lines with about 26 places that branch on defender type. Adding a defender means editing many spots (C-3).
+4. **Leftovers:** World 1 level names typed directly into save loading (`src/lib/metrics.ts`, about lines 378 to 434) and about 20 "w1-l1" fallbacks. Saves for later worlds still work, so this is cleanup only (C-4).
+
+What is already done once and shared, and works well: audio sprites, the Spanish text file (`src/data/ellSpanish.ts`), level definitions read from one table, difficulty multipliers, and art loading.
+Recommendation: no cleanup before Dec 2. After, one cleanup prompt at a time, each saying the game must play exactly the same, with Claude's scripted test before and after.
