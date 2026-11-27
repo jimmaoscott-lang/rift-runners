@@ -25,6 +25,8 @@ Read this file first in every session. Then read `CHECKLIST.md` (the master plan
 
 **Batch loop (approved Nov 27):** Claude writes 2 to 4 small prompts at once, in order. Mr. Scott runs them one at a time in AI Studio, checks each "Done when" list himself, and syncs to GitHub after each. He comes back to Claude after the batch, or sooner if something breaks. Small cosmetic changes (a color, a button spot, a typo) he gives AI Studio directly. Claude handles anything touching words and runes, speech checking, balance, difficulty or these rules.
 
+**AI Studio reads this repo (read only).** `AI-STUDIO.md` is its guide. Mr. Scott can say "Run S-##" in AI Studio instead of pasting. Keep each prompt's Status line current (ready, sent, built, tested) so AI Studio never redoes or skips one. When Mr. Scott makes a decision, add it to the decisions list in `AI-STUDIO.md` too.
+
 **One decision record:** Mr. Scott's decisions live in a "Mr. Scott's decisions" section of the Studio repo's `BUILD.md`, which AI Studio reads every time. Every prompt that follows a new decision tells AI Studio to add it there. Claude reads that section at the start of every session and never re-flags a decided item.
 
 1. Read this file, `CHECKLIST.md`, the newest SESSION-LOG entry, the newest test report, and the "Mr. Scott's decisions" section of the Studio `BUILD.md`.
@@ -79,6 +81,7 @@ Each prompt in `docs/STUDIO-PROMPTS.md` uses the template at the top of that fil
 |---|---|
 | `CLAUDE.md` | These directions |
 | `CHECKLIST.md` | The master plan |
+| `AI-STUDIO.md` | Guide for AI Studio: what to read, how to run a prompt, the decisions list |
 | `docs/STUDIO-PROMPTS.md` | Copy-paste prompts for AI Studio, newest at the top |
 | `docs/STUDIO-TESTS.md` | Test reports and ranked problem lists for the Studio build |
 | `docs/SESSION-LOG.md` | One entry per Claude session |

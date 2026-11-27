@@ -46,6 +46,9 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ## Build order (AI Studio builds every step from Claude's prompts)
 
+### Step 0. Connect AI Studio to this repo
+- [ ] Mr. Scott gives AI Studio the setup prompt; it copies the decisions into its BUILD.md
+
 ### Step 1. Classroom-safe screens (before Dec 2)
 - [ ] S-01: Teacher lock. Hide the Playtest buttons, scene previews, lock Clear button, Unlock All Levels and Reset Placement behind a teacher code. (Prompt ready)
 - [ ] Claude tests S-01 (Sonnet)
@@ -66,7 +69,6 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [ ] S-07: on a small Chromebook screen (125% zoom) the pause button covers "Send now"
 
 ### Step 5b. Code cleanup (after Dec 2, one prompt at a time, game must play the same after each)
-- [ ] First prompt of the next batch: AI Studio adds a "Mr. Scott's decisions" section to its BUILD.md with every decision above
 - [ ] C-1: Speech scoring rule table. Today `scoreAzureWord` in `src/lib/speech.ts` is one 750-line function with a hand-written block per sound family. Turn it into one shared checker plus a table of rules, so new sounds (Worlds 4 to 8) are new table rows (Opus designs the table)
 - [ ] C-2: Word lists out of `src/data/level1.ts` (4,300 lines) into one file per world, so Claude can run the decodability checker on them directly
 - [ ] C-3: Defender recipe format. Each defender's behavior is special-cased in about 26 places in `src/game/CanvasBattleEngine.ts` (4,860 lines); move to one recipe per defender
