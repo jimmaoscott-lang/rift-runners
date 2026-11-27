@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Rift Runners: Graphics Test</title>
+  <style>
+    @font-face { font-family: 'Lexend'; font-weight: 400; font-display: block; src: url('../assets/fonts/lexend-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Lexend'; font-weight: 700; font-display: block; src: url('../assets/fonts/lexend-latin-700-normal.woff2') format('woff2'); }
+    html, body { margin: 0; height: 100%; background: #070912; overflow: hidden; font-family: Lexend, sans-serif; color: #fff; user-select: none; -webkit-user-select: none; }
+    canvas { display: block; }
+    .panel { position: absolute; background: rgba(10, 13, 32, .88); border: 2px solid #9aa6ff; border-radius: 12px; padding: 10px 14px; box-shadow: 0 4px 0 #05060f; }
+    #meter { left: 12px; top: 12px; min-width: 210px; }
+    #meter .title { font: 700 15px Lexend, sans-serif; color: #c9d0ff; margin-bottom: 4px; }
+    #fps { font: 700 44px Lexend, sans-serif; line-height: 1; }
+    #fps small { font-size: 18px; color: #c9d0ff; }
+    #rating { font: 700 20px Lexend, sans-serif; margin: 4px 0 6px; }
+    .row { font: 400 15px Lexend, sans-serif; color: #dfe3ff; margin-top: 2px; }
+    #controls { left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; max-width: 96vw; }
+    .group { display: flex; gap: 6px; align-items: center; }
+    .group span { font: 700 15px Lexend, sans-serif; color: #c9d0ff; margin-right: 2px; }
+    button { font: 700 16px Lexend, sans-serif; background: #232a63; border: 2px solid #9aa6ff; color: #fff; border-radius: 10px; padding: 7px 12px; box-shadow: 0 3px 0 #090b1c; cursor: pointer; }
+    button.on { background: #3f9a45; border-color: #b6f5b9; }
+    button.go { background: #8a2bbf; border-color: #e7b3ff; }
+    button:disabled { opacity: .5; cursor: default; }
+    #result { right: 12px; top: 12px; max-width: 360px; display: none; }
+    #result .title { font: 700 18px Lexend, sans-serif; margin-bottom: 6px; }
+    #result pre { font: 400 15px Lexend, sans-serif; white-space: pre-wrap; margin: 0 0 8px; }
+    #back { position: absolute; right: 12px; bottom: 12px; font: 700 15px Lexend, sans-serif; color: #c9d0ff; }
+    .good { color: #7dffa0; } .ok { color: #ffe27a; } .bad { color: #ff7a8a; }
+  </style>
+</head>
+<body>
+  <div id="meter" class="panel">
+    <div class="title">Graphics Test (Step 2)</div>
+    <div id="fps">--<small> fps</small></div>
+    <div id="rating">Warming up</div>
+    <div class="row" id="qline">Quality: High</div>
+    <div class="row" id="cline">Creatures: 15</div>
+    <div class="row" id="dline">Draw calls: --</div>
+  </div>
+
+  <div id="result" class="panel">
+    <div class="title">Test result</div>
+    <pre id="resultText"></pre>
+    <button id="copyBtn">Copy result</button>
+  </div>
+
+  <div id="controls" class="panel">
+    <div class="group"><span>Creatures</span>
+      <button data-crowd="15" class="on">15</button><button data-crowd="40">40</button><button data-crowd="80">80</button>
+    </div>
+    <div class="group"><span>Quality</span>
+      <button data-q="auto" class="on">Auto</button><button data-q="2">High</button><button data-q="1">Medium</button><button data-q="0">Low</button>
+    </div>
+    <button id="runBtn" class="go">Run 30-second test</button>
+  </div>
+  <a id="back" href="index.html">Back to the game</a>
+
+  <script src="lib/three.min.js"></script>
+  <script src="src/models.js"></script>
+  <script>
+  // Rift Runners graphics test (Checklist Step 2).
+  // A small battlefield using the game's own models, plus new jointed characters that walk,
+  // run and flap, so Mr. Scott can check on a Chromebook that moving characters stay smooth.
+  // Nothing here is saved, and no student data is used.
+  (function () {
+    const G = RF.G;
+    const V3 = THREE.Vector3;
+    const TIERS = ['Low', 'Medium', 'High'];
+
+    // ---------- renderer, scene, camera ----------
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.prepend(renderer.domElement);
+    const scene = new THREE.Scene(); window.__scene = scene;
+    scene.background = new THREE.Color(0x141a2e);
+    scene.fog = new THREE.Fog(0x141a2e, 55, 110);
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 200);
+    const camBase = new V3(0, 30, 34);
+    function resize() {
+      renderer.setSize(innerWidth, innerHeight);
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    addEventListener('resize', resize);
+
+    scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x2a2440, 0.75));
+    const sun = new THREE.DirectionalLight(0xfff0d8, 1.15);
+    sun.position.set(-18, 32, 16);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    const sc = sun.shadow.camera; sc.left = -36; sc.right = 36; sc.top = 26; sc.bottom = -26; sc.near = 5; sc.far = 90;
+    scene.add(sun);
+
+    // ---------- ground and path ----------
+    const pathPts = [[-27, -8], [-18, -10], [-10, -3], [-4, 6], [4, 7], [10, -1], [17, -4], [22, 2]].map(p => new V3(p[0], 0, p[1]));
+    const curve = new THREE.CatmullRomCurve3(pathPts);
+    const pathLen = curve.getLength();
+    const samples = curve.getSpacedPoints(160);
+    const ground = (x, z) => {
+      const d = G.pathDistance(samples, x, z);
+      return G.noise(x, z) * 0.45 * Math.min(1, Math.max(0, (d - 1.5) / 4));
+    };
+    G.terrain(80, 56, 120, ground, function (x, z, y, c) {
+      const d = G.pathDistance(samples, x, z);
+      if (d < 1.9) c.setRGB(0.42, 0.33, 0.22);
+      else if (d < 2.6) c.setRGB(0.30, 0.34, 0.20);
+      else { const n = G.noise(x * 1.7, z * 1.7); c.setRGB(0.16 + n * 0.03, 0.32 + n * 0.05, 0.17); }
+    }, scene);
+
+    G.reseed(11);
+    const forest = new THREE.Group();
+    for (let i = 0; i < 90; i++) {
+      const x = G.R(-38, 38), z = G.R(-26, 24);
+      if (G.pathDistance(samples, x, z) < 4.5 || Math.hypot(x - 22, z - 2) < 7 || Math.hypot(x + 27, z + 8) < 6) continue;
+      if (G.rnd() < 0.75) G.tree(x, z, forest, G.R(0.8, 1.3)); else G.rock(x, z, forest, G.R(0.6, 1.2));
+    }
+    G.mergeStatic(forest, scene);
+
+    const still = new THREE.Group();
+    G.riftGate(-29, -8, still);
+    G.camp(25, 2, still);
+    const anchorPos = new V3(25, 2, 2);
+
+    // ---------- outline helper (inverted hull, cartoon edge) ----------
+    const outlineMat = new THREE.MeshBasicMaterial({ color: 0x0a0812, side: THREE.BackSide });
+    const outlines = [];
+    function hullFor(m, k) {
+      // Black back-face copy, scaled about the part's own center, gives a cartoon edge.
+      k = k || 1.09;
+      m.geometry.computeBoundingBox();
+      const c = m.geometry.boundingBox.getCenter(new V3());
+      const h = new THREE.Mesh(m.geometry, outlineMat);
+      h.userData.isOutline = true;
+      h.scale.setScalar(k); h.position.copy(c).multiplyScalar(1 - k);
+      m.add(h); outlines.push(h);
+    }
+    function addOutline(root, k) {
+      const list = [];
+      root.traverse(o => { if (o.isMesh && !o.userData.isOutline && !o.userData.glowPart && !o.material.transparent) list.push(o); });
+      list.forEach(o => hullFor(o, k));
+    }
+
+    // Bake: merge the still shapes inside each moving part into one colored mesh (plus one for
+    // glowing bits), so a whole creature costs a handful of draw calls on a Chromebook.
+    const bakedMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0.05, flatShading: true });
+    const bakedGlow = new THREE.MeshBasicMaterial({ vertexColors: true });
+    function bake(node, keep) {
+      node.children.slice().forEach(ch => { if (!ch.isMesh && !ch.isSprite && !ch.isLight && keep.indexOf(ch) < 0) bake(ch, keep); });
+      const buckets = { solid: [], glow: [] };
+      node.children.forEach(ch => {
+        if (!ch.isMesh || keep.indexOf(ch) >= 0 || ch.material.transparent) return;
+        const m = ch.material;
+        const glowy = m.emissive && m.emissiveIntensity >= 0.9 && m.emissive.getHex() !== 0;
+        buckets[glowy ? 'glow' : 'solid'].push(ch);
+      });
+      ['solid', 'glow'].forEach(kind => {
+        const list = buckets[kind];
+        if (list.length < 1) return;
+        const pos = [], nor = [], col = [];
+        const cc = new THREE.Color();
+        list.forEach(ch => {
+          ch.updateMatrix();
+          const g = ch.geometry.index ? ch.geometry.toNonIndexed() : ch.geometry.clone();
+          g.applyMatrix4(ch.matrix);
+          if (!g.attributes.normal) g.computeVertexNormals();
+          cc.copy(kind === 'glow' ? ch.material.emissive : ch.material.color);
+          const n = g.attributes.position.count;
+          pos.push(g.attributes.position.array); nor.push(g.attributes.normal.array);
+          const ca = new Float32Array(n * 3); for (let i = 0; i < n; i++) { ca[i * 3] = cc.r; ca[i * 3 + 1] = cc.g; ca[i * 3 + 2] = cc.b; }
+          col.push(ca);
+          g.dispose(); node.remove(ch);
+        });
+        const join = arrs => { const out = new Float32Array(arrs.reduce((s, a) => s + a.length, 0)); let o = 0; arrs.forEach(a => { out.set(a, o); o += a.length; }); return out; };
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(join(pos), 3));
+        geo.setAttribute('normal', new THREE.BufferAttribute(join(nor), 3));
+        geo.setAttribute('color', new THREE.BufferAttribute(join(col), 3));
+        const m = new THREE.Mesh(geo, kind === 'glow' ? bakedGlow : bakedMat);
+        m.castShadow = kind === 'solid'; m.receiveShadow = false;
+        if (kind === 'glow') m.userData.glowPart = true;
+        node.add(m);
+      });
+    }
+
+    // ---------- new animated characters ----------
+    const mat = G.mat;
+    function limb(w, h, d, m, x, y, z, parent) {
+      // A pivot at the joint with the limb hanging below it, so it can swing.
+      const p = G.group(x, y, z, parent);
+      G.mesh(new THREE.BoxGeometry(w, h, d), m, 0, -h / 2, 0, p);
+      return p;
+    }
+    // Rift Grunt: a hunched two-legged creature with a glowing crack in its chest.
+    function grunt(colors) {
+      const g = new THREE.Group();
+      const skin = mat(colors[0]), dark = mat(colors[1]);
+      const hips = G.group(0, 0.95, 0, g);
+      const body = G.group(0, 0, 0, hips);
+      const torso = G.mesh(new THREE.DodecahedronGeometry(0.55, 0), skin, 0, 0.5, 0, body); torso.scale.set(1, 1.15, 0.85);
+      G.mesh(new THREE.BoxGeometry(0.1, 0.5, 0.06), G.M.rift, 0.05, 0.55, -0.45, body).rotation.z = 0.3;
+      const head = G.group(0, 1.15, -0.15, body);
+      G.mesh(new THREE.BoxGeometry(0.55, 0.45, 0.55), dark, 0, 0, 0, head);
+      G.mesh(new THREE.BoxGeometry(0.12, 0.07, 0.05), G.M.eye, -0.13, 0.04, -0.29, head);
+      G.mesh(new THREE.BoxGeometry(0.12, 0.07, 0.05), G.M.eye, 0.13, 0.04, -0.29, head);
+      G.mesh(new THREE.ConeGeometry(0.08, 0.3, 4), G.M.thornSpike, -0.2, 0.3, 0, head);
+      G.mesh(new THREE.ConeGeometry(0.08, 0.3, 4), G.M.thornSpike, 0.2, 0.3, 0, head);
+      const armL = limb(0.2, 0.8, 0.2, dark, -0.62, 0.85, 0, body);
+      const armR = limb(0.2, 0.8, 0.2, dark, 0.62, 0.85, 0, body);
+      G.mesh(new THREE.ConeGeometry(0.1, 0.28, 4), G.M.thornSpike, 0, -0.9, -0.05, armR).rotation.x = Math.PI;
+      const legL = limb(0.24, 0.95, 0.26, dark, -0.25, 0, 0, hips);
+      const legR = limb(0.24, 0.95, 0.26, dark, 0.25, 0, 0, hips);
+      g.userData.rig = { kind: 'biped', hips, body, head, armL, armR, legL, legR };
+      return g;
+    }
+    // Skitter: a fast, low four-legged rift beast with a swishing tail.
+    function skitter() {
+      const g = new THREE.Group();
+      const skin = mat(0x5a2f6e), dark = mat(0x2c1838);
+      const root = G.group(0, 0.75, 0, g);
+      const b = G.mesh(new THREE.DodecahedronGeometry(0.5, 0), skin, 0, 0, 0, root); b.scale.set(0.85, 0.65, 1.45);
+      const head = G.group(0, 0.15, -0.8, root);
+      G.mesh(new THREE.ConeGeometry(0.3, 0.7, 5), dark, 0, 0, -0.2, head).rotation.x = -Math.PI / 2;
+      G.mesh(new THREE.SphereGeometry(0.07, 6, 4), G.M.eye, -0.14, 0.12, -0.15, head);
+      G.mesh(new THREE.SphereGeometry(0.07, 6, 4), G.M.eye, 0.14, 0.12, -0.15, head);
+      for (let i = 0; i < 4; i++) G.mesh(new THREE.ConeGeometry(0.07, 0.35, 4), G.M.rift, 0, 0.38, -0.4 + i * 0.27, root).rotation.x = 0.4;
+      const tail = G.group(0, 0.05, 0.7, root);
+      G.mesh(new THREE.ConeGeometry(0.12, 0.9, 4), dark, 0, 0, 0.42, tail).rotation.x = Math.PI / 2;
+      const legs = [[-0.32, -0.45], [0.32, -0.45], [-0.32, 0.45], [0.32, 0.45]].map(p => limb(0.14, 0.75, 0.14, dark, p[0], 0, p[1], root));
+      g.userData.rig = { kind: 'quad', root, head, tail, legs };
+      return g;
+    }
+    // Camp Runner: one of our side, carrying a crystal between the camp and the towers.
+    function runner() {
+      const g = new THREE.Group();
+      const cloth = mat(0x1f6f8b), skin = mat(0xc98d63), boot = mat(0x3e2716);
+      const hips = G.group(0, 0.85, 0, g);
+      const body = G.group(0, 0, 0, hips);
+      G.mesh(new THREE.CylinderGeometry(0.3, 0.36, 0.8, 7), cloth, 0, 0.42, 0, body);
+      const head = G.group(0, 1.05, 0, body);
+      G.mesh(new THREE.SphereGeometry(0.24, 10, 8), skin, 0, 0, 0, head);
+      G.mesh(new THREE.ConeGeometry(0.27, 0.32, 8), mat(0x173f5a), 0, 0.2, 0, head);
+      const armL = limb(0.14, 0.62, 0.14, cloth, -0.42, 0.78, 0, body);
+      const armR = limb(0.14, 0.62, 0.14, cloth, 0.42, 0.78, 0, body);
+      const gem = G.mesh(new THREE.OctahedronGeometry(0.2, 0), G.M.anchor, 0, -0.68, -0.15, armR); gem.scale.y = 1.6;
+      const legL = limb(0.18, 0.85, 0.2, boot, -0.16, 0, 0, hips);
+      const legR = limb(0.18, 0.85, 0.2, boot, 0.16, 0, 0, hips);
+      g.userData.rig = { kind: 'biped', hips, body, head, armL, armR, legL, legR };
+      return g;
+    }
+
+    function animate(c, t, speed) {
+      const r = c.obj.userData.rig;
+      const ph = t * speed + c.seed;
+      if (r && r.kind === 'biped') {
+        const s = Math.sin(ph);
+        r.legL.rotation.x = s * 0.7; r.legR.rotation.x = -s * 0.7;
+        r.armL.rotation.x = -s * 0.6; r.armR.rotation.x = s * 0.6;
+        r.hips.position.y = r.hips.userData.y0 + Math.abs(Math.cos(ph)) * 0.12;
+        r.body.rotation.x = -0.12; r.body.rotation.z = Math.sin(ph) * 0.06;
+        r.head.rotation.y = Math.sin(ph * 0.5) * 0.15;
+      } else if (r && r.kind === 'quad') {
+        const s = Math.sin(ph);
+        r.legs[0].rotation.x = s * 0.8; r.legs[3].rotation.x = s * 0.8;
+        r.legs[1].rotation.x = -s * 0.8; r.legs[2].rotation.x = -s * 0.8;
+        r.root.position.y = 0.75 + Math.abs(Math.cos(ph)) * 0.1;
+        r.tail.rotation.y = Math.sin(ph * 0.7) * 0.6;
+        r.head.rotation.x = Math.sin(ph) * 0.1;
+      } else if (c.type === 'bat') {
+        const w = c.obj.userData.wings, f = Math.sin(t * 14 + c.seed) * 0.7;
+        w[0].rotation.y = f; w[1].rotation.y = -f;
+        c.obj.position.y = 2.6 + Math.sin(t * 3 + c.seed) * 0.3;
+      } else if (c.type === 'brute' || c.type === 'thorn') {
+        const s = Math.sin(ph);
+        c.obj.rotation.z = s * 0.07;
+        c.obj.position.y += Math.abs(s) * 0.12;
+        if (c.legs) c.legs.forEach((l, i) => { l.position.y = l.userData.y0 + Math.max(0, (i % 2 ? s : -s)) * 0.18; });
+      }
+    }
+    function prepRig(obj) {
+      const r = obj.userData.rig;
+      if (r && r.hips) r.hips.userData.y0 = r.hips.position.y;
+    }
+
+    // ---------- creatures ----------
+    const TYPES = {
+      grunt: { hp: 30, speed: 2.3, gait: 7, weight: 40, make: () => grunt(G.rnd() < 0.5 ? [0x4a3a6e, 0x2a2140] : [0x3f6a3a, 0x22401f]) },
+      skitter: { hp: 18, speed: 3.4, gait: 13, weight: 25, make: skitter },
+      bat: { hp: 15, speed: 2.8, gait: 0, weight: 15, fly: true, make: () => G.riftBat(0, 2.6, 0, null) },
+      brute: { hp: 80, speed: 1.4, gait: 5, weight: 10, make: () => G.shieldBrute(0, 0, null) },
+      thorn: { hp: 50, speed: 1.9, gait: 6, weight: 10, make: () => G.thornback(0, 0, null, 0.85) }
+    };
+    const bag = []; Object.keys(TYPES).forEach(k => { for (let i = 0; i < TYPES[k].weight; i++) bag.push(k); });
+    const pool = {}; // reuse dead creatures so nothing is rebuilt mid-test
+    const live = [];
+    let crowd = 15;
+
+    function spawn() {
+      const type = bag[Math.floor(Math.random() * bag.length)];
+      const T = TYPES[type];
+      let c = (pool[type] || []).pop();
+      if (!c) {
+        const obj = T.make();
+        prepRig(obj);
+        c = { type, obj, seed: Math.random() * 10 };
+        let keep = [];
+        if (type === 'thorn' || type === 'brute') {
+          const ms = obj.children.filter(o => o.isMesh && o.geometry.type === 'BoxGeometry');
+          c.legs = type === 'thorn' ? ms.slice(-4) : ms.slice(0, 2);
+          c.legs.forEach(l => { l.userData.y0 = l.position.y; });
+          keep = c.legs.slice();
+        }
+        if (obj.userData.wings) keep = keep.concat(obj.userData.wings);
+        if (obj.userData.shield) keep = keep.concat(obj.userData.shield);
+        bake(obj, keep);
+        addOutline(obj);
+        c.bar = makeBar();
+      }
+      c.hp = c.max = T.hp; c.u = 0; c.lane = (Math.random() - 0.5) * 1.6; c.slow = 0; c.dying = 0; c.hit = 0;
+      c.obj.scale.setScalar(1); c.obj.rotation.set(0, 0, 0);
+      c.bar.visible = false;
+      scene.add(c.obj); scene.add(c.bar);
+      live.push(c);
+      return c;
+    }
+    function retire(c) {
+      scene.remove(c.obj); scene.remove(c.bar);
+      (pool[c.type] = pool[c.type] || []).push(c);
+      live.splice(live.indexOf(c), 1);
+    }
+
+    // health bars that always face the camera
+    const barBg = new THREE.MeshBasicMaterial({ color: 0x1a1020, depthTest: false });
+    const barFg = new THREE.MeshBasicMaterial({ color: 0xff4d6a, depthTest: false });
+    const barGeo = new THREE.PlaneGeometry(1.2, 0.16);
+    function makeBar() {
+      const g = new THREE.Group(); g.renderOrder = 10;
+      const bg = new THREE.Mesh(barGeo, barBg); bg.renderOrder = 10; g.add(bg);
+      const fg = new THREE.Mesh(barGeo, barFg); fg.renderOrder = 11; fg.position.z = 0.01; g.add(fg);
+      g.userData.fg = fg;
+      return g;
+    }
+
+    const tmp = new V3(), tan = new V3(), side = new V3();
+    function placeOnPath(c) {
+      const u = Math.min(1, c.u);
+      curve.getPointAt(u, tmp); curve.getTangentAt(u, tan);
+      side.set(-tan.z, 0, tan.x).multiplyScalar(c.lane);
+      c.obj.position.set(tmp.x + side.x, ground(tmp.x, tmp.z), tmp.z + side.z);
+      if (TYPES[c.type].fly) c.obj.position.y = 2.6;
+      c.obj.rotation.y = Math.atan2(-tan.x, -tan.z);
+    }
+
+    // ---------- towers ----------
+    const towers = [];
+    function addTower(kind, x, z) {
+      const make = { archer: G.archerTower, frost: G.frostTotem, spire: G.lightningSpire, ember: G.emberCannon }[kind];
+      const moving = kind === 'archer' || kind === 'ember';
+      const obj = make(x, z, moving ? scene : still);
+      obj.position.y = ground(x, z);
+      const yoke = kind === 'ember' ? obj.children[1] : null;
+      if (yoke) { bake(obj, [yoke]); bake(yoke, []); }
+      if (kind === 'archer') bake(obj, []);
+      const t = { kind, obj, cd: Math.random(), pos: new V3(x, obj.position.y, z) };
+      t.range = { archer: 9, frost: 3.7, spire: 7.5, ember: 10.5 }[kind];
+      t.rate = { archer: 0.75, frost: 0.4, spire: 1.3, ember: 2.1 }[kind];
+      t.muzzle = { archer: 2.6, frost: 2.8, spire: 4.1, ember: 1.6 }[kind];
+      if (yoke) t.yoke = yoke;
+      towers.push(t);
+    }
+    addTower('archer', -14, -4); addTower('ember', -8, -9); addTower('frost', -1, 3.6);
+    addTower('spire', 2, 11); addTower('archer', 9, 4); addTower('ember', 13, -9); addTower('spire', 19, -0.5);
+    G.mergeStatic(still, scene); // gate, camp and still towers drawn as a few big meshes
+
+    // ---------- hero and runners ----------
+    const heroObj = G.hero(20, 6, scene);
+    const heroT = { ang: 0, cd: 2 };
+    const runners = [];
+    [[[24, 5], [9, 4.5], [24, 5], [13, -7]], [[23, -1], [19, -2], [-1, 1.5], [19, -2]]].forEach((route, i) => {
+      const obj = runner(); prepRig(obj); bake(obj, []); addOutline(obj); scene.add(obj);
+      runners.push({ obj, route: route.map(p => new V3(p[0], 0, p[1])), leg: 0, seed: i * 3, type: 'runner', wait: 0 });
+    });
+
+    // ---------- shots and sparks ----------
+    const shots = [];
+    const bolts = [];
+    const sparkMats = {};
+    const sparks = [];
+    function spark(pos, tex, n, speed) {
+      for (let i = 0; i < n; i++) {
+        let s = sparks.find(p => !p.alive);
+        if (!s) {
+          if (sparks.length > 260) return;
+          s = { spr: new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })), v: new V3() };
+          sparks.push(s); scene.add(s.spr);
+        }
+        s.spr.material.map = tex; s.alive = true; s.life = s.max = 0.35 + Math.random() * 0.35;
+        s.spr.visible = true; s.spr.position.copy(pos);
+        s.v.set(Math.random() - 0.5, Math.random() * 0.9 + 0.2, Math.random() - 0.5).normalize().multiplyScalar((speed || 5) * (0.5 + Math.random()));
+      }
+    }
+    function nearest(t) {
+      let best = null, bd = t.range * t.range;
+      for (const c of live) {
+        if (c.dying) continue;
+        const dx = c.obj.position.x - t.pos.x, dz = c.obj.position.z - t.pos.z, d = dx * dx + dz * dz;
+        if (d < bd) { bd = d; best = c; }
+      }
+      return best;
+    }
+    function damage(c, amt) {
+      if (c.dying) return;
+      c.hp -= amt; c.hit = 0.15; c.bar.visible = true;
+      if (c.hp <= 0) { c.dying = 0.45; c.bar.visible = false; spark(c.obj.position.clone().setY(1.2), G.TEX.purple, 14, 6); }
+    }
+    function fire(t, c) {
+      const from = t.pos.clone(); from.y += t.muzzle;
+      if (t.kind === 'spire') {
+        const to = c.obj.position.clone(); to.y += 1;
+        const b = new THREE.Group(); G.boltLine(from, to, b); scene.add(b);
+        bolts.push({ obj: b, life: 0.18 });
+        damage(c, 14); spark(to, G.TEX.yellow, 6, 4);
+        return;
+      }
+      if (t.kind === 'ember') {
+        const dx = c.obj.position.x - t.pos.x, dz = c.obj.position.z - t.pos.z;
+        t.yoke.rotation.y = Math.atan2(-dx, -dz);
+        const ball = G.mesh(new THREE.IcosahedronGeometry(0.28, 0), G.M.ember, from.x, from.y, from.z, scene);
+        G.sprite(G.TEX.orange, 1.6, 0, 0, 0, ball, 0.9);
+        shots.push({ kind: 'ember', obj: ball, from, to: c.obj.position.clone(), t: 0, dur: 0.9 });
+        spark(from, G.TEX.orange, 4, 3);
+        return;
+      }
+      if (t.kind === 'archer') {
+        const dx = c.obj.position.x - t.pos.x, dz = c.obj.position.z - t.pos.z;
+        t.obj.rotation.y = Math.atan2(-dx, -dz) + Math.PI / 2;
+        const a = G.arrow(from.x, from.y, from.z, scene);
+        shots.push({ kind: 'arrow', obj: a, target: c, speed: 22 });
+      }
+    }
+
+    // ---------- quality ----------
+    let tier = 2, autoQ = true, lowSince = 0;
+    function setTier(n) {
+      tier = n;
+      const dpr = window.devicePixelRatio || 1;
+      renderer.setPixelRatio([0.75, 1, Math.min(1.5, dpr)][n]);
+      const sh = n > 0;
+      if (renderer.shadowMap.enabled !== sh) {
+        renderer.shadowMap.enabled = sh;
+        scene.traverse(o => { if (o.material) [].concat(o.material).forEach(m => { m.needsUpdate = true; }); });
+      }
+      renderer.shadowMap.type = n === 2 ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+      outlines.forEach(o => { o.visible = n > 0; });
+      outlineOn = n > 0;
+      resize();
+      document.getElementById('qline').textContent = 'Quality: ' + TIERS[n] + (autoQ ? ' (auto)' : '');
+    }
+    let outlineOn = true;
+
+    // ---------- speed meter and test ----------
+    const frames = [];      // recent frame times (seconds)
+    let meterClock = 0;
+    let test = null;
+    const fpsEl = document.getElementById('fps'), ratingEl = document.getElementById('rating');
+    function rate(f) { return f >= 50 ? ['Smooth', 'good'] : f >= 30 ? ['Playable', 'ok'] : ['Choppy', 'bad']; }
+    function updateMeter(dt) {
+      frames.push(dt); if (frames.length > 120) frames.shift();
+      meterClock += dt;
+      if (meterClock < 0.5) return;
+      meterClock = 0;
+      const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
+      const f = Math.round(1 / avg);
+      const r = rate(f);
+      fpsEl.innerHTML = f + '<small> fps</small>'; fpsEl.className = r[1];
+      ratingEl.textContent = test ? 'Testing ' + test.crowds[test.i] + ' creatures...' : r[0]; ratingEl.className = test ? '' : r[1];
+      document.getElementById('cline').textContent = 'Creatures: ' + live.filter(c => !c.dying).length + ' of ' + crowd;
+      document.getElementById('dline').textContent = 'Draw calls: ' + renderer.info.render.calls;
+      // Auto quality steps down after 3 seconds under 40 fps (never back up, so it does not flicker).
+      if (autoQ && !test && tier > 0 && f < 40) { lowSince += 0.5; if (lowSince >= 3) { lowSince = 0; frames.length = 0; setTier(tier - 1); } }
+      else lowSince = 0;
+    }
+    function setCrowd(n) {
+      crowd = n;
+      document.querySelectorAll('[data-crowd]').forEach(b => b.classList.toggle('on', +b.dataset.crowd === n));
+      // spread new arrivals along the path so the field fills right away
+      while (live.length < n) { const c = spawn(); c.u = Math.random() * 0.85; }
+      while (live.length > n) retire(live[live.length - 1]);
+    }
+    function startTest() {
+      const lockTier = tier;
+      test = { crowds: [15, 40, 80], i: 0, clock: 0, times: [], out: [], tier: lockTier };
+      document.getElementById('runBtn').disabled = true;
+      document.getElementById('result').style.display = 'none';
+      setCrowd(15);
+    }
+    function stepTest(dt) {
+      test.clock += dt;
+      if (test.clock > 2) test.times.push(dt); // skip 2 seconds of settling after each change
+      if (test.clock < 10) return;
+      const ts = test.times.slice().sort((a, b) => a - b);
+      const avg = ts.reduce((a, b) => a + b, 0) / ts.length;
+      const worst = ts[Math.floor(ts.length * 0.95)] || avg; // the slowest 5% of frames
+      test.out.push({ n: test.crowds[test.i], fps: Math.round(1 / avg), low: Math.round(1 / worst) });
+      test.i++; test.clock = 0; test.times = [];
+      if (test.i < test.crowds.length) { setCrowd(test.crowds[test.i]); return; }
+      finishTest();
+    }
+    function finishTest() {
+      const lines = test.out.map(o => o.n + ' creatures: ' + o.fps + ' fps (' + rate(o.fps)[0].toLowerCase() + '), slowest ' + o.low + ' fps');
+      const first = test.out[0].fps, mid = test.out[1].fps;
+      const verdict = mid >= 45 ? 'Verdict: animated 3D runs well on this device.'
+        : first >= 40 ? 'Verdict: fine at normal crowd sizes; big waves will need lighter effects.'
+        : 'Verdict: too slow here; the painted 2D fallback may be needed.';
+      const text = 'Rift Runners graphics test\nQuality: ' + TIERS[test.tier] + '\nScreen: ' + innerWidth + 'x' + innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x\n' + lines.join('\n') + '\n' + verdict;
+      document.getElementById('resultText').textContent = text;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('runBtn').disabled = false;
+      window.RF_TEST_RESULT = text;
+      test = null;
+      setCrowd(15);
+    }
+    document.getElementById('copyBtn').onclick = function () {
+      const text = document.getElementById('resultText').textContent;
+      const done = () => { this.textContent = 'Copied'; setTimeout(() => { this.textContent = 'Copy result'; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+      function fallback() { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); }
+    };
+    document.querySelectorAll('[data-crowd]').forEach(b => { b.onclick = () => { if (!test) setCrowd(+b.dataset.crowd); }; });
+    document.querySelectorAll('[data-q]').forEach(b => {
+      b.onclick = () => {
+        if (test) return;
+        document.querySelectorAll('[data-q]').forEach(x => x.classList.toggle('on', x === b));
+        autoQ = b.dataset.q === 'auto';
+        frames.length = 0;
+        setTier(autoQ ? 2 : +b.dataset.q);
+      };
+    });
+    document.getElementById('runBtn').onclick = startTest;
+
+    // ---------- main loop ----------
+    const clock = new THREE.Clock();
+    let time = 0;
+    function frame() {
+      requestAnimationFrame(frame);
+      const rawDt = clock.getDelta();
+      const dt = Math.min(rawDt, 0.05);
+      time += dt;
+
+      // creatures
+      for (let i = live.length - 1; i >= 0; i--) {
+        const c = live[i], T = TYPES[c.type];
+        if (c.dying) {
+          c.dying -= dt;
+          c.obj.scale.setScalar(Math.max(0.01, c.dying / 0.45));
+          c.obj.rotation.y += dt * 12;
+          if (c.dying <= 0) { retire(c); if (live.length < crowd) spawn(); }
+          continue;
+        }
+        let sp = T.speed;
+        c.slow = Math.max(0, c.slow - dt);
+        if (c.slow > 0) sp *= 0.55;
+        c.u += sp * dt / pathLen;
+        placeOnPath(c);
+        animate(c, time, T.gait * (c.slow > 0 ? 0.55 : 1));
+        if (c.hit > 0) { c.hit -= dt; c.obj.scale.set(1.12, 0.88, 1.12); } else c.obj.scale.setScalar(1);
+        c.bar.position.set(c.obj.position.x, c.obj.position.y + (T.fly ? 1.2 : 3.1), c.obj.position.z);
+        c.bar.quaternion.copy(camera.quaternion);
+        c.bar.userData.fg.scale.x = Math.max(0.001, c.hp / c.max);
+        c.bar.userData.fg.position.x = -0.6 * (1 - c.hp / c.max);
+        if (c.u >= 1) { spark(anchorPos.clone().setY(2), G.TEX.cyan, 8, 4); retire(c); spawn(); }
+      }
+      while (live.length < crowd) spawn();
+
+      // towers
+      for (const t of towers) {
+        t.cd -= dt;
+        if (t.kind === 'frost') {
+          for (const c of live) if (!c.dying && c.obj.position.distanceToSquared(t.pos) < t.range * t.range) { c.slow = 0.3; }
+          if (t.cd <= 0) { t.cd = t.rate; const c = nearest(t); if (c) { damage(c, 3); spark(c.obj.position.clone().setY(1), G.TEX.ice, 2, 2); } }
+          continue;
+        }
+        if (t.cd > 0) continue;
+        const c = nearest(t);
+        if (c) { fire(t, c); t.cd = t.rate; }
+      }
+
+      // shots
+      for (let i = shots.length - 1; i >= 0; i--) {
+        const s = shots[i];
+        if (s.kind === 'arrow') {
+          const target = s.target;
+          if (target.dying || live.indexOf(target) < 0) { scene.remove(s.obj); shots.splice(i, 1); continue; }
+          const aim = target.obj.position.clone(); aim.y += 1.1;
+          const d = aim.sub(s.obj.position); const len = d.length();
+          if (len < 0.6) { damage(target, 9); spark(s.obj.position, G.TEX.yellow, 4, 3); scene.remove(s.obj); shots.splice(i, 1); continue; }
+          s.obj.position.addScaledVector(d, Math.min(1, s.speed * dt / len));
+          s.obj.lookAt(target.obj.position.x, target.obj.position.y + 1.1, target.obj.position.z); s.obj.rotateY(Math.PI);
+        } else {
+          s.t += dt / s.dur;
+          const k = Math.min(1, s.t);
+          s.obj.position.lerpVectors(s.from, s.to, k); s.obj.position.y += Math.sin(k * Math.PI) * 5;
+          s.obj.rotation.x += dt * 8;
+          if (k >= 1) {
+            spark(s.to.clone().setY(0.8), G.TEX.orange, 16, 7);
+            for (const c of live) if (c.obj.position.distanceToSquared(s.to) < 6.5) damage(c, 22);
+            scene.remove(s.obj); s.obj.geometry.dispose(); shots.splice(i, 1);
+          }
+        }
+      }
+      for (let i = bolts.length - 1; i >= 0; i--) {
+        const b = bolts[i]; b.life -= dt;
+        if (b.life <= 0) { scene.remove(b.obj); b.obj.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); bolts.splice(i, 1); }
+      }
+      for (const s of sparks) {
+        if (!s.alive) continue;
+        s.life -= dt;
+        if (s.life <= 0) { s.alive = false; s.spr.visible = false; continue; }
+        s.v.y -= 9 * dt; s.spr.position.addScaledVector(s.v, dt);
+        const k = s.life / s.max; s.spr.material.opacity = k; s.spr.scale.setScalar(0.25 + k * 0.6);
+      }
+
+      // hero patrols in front of the camp and zaps creatures that get close
+      heroT.ang += dt * 0.5;
+      const hx = 19 + Math.cos(heroT.ang) * 3, hz = 2 + Math.sin(heroT.ang) * 3.5;
+      heroObj.rotation.y = Math.atan2(-(-Math.sin(heroT.ang) * 3), -(Math.cos(heroT.ang) * 3.5));
+      heroObj.position.set(hx, ground(hx, hz) + Math.abs(Math.sin(time * 7)) * 0.12, hz);
+      heroT.cd -= dt;
+      if (heroT.cd <= 0) {
+        let tgt = null, bd = 64;
+        for (const c of live) { if (c.dying) continue; const d = c.obj.position.distanceToSquared(heroObj.position); if (d < bd) { bd = d; tgt = c; } }
+        if (tgt) { heroT.cd = 1.6; spark(tgt.obj.position.clone().setY(1.2), G.TEX.cyan, 10, 5); damage(tgt, 25); } else heroT.cd = 0.3;
+      }
+
+      // camp runners walk their routes
+      for (const r of runners) {
+        if (r.wait > 0) { r.wait -= dt; r.obj.userData.rig.legL.rotation.x = r.obj.userData.rig.legR.rotation.x = 0; continue; }
+        const goal = r.route[(r.leg + 1) % r.route.length];
+        const d = tmp.set(goal.x - r.obj.position.x, 0, goal.z - r.obj.position.z);
+        const len = d.length();
+        if (len < 0.3) { r.leg = (r.leg + 1) % r.route.length; r.wait = 0.8; continue; }
+        if (r.obj.position.lengthSq() === 0) r.obj.position.copy(r.route[0]);
+        r.obj.position.x += d.x / len * 3.2 * dt; r.obj.position.z += d.z / len * 3.2 * dt;
+        r.obj.position.y = ground(r.obj.position.x, r.obj.position.z);
+        r.obj.rotation.y = Math.atan2(-d.x, -d.z);
+        animate(r, time, 10);
+      }
+
+      // gentle camera drift
+      camera.position.set(camBase.x + Math.sin(time * 0.12) * 3, camBase.y, camBase.z + Math.cos(time * 0.1) * 1.5);
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+      updateMeter(rawDt);
+      if (test) stepTest(rawDt);
+    }
+
+    runners.forEach(r => r.obj.position.copy(r.route[0]));
+    setTier(2);
+    setCrowd(15);
+    frame();
+  })();
+  </script>
+</body>
+</html>

@@ -21,6 +21,21 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 23: November 27, 2026 (animated 3D graphics test)
+
+Checklist Step 2. A separate test page; the game itself is unchanged.
+
+- **Built:** `game/graphics-test.html`, a small battlefield made from the game's own models plus new characters that really move: Rift Grunts that walk with swinging arms and legs, fast four-legged Skitters with swishing tails, flapping bats, stomping Brutes and Thornbacks, two camp runners carrying crystals between the towers, and the hero on patrol. Towers turn and fire (arrows, lightning, lobbed embers, a frost slow), with hit sparks, squash on hits, health bars and pop-and-spin defeats. Characters have a dark cartoon outline on High.
+- **Built for Chromebooks:** each character's still pieces are merged so a creature draws in about 6 pieces instead of 15 or more, and the gate, camp and still towers are merged into a few big meshes. Draw calls: about 370 with 15 creatures, 1,150 with 80 (Low) and 1,280 (High).
+- **Speed meter:** frames per second with Smooth (50+), Playable (30 to 49) or Choppy (under 30), the quality level, creature count and draw calls. Auto quality steps down from High to Medium to Low after 3 seconds under 40 fps. High: sharp picture, soft shadows, outlines. Medium: normal resolution, shadows, outlines. Low: lower resolution, no shadows, no outlines.
+- **Run 30-second test:** 10 seconds each at 15, 40 and 80 creatures, then a result with average and slowest fps and a verdict, plus a Copy result button.
+- **Tested here:** loads with no errors; the test runs and reports. This computer has no graphics chip, so its frame rate (about 5 fps) means nothing. The Chromebook numbers decide.
+- **Try (Chromebook):** open the link, leave Quality on High, press Run 30-second test, wait 30 seconds, press Copy result and paste it to Claude. Then try Auto for a minute with 40 creatures and say whether it looks smooth to your eye.
+- **What the result decides:** 40 creatures at 45 fps or better means the animated 3D direction is safe. Fine at 15 but slow at 80 means big waves need instancing (drawing many copies of a creature in one call), about one Opus session. Choppy at 15 means the painted 2D fallback.
+- **Next up:** Mr. Scott's Chromebook runs (mic test from Step 1, graphics test from Step 2), then Step 3 AI Studio work orders.
+
+---
+
 ## Session 22: November 27, 2026 (mic fix: warm mic and free redo, v0.17.1)
 
 Checklist Step 1. Built and tested here with a fake mic and a stand-in checker (no real mic or Azure from this computer).

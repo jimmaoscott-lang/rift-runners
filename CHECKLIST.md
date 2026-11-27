@@ -34,7 +34,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [ ] Mr. Scott: test the mic on a Chromebook, especially short u and short a
 
 ### Step 2. Graphics test (Opus)
-- [ ] Small animated 3D test scene with moving characters
+- [x] Small animated 3D test scene with moving characters. `game/graphics-test.html`, Session 23
 - [ ] Mr. Scott: open it on a Chromebook and check that it runs smoothly
 
 ### Step 3. AI Studio art (AI Studio does the work)
