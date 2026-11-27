@@ -57,7 +57,18 @@ If a session is running long, stop at a clean point, update the log and push. Un
 - **Speech recognition is never required.** Tap mode must always work as a full alternative.
 - **Content follows the skill sequence.** Words and passages in a level may only use patterns the student has been taught up to that point, plus that world's allowed "heart words." Run the decodability checker on all new content.
 - **Teen-appropriate.** Nothing that looks or sounds like it was made for little kids.
-- **Asset licenses.** Only use art, sound and fonts we made or that are CC0 or OFL licensed. Record every outside asset in `assets/CREDITS.md`.
+- **Asset licenses.** Only use art, sound and fonts we made, that are CC0 or OFL licensed, or that Mr. Scott generated for this project with Google AI Studio or Gemini (see "Google AI Studio work orders" below). Record every outside asset in `assets/CREDITS.md`.
+
+## Google AI Studio work orders
+
+Mr. Scott decided (November 26) that Claude directs the build and Google AI Studio does grunt work. AI Studio never touches this repo's code: it builds its own React app and its GitHub sync could overwrite ours. The parallel Gemini build lives in `jimmaoscott-lang/rift-runners-studio`; read it for ideas only and never change it.
+
+1. **Claude writes a work order** in `docs/WORK-ORDERS.md`: one copy-paste prompt for AI Studio with what to make, file format, size limits, art style and file names.
+2. **Mr. Scott pastes it into AI Studio** and downloads what it makes.
+3. **Mr. Scott uploads the files in chat** (his choice; safer than a repo inbox).
+4. **Claude checks and builds them in:** decodability checker on all words, art against the style rules, resize and compress, record credits, wire into the game, then mark the order done.
+
+Good AI Studio jobs: art (sprites, maps, level cards), draft word lists and runes for later worlds, draft Spanish glosses (a Spanish speaker still reviews them), creature and defender text. Claude keeps game code, speech scoring, reading-instruction choices, balance and final checks. Voices stay on Azure so word sounds stay consistent.
 
 ## Tech
 
@@ -73,6 +84,7 @@ If a session is running long, stop at a clean point, update the log and push. Un
 | `README.md` | Short public description |
 | `docs/DESIGN.md` | Game design document |
 | `docs/SESSION-LOG.md` | One entry per work session |
+| `docs/WORK-ORDERS.md` | Copy-paste task prompts for Google AI Studio |
 | `game/` | Game code (`index.html`, `src/`, `data/`) |
 | `assets/` | Art, audio, fonts, plus `CREDITS.md` |
 | `tools/` | Helper scripts, such as the decodability checker |

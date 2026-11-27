@@ -21,6 +21,27 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Planning: November 26, 2026 (Gemini build review, AI Studio workflow)
+
+- **Main repo confirmed:** this repo stays the main Rift Runners build. The Gemini build (`jimmaoscott-lang/rift-runners-studio`) is a reference for ideas only; never change it.
+- **New workflow:** Claude directs, Google AI Studio does grunt work through copy-paste work orders in `docs/WORK-ORDERS.md`. Mr. Scott uploads AI Studio results in chat. Rules added to CLAUDE.md.
+- **Cut scenes on hold:** leave cut scenes out until the build is close to done (Mr. Scott). DESIGN 4.4 stays as the plan for later.
+- **Unreal Engine move on hold:** Mr. Scott wants to come back to it later. Unreal cannot export to a web page, so it would not run from a link on school Chromebooks.
+- **Ideas to port from the Gemini build, in order:**
+  1. Warm mic with a short pre-roll buffer so the first sound is never clipped (fixes B2). Goes in the item 8 mic session.
+  2. Zero-penalty retry when Azure's timing collapses (very low first sound and vowel): a clean redo that keeps streak and crystals.
+  3. Copy Teacher Note button on the end screen, built from existing metrics.
+  4. Classroom-safe word check added to the decodability checker (the Gemini build had to replace runes like "shid" and "chem").
+  5. Slow Blend button: each sound plays while its letter lights up, then the whole word.
+  6. Voice fits (quick voice check after 3 real misses on one sound; word-level and sound-level fits). Sound-level fits need a teacher setting to turn on and are logged apart from decoding scores so they never hide a decoding gap in IEP data. Opus design call before building.
+  7. Spanish L1 fit and an Español menu (bilingual sound tips, one-tap ELL preset), on top of the Spanish meanings already built.
+  8. Free placement polish: ghost preview, range ring and "On road" style warnings.
+  9. World 2 and 3 content ideas (digraphs, blends, silent e), checked against our skill sequence.
+- **Open question for Mr. Scott:** graphics. Keep the 3D battlefield and use painted art for the map and level cards, or rebuild the battlefield with painted maps and sprites like the Gemini build (about 4 to 6 sessions)?
+- **Next up:** unchanged (mic fix, item 8), now with port items 1 and 2 folded in.
+
+---
+
 ## Session 20: November 22, 2026 (cut scenes switched to video)
 
 - **Design change:** cut scenes are now video. Each level has three MP4 clips (start, win, loss), about 5 to 6 MB each, made in Google Gemini. DESIGN.md section 4.4 updated (format, clip loading, narration over the clip, build owner). Claude's choice: the start, win and loss clips map to the three clips per level.
