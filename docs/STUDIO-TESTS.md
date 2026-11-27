@@ -4,6 +4,24 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 2: November 27, 2026 (S-01 Teacher lock, Studio commit 8fbb0ee)
+
+Result: **S-01 passed.** Lint and build clean, no game errors.
+
+| Done when | Result |
+|---|---|
+| Fresh load: no Playtest, scene previews, Clear, Unlock All, Reset Placement, Load MP4 | Pass at 1366 x 768 and 1093 x 614 (title, Settings, battle, defeat cut scene) |
+| Wrong code shows "That code did not work." | Pass, Teacher Mode stays off |
+| Code rift2026 shows the tools and the amber badge | Pass |
+| Reload turns Teacher Mode off | Pass |
+| Level 1 still plays | Pass in Listen and Pick (words forge, defenders build, waves run, defeat screen shows). SAY IT not testable here |
+
+AI Studio also gated extra tools it found (Clear Level/All Locks in Settings, a teacher unlock button on locked level cards). Good.
+Also in this build: the Level 1 walkthrough was reordered so it finishes before Wave 1 (Mr. Scott's direct request). It starts and shows 7 steps; Mr. Scott checked the rest.
+Note: the scripted player still loses Level 1 on Hard (expected; it plays worse than a person, and Mr. Scott judged Hard right).
+
+---
+
 ## Test 1: November 27, 2026 (Studio commit 8ceb3df, "adjust wave pacing and combat speed")
 
 **How it was tested:** built exactly the way GitHub Pages builds it, served under `/rift-runners-studio/`, played in headless Chrome at 1366 x 768 and 1093 x 614. A scripted player read every Level 1 word through Listen and Pick (waiting 1.7 seconds before each Forge, like a real student), placed defenders near the trail, and used hero powers. Four full runs plus code reading.

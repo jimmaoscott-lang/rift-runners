@@ -21,6 +21,16 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 28: November 27, 2026 (AI Studio connected, S-01 tested)
+
+- AI Studio now reads this repo: `AI-STUDIO.md` added; it copied Mr. Scott's decisions into its BUILD.md. Mr. Scott runs prompts with "Run S-##".
+- S-01 Teacher lock built by AI Studio and passed Claude's Test 2.
+- Prompts ready: S-02 (Easy and Normal difficulty dials), S-03 (top bar on small screens).
+- Test scripts saved in `tools/studio-tests/`; S-01 check script lives in `/home/claude/tests/s01.py` (session only).
+- Next up: Mr. Scott runs S-02 and S-03, then a Sonnet chat tests both.
+
+---
+
 ## Session 27: November 27, 2026 (AI Studio version becomes the main build)
 
 **New arrangement (Mr. Scott's decision):** `jimmaoscott-lang/rift-runners-studio` is the main build. Claude directs, tests and writes AI Studio prompts; AI Studio builds; Claude never changes Studio code (read access only). This repo is now the director's office. The `game/` folder is frozen as an archive and stays live as a backup.

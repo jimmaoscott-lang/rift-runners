@@ -50,8 +50,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] Mr. Scott gives AI Studio the setup prompt; it copies the decisions into its BUILD.md (done Nov 27; it can read this repo)
 
 ### Step 1. Classroom-safe screens (before Dec 2)
-- [ ] S-01: Teacher lock. Hide the Playtest buttons, scene previews, lock Clear button, Unlock All Levels and Reset Placement behind a teacher code. (Prompt ready)
-- [ ] Claude tests S-01 (Sonnet)
+- [x] S-01: Teacher lock. Hide the Playtest buttons, scene previews, lock Clear button, Unlock All Levels and Reset Placement behind a teacher code. (Prompt ready)
+- [x] Claude tests S-01: passed (Test 2, Nov 27)
 
 ### Step 2. Easy and Normal balance (after the decision above)
 - [ ] S-02: Claude writes exact numbers for Easy and Normal only; Hard and Expert stay as they are (Opus)
@@ -61,12 +61,12 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] Mr. Scott syncs after every build (no prompt needed)
 
 ### Step 4. Reading rules the Studio build is missing
-- [ ] S-04: the level card story paragraph gets a speaker button (the paragraph text itself waits for the final story-script pass)
+- [ ] Level card story paragraph gets a speaker: moved to the final static story pass, since its audio and text are redone then
 - [ ] Hero power names (Rally, Meteor, Time Freeze) play in a robotic voice; move them to recorded clips
 - [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
 
 ### Step 5. Small fixes from Test 1
-- [ ] S-07: on a small Chromebook screen (125% zoom) the pause button covers "Send now"
+- [ ] S-03: on a small Chromebook screen (125% zoom) the pause button covers "Send now" (prompt ready)
 
 ### Step 5b. Code cleanup (after Dec 2, one prompt at a time, game must play the same after each)
 - [ ] C-1: Speech scoring rule table. Today `scoreAzureWord` in `src/lib/speech.ts` is one 750-line function with a hand-written block per sound family. Turn it into one shared checker plus a table of rules, so new sounds (Worlds 4 to 8) are new table rows (Opus designs the table)

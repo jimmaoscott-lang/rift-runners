@@ -20,6 +20,34 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-03: Top bar fits small Chromebook screens
+
+Status: ready
+Goes with: CHECKLIST Step 5; Test 1 problem 8
+
+PASTE INTO AI STUDIO:
+
+```
+Task: stop the battle top bar from overlapping on small screens. Do only this task.
+
+Problem: at a 1093 x 614 window (a Chromebook at 125% zoom), the pause button covers the "Send now" part of the wave button in the top bar of src/components/BattleHUD.tsx.
+
+1. Make the top bar fit with no overlap at every window size from 1024 x 576 up to 1920 x 1080.
+2. When the window is narrower than 1200 pixels, the hero power buttons (Rally, Meteor, Freeze) show only their icon and charge count (for example "12/15" or "GO!"), and their name moves into the button's title tooltip and aria-label. Wider windows look exactly as they do now.
+3. Every top bar button keeps a tap target of at least 32 by 32 pixels.
+4. Do not change anything else: no gameplay, numbers, text, Teacher Mode, speech or save data.
+5. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry.
+
+Done when:
+- At 1093 x 614 and at 1024 x 576, every top bar button is fully visible and none overlap, including "Send now", pause, speed, help, settings, Stop and the Teacher Mode badge.
+- At 1366 x 768 the top bar looks the same as before.
+```
+
+CLAUDE TESTS AFTER:
+- Screenshots and button-overlap check at 1024 x 576, 1093 x 614, 1366 x 768 (student view and Teacher Mode).
+
+---
+
 ## S-02: Difficulty dials for Easy and Normal (replaces AI Studio's "dynamic spawn" idea)
 
 Status: ready (run only if Mr. Scott agrees Easy and Normal should be easier)
@@ -73,7 +101,7 @@ CLAUDE TESTS AFTER:
 
 ## S-01: Teacher lock for test and setup tools
 
-Status: ready
+Status: tested (passed, Claude Test 2, Nov 27)
 Goes with: CHECKLIST Step 1; Test 1 problem 1
 
 PASTE INTO AI STUDIO:
