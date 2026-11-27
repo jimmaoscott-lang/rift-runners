@@ -1,6 +1,6 @@
 # Project Directions: Reading Fluency Game
 
-Read this file first in every session. Then read `docs/SESSION-LOG.md` (latest entry first) and the parts of `docs/DESIGN.md` that the session's task touches.
+Read this file first in every session. Then read `CHECKLIST.md` (the master plan; do the next unchecked step unless Mr. Scott says otherwise) and `docs/SESSION-LOG.md` (latest entry first) and the parts of `docs/DESIGN.md` that the session's task touches.
 
 ## The project
 

@@ -21,6 +21,15 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Planning: November 27, 2026 (master checklist, graphics decided)
+
+- **New master plan:** `CHECKLIST.md` lists every step in order, with the model for each. Each new chat does the next unchecked step.
+- **Graphics decided:** keep the 3D battlefield, with painted art for the world map and level cards.
+- **Difficulty levels planned:** Easy, Normal, Hard, Expert (Step 6), after the Studio gameplay port and a Normal playtest.
+- **Next up:** Step 1, mic fix (Opus).
+
+---
+
 ## Session 21: November 26, 2026 (safe-word sound check, copy teacher note)
 
 Built while Mr. Scott was away from his computer; both pieces were tested here without a mic or Chromebook.
