@@ -20,6 +20,79 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-10: Expert grace, part 2: overtime waves stop growing on Expert
+
+Status: ready
+Goes with: CHECKLIST decision "Expert grace"; Test 7, problem 1. Run after S-09.
+
+Why: a level is won only after every Rift Lock fills, and a lock needs nearly all first-try reads (for example 10 of the last 11). Each miss delays the locks. After the level's listed waves run out, every extra wave gets 10 to 18% more creature health and about 14% more creatures. On Expert, a student who misses words falls into extra waves that keep growing until the anchor falls. That is a miss ending the level.
+
+PASTE INTO AI STUDIO:
+
+```
+Task: Expert grace, part 2. On Expert only, extra waves (waves past the level's listed waves, while the Rift Locks are still open) stop getting stronger. Do only this task.
+
+1. In startNextWave in src/game/CanvasBattleEngine.ts, in the regular (not bonus) branch: when this.difficulty is 'expert', treat extraWaves as 0 for strength. So on Expert, extraScale is 1 and waveCountMult is 1, and every extra wave plays at the strength of the level's last listed wave (still with the Expert preset and dials applied, as now).
+2. Keep the Final Wave boost (finalBoost) working on Expert. When the locks fill, the Final Wave is still the last listed wave times finalBoost.
+3. Easy, Normal and Hard keep growing extra waves exactly as now.
+4. Bonus Surge waves (after the level is won) are unchanged on every difficulty.
+5. Do not change: level data, endless hpStep and countStep values, creature stats, the S-07 difficulty presets, Builder Mode dials, lock rules, crystal payouts, speech checking, voice fits, Spanish supports or save data.
+6. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: Expert grace part 2: on Expert, extra waves while the Rift Locks are still open stay at the strength of the level's last listed wave. Misses can slow a win on Expert but cannot make the level unwinnable. Bonus Surge waves are unchanged."
+7. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry; report how many files you added or changed and their total size.
+
+Done when:
+- On Expert, wave 8 of a 6-wave level has the same creature counts and health as wave 6.
+- On Hard, wave 8 of a 6-wave level is stronger than wave 6, as before.
+- On Expert, the Final Wave still gets its boost.
+- Bonus Surge waves play the same as before on every difficulty.
+- Lint and build pass.
+```
+
+CLAUDE TESTS AFTER:
+- Start waves in World 1 Level 3 (6 listed waves) on Expert and Hard with locks open, through wave 9. Expert waves 7 to 9 match wave 6 in counts and health; Hard waves grow as in commit 72b0305.
+- Fill the locks on Expert in overtime: the Final Wave is wave 6 strength times finalBoost.
+- Bonus Surge waves match commit 72b0305 on all four difficulties.
+- Easy, Normal and Hard regular waves 1 to 6 match commit 72b0305.
+
+---
+
+## S-09: Expert grace, part 1: half crystals for a second-try read on Expert
+
+Status: ready
+Goes with: CHECKLIST decision "Expert grace"; Test 7, problem 2.
+
+Today every difficulty pays 30% for a second-try read (real word 4, rune 8). The approved Expert grace pays half on Expert.
+
+PASTE INTO AI STUDIO:
+
+```
+Task: Expert grace, part 1. On Expert only, a word read right on the second try earns half crystals. Do only this task.
+
+1. In src/data/level1.ts add expertSecondShare: 0.5 to FORGE_CONFIG. Leave every other FORGE_CONFIG number as it is.
+2. In currentPayout in src/components/RuneForgePanel.tsx: when settings.difficulty is 'expert', tries is exactly 1, usedHelp is false and the word is not revealed, pay Math.round(refBase * FORGE_CONFIG.expertSecondShare). That gives real word 6, rune 13, and a spoken second try 6 (spoken reads use the real word base after a miss, as now).
+3. Everything else pays as now on every difficulty: first-try reads, heard-it-first (speaker used) at 30%, a second try after using the speaker at 30%, a shown word at 3, and Mega Forge.
+4. A second-try read still does not count as a clean read: no Mega Forge pip, no Rift Lock credit, and the word still goes on the practice list.
+5. In completeForge, when the Expert half payout is used, change the feedback line to exactly "Second try, and it landed. Half crystals." (with voice fit: "Second try, and it landed (matched your voice profile). Half crystals."). Other difficulties keep the current lines.
+6. Do not change: the simulate buttons (computeSimRound), lock rules, wave timing, the difficulty presets, Builder Mode dials, speech checking, voice fits, Spanish supports, the miss instruction card, or save data.
+7. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: Expert grace part 1: on Expert, a word read right on the second try earns half crystals (real word 6, rune 13). Misses never cost crystals. Part 2 (S-10) keeps misses from making an Expert level unwinnable."
+8. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry; report how many files you added or changed and their total size.
+
+Done when:
+- On Expert: miss a real word, then pick it right: +6 crystals and the new feedback line.
+- On Expert: miss a rune, then pick it right: +13.
+- On Expert: use the speaker, then read right: +4 (unchanged).
+- On Normal: miss a real word, then pick it right: +4 and the old feedback line.
+- Mega Forge streak and Rift Lock counts behave as before after a second-try read.
+- Lint and build pass.
+```
+
+CLAUDE TESTS AFTER:
+- Payout table on all four difficulties: first try, second try, heard first, heard first then second try, shown; real word, rune and spoken. Only the Expert second-try cells change (4 to 6, 8 to 13).
+- Second try on Expert: streak resets, lock shows a miss, word on practice list.
+- Diff touches only FORGE_CONFIG, currentPayout, the feedback line, BUILD.md and the session log.
+
+---
+
 ## S-08: Correct the GitHub sync rule in BUILD.md
 
 Status: tested

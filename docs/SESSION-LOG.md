@@ -21,6 +21,13 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 32: November 27, 2026 (Expert grace checked, S-09 and S-10 written)
+
+- Read the Studio miss handling (Test 7, commit 72b0305). Studio repo only read.
+- Found that misses can end an Expert level: locks need near-perfect first tries, and extra waves keep growing until the anchor falls.
+- Wrote S-09 (half crystals for a second try on Expert) and S-10 (extra waves stop growing on Expert while locks are open). Run in that order.
+- Next up: Mr. Scott runs S-09 then S-10, syncing after each. Then a Sonnet chat tests both.
+
 ## Session 31: November 27, 2026 (decisions recorded)
 
 - Mr. Scott approved the Expert grace rule.

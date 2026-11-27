@@ -4,6 +4,39 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 7: How the Studio build handles missed words (code read, November 27, 2026)
+
+Studio commit 72b0305. Read the code and ran lint (clean). No play test; nothing changed since Test 6. Checked before writing the Expert grace prompts.
+
+### What happens on a miss today (all difficulties)
+
+| Step | What the code does |
+|---|---|
+| First miss (tap or speak) | Word stays up, letter tiles show, the sound rule card opens with time stopped. No crystals lost. |
+| Right on the second try | Pays 30% (real word 4, rune 8, spoken 4). Streak resets. Counts as not clean for the Rift Lock. Word goes on the practice list. |
+| Second miss | Word is shown and read aloud. Forging it pays 3. Word comes back later. |
+| Three spoken misses on one sound | Quick voice check opens once per sound. |
+| Difficulty | No miss rule checks the difficulty. Expert treats misses the same as Easy. |
+
+### Ranked problems
+
+| # | Problem | Why it matters | How sure |
+|---|---|---|---|
+| 1 | **Misses can end an Expert level.** A level is won only after all Rift Locks fill (for example 10 of the last 11 first-try reads). Misses delay the locks. Past the listed waves, each extra wave gets 10 to 18% more health and about 14% more creatures (World 1 Level 3: after 5 extra waves, about 1.75 times the health and 1.7 times the creatures). On Expert this spiral ends in defeat for a student who misses words. | Breaks the approved rule "misses never end the level". Hits the readers who need the practice most. | High (from code; growth numbers from the level data) |
+| 2 | **No second-try grace.** Expert pays 30% for a second-try read, the same as every difficulty. The approved rule is half. | Approved decision not built. | Certain |
+| 3 | The Expert grace decision is in AI-STUDIO.md but not in the Studio BUILD.md decisions list. | AI Studio reads BUILD.md every time. | Certain. S-09 and S-10 add it. |
+
+Note for later (no prompt): the same extra-wave spiral exists on Easy, Normal and Hard. Mr. Scott decides after his Normal playtest (CHECKLIST Step 6) whether lower difficulties get it too.
+
+### Prompts written
+- S-09: half crystals for a second-try read on Expert (problem 2).
+- S-10: extra waves stop growing on Expert while locks are open (problem 1).
+
+### For Mr. Scott to check by hand
+- After S-10, play an Expert level and miss on purpose for a few waves. Do the extra waves still feel hard enough? If they feel too easy, the next step is a small growth cap instead of none.
+
+---
+
 ## Test 6: S-08 documentation check (November 27, 2026)
 
 Studio commit 72b0305. **S-08 passed.**
