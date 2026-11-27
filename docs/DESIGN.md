@@ -601,6 +601,8 @@ If a number drops (common when a new world brings harder words), the screen show
 
 `towerPads` and `trailPads` retire once every level runs on the painted battlefield (Step 3e). Waves, words, rune rate and mastery settings do not change.
 
+**Data as imported (Step 3b).** `noBuild` holds `circles` (`u`, `v`, `r`, where `r` is a share of map width), `polys` (outlines; keep 12 picture points clear of each edge) and `river` (a line; keep 46 picture points clear; empty when the map has none). `trailTime` multiplies creature speed (below 1 is slower). Boot Camp's data sits in `bootCamp` until Step 7. `hintSpots` and the corners covered by our own screen buttons are added in 3c and 3e. The Studio also blocks water and lava by checking picture colors; that was not copied, so 3c checks each map and adds outlines where the lava or water is still open.
+
 **Which map goes with which level (Claude's call from looking at the pictures):**
 
 | Level | Painted map (Studio) | Trail data from |

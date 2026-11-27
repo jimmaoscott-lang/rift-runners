@@ -21,6 +21,23 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 25: November 27, 2026 (Studio art brought in)
+
+Checklist Step 3b. The game looks and plays the same; this adds the pictures and trail data that 3c will draw.
+
+- **Added:** `assets/art/maps` (7), `assets/art/characters` (22: 6 creatures, 7 defenders, the Warden, the Thorn King, 7 later-world pictures), `assets/art/cards` (7 level card stills). About 2 MB in all. Credits recorded. The website publish step now copies `assets/art`.
+- **Cutouts:** white backgrounds removed ahead of time, including white gaps trapped inside outlines. The Rift Wisp's white eye was kept. A few tiny light specks remain.
+
+![Contact sheet](art-contact-sheet.png)
+
+- **Trail data:** `map`, `pathUv`, `riftUv`, `anchorUv`, `noBuild` and `trailTime` added to every level in `levels-w1.json`; Boot Camp's under `bootCamp`. The old 3D trail data stays. Trails drawn over each map line up with the painted roads.
+- **trailTime:** Level 1 1.0, Level 2 0.587, Level 3 0.734, Level 4 0.771, Level 5 0.592, final 0.786. Nothing reads it yet.
+- **For 3c:** read the "Data as imported" note in DESIGN 13.1. Some lava on the final map has no outline yet. The all-in-one file does not include the pictures yet; 3c needs to add them to `tools/build_single.py`.
+- **Tested:** the game loads, the new data reads, and Level 2 starts. The only error was the speech service, unreachable from the test computer. Not tested on the live site.
+- **Next up:** Step 3c, painted battle engine, World 1 Level 1 (Sonnet, about 2 sessions, then an Opus review).
+
+---
+
 ## Session 24: November 27, 2026 (painted battlefield rebuild plan)
 
 Checklist Step 3a. Planning only; the game is unchanged.

@@ -52,6 +52,7 @@ jobs:
           cp -r game _site/game
           mkdir -p _site/assets
           cp -r assets/fonts _site/assets/fonts
+          cp -r assets/art _site/assets/art
           mkdir -p _site/assets/audio
           if [ -d assets/audio/ui ]; then cp -r assets/audio/ui _site/assets/audio/ui; fi
           if [ -d assets/audio/words ]; then cp -r assets/audio/words _site/assets/audio/words; fi
