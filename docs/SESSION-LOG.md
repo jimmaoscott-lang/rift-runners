@@ -21,6 +21,14 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 31: November 27, 2026 (decisions recorded)
+
+- Mr. Scott approved the Expert grace rule.
+- He ran and pushed S-08. It passed (Test 6, Studio commit 72b0305). The Studio repo was only read.
+- The listening check on the new clips passed.
+- Marked the S-01 meeting box done and replaced the outdated "Easy and Normal" decision line.
+- Next up: check how the Studio build handles misses on Expert before writing the Expert grace prompt.
+
 ## Session 30: November 27, 2026 (S-05 to S-07 tested, sync limits checked)
 
 - S-05, S-06 and S-07 passed (Test 5, Studio commit 05a82e3). Listening check on the new clips is pending.

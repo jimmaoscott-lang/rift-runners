@@ -18,19 +18,19 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 - [x] **Main build:** the AI Studio version (`rift-runners-studio`). Claude directs, tests and writes prompts; AI Studio builds; Claude never changes Studio code. The old Claude build is frozen as an archive. Nov 27
 - [x] **Level 1 on Hard and Expert:** spot on (Mr. Scott played it, Nov 27). Keep those numbers.
-- [x] **Easy and Normal:** all four difficulties are good as they are (Mr. Scott, Nov 27). No balance change.
+- [x] **Easy and Normal:** replaced later on Nov 27 by Mr. Scott's dial settings (built by S-07, Step 2).
 - [x] **Difficulty dials:** builder-only tool for Mr. Scott while building future levels. Teachers and students never see them. Good values get written into the game, and the dials come out before release. Nov 27
 - [x] **Kill rewards:** a few crystals per kill is fine (Mr. Scott, Nov 27). Replaces the Nov 21 reading-only rule.
 - [x] **Walkthrough skip:** students may skip it (Mr. Scott, Nov 27).
 - [x] **Lock counts:** a miss lowering a lock count is fine (Mr. Scott, Nov 27).
 - [x] **GitHub sync:** sync after every AI Studio build. The old size trouble came from one huge first sync. Nov 27
 - [x] **Cutscenes paused:** AI Studio makes no new cutscenes until the rest of the build is done. Redoing all story scripts and cutscenes as static files is the last step; the look is still undecided. Nov 27
-- [ ] **Expert grace:** suggested rule: a word read right on the second try earns half crystals, and misses never end the level. Approve or change.
+- [x] **Expert grace:** approved (Nov 27). A word read right on the second try earns half crystals, and misses never end the level. Not yet checked or built in the Studio version.
 
 ## Dec 2 meeting
 
 - [ ] Show the Studio version: https://jimmaoscott-lang.github.io/rift-runners-studio/
-- [ ] Prompt S-01 (teacher lock) is built first, so the audience never sees the test buttons.
+- [x] Prompt S-01 (teacher lock) is built first, so the audience never sees the test buttons.
 - [ ] Ask IT to unblock all four addresses. Speak mode needs the second one; the game looks wrong without the last two.
   1. `jimmaoscott-lang.github.io`
   2. `rift-runners-speech.jimmaoscott.workers.dev`
@@ -66,8 +66,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ### Step 3. Keep the GitHub sync working
 - [x] Mr. Scott syncs after every build (no prompt needed)
 - [x] Claude checks GitHub limits: 150 files and 15 MB now apply to each sync, not the whole repo (Test 5, Nov 27)
-- [ ] S-08: AI Studio corrects the sync rule in its BUILD.md (prompt ready)
-- [ ] Claude tests S-08 (Haiku)
+- [x] S-08: AI Studio corrects the sync rule in its BUILD.md (Mr. Scott ran and pushed it, Nov 27)
+- [x] Claude tests S-08: passed (Test 6, Nov 27)
 
 ### Step 4. Reading rules the Studio build is missing
 - [ ] Level card story paragraph gets a speaker: moved to the final static story pass, since its audio and text are redone then
@@ -75,7 +75,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] S-05: walkthrough steps get a recorded voice; passed (Test 5, Nov 27)
 - [x] S-06: level names and the silent e rule get recorded voices; passed (Test 5, Nov 27)
 - [x] Claude tests S-05 and S-06 (Test 5, Nov 27)
-- [ ] Mr. Scott listens to the new clips, starting with walkthrough steps 1 and 5 and the silent e rule
+- [x] Mr. Scott listens to the new clips, starting with walkthrough steps 1 and 5 and the silent e rule: passed (Nov 27)
 - [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
 
 ### Step 5. Small fixes from Test 1

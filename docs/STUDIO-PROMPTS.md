@@ -22,7 +22,7 @@ CLAUDE TESTS AFTER:
 
 ## S-08: Correct the GitHub sync rule in BUILD.md
 
-Status: ready
+Status: tested
 Goes with: CHECKLIST Step 3; Test 5 limits check
 
 PASTE INTO AI STUDIO:

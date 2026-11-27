@@ -4,6 +4,17 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 6: S-08 documentation check (November 27, 2026)
+
+Studio commit 72b0305. **S-08 passed.**
+
+- Only `BUILD.md` and `docs/SESSION-LOG.md` changed.
+- The sync rule and the decision line say the 150 file and 15 MB numbers apply to each sync.
+- A search of `BUILD.md`, `README.md` and `docs/DESIGN.md` found no rule applying them to the whole repo.
+- Documentation only, so no lint, build or play test was run. No new problems to rank.
+
+---
+
 ## Test 5: November 27, 2026 (S-05, S-06 and S-07, Studio commit 05a82e3)
 
 Result: **S-05 passed. S-06 passed. S-07 passed.** The two voice tasks still need Mr. Scott's listening check. Lint and build clean.
