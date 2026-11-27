@@ -29,6 +29,7 @@ Built while Mr. Scott was away from his computer; both pieces were tested here w
 - **Copy teacher note (v0.17.0):** a small "Teacher: copy progress note" button at the bottom of the end screen copies a plain summary (DESIGN 12.3). Tested in a headless browser for a World 1 level and the World 8 story level; the copy and the "Copied" message work, with no console errors.
 - **Try:** finish any level, tap the teacher button, and paste into a doc or email. Check that the wording fits your logs.
 - **Boot Camp designed:** placement level before Level 1, written into DESIGN 5.2 (Mr. Scott approved). Build after the mic fix and graphics test. Mr. Scott's Gemini version has a similar boot camp; this design adds to it, so build from DESIGN 5.2.
+- **ELL additions designed:** DESIGN 8.1 (Mr. Scott approved): Spanish L1 voice fit with a tap check on the sound being taught, bilingual sound tips, Spanish captions everywhere, one-tap ELL preset, ELL supports in the teacher note, Slow Blend. About 2 Sonnet sessions after the mic fix. Spanish lines need a Spanish speaker's review before students see them.
 - **Next up:** unchanged. Friday: mic fix (Opus), then the animated 3D test scene.
 
 ---

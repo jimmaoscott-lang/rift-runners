@@ -410,6 +410,17 @@ Every later world adds its own creatures with new tricks (burrowers, healers, in
 - **Forgiving speech recognition:** accented pronunciation must not count as a miss. Matching is lenient, and tap mode is always available.
 - Oral vocabulary support: short meanings for words the student may be able to decode but not know
 
+### 8.1 ELL additions from the Gemini build (designed by Claude, November 26; Mr. Scott approved; build after the mic fix, about 2 Sonnet sessions)
+
+- **Spanish L1 voice fit.** Lenient on the sounds Spanish speakers commonly swap: sh/ch, v/b, th (heard as t, s, f or d), and an added e before s-blends ("estop" for stop). Every other sound in the word is still checked strictly. Turns on automatically when the student picks Spanish; a Teacher setting turns it off. Uses of the fit are logged apart from decoding scores.
+- **Tap check on the sound being taught (Claude's reading call).** When the target sound of the level is the one a Spanish swap touches (sh and ch in World 2), speech that shows the swap is neither a miss nor an automatic pass. The game shows two tap choices (ship / chip). Tapping the right one counts as a first-try read: the student showed the decoding, and only the accent got in the way. Tapping the wrong one is a normal miss. Outside the target sound, the fit simply accepts the swap.
+- **Bilingual sound tips.** Each sound rule card gets a "Puente en español" part: mouth placement and the closest Spanish sound, with Spanish audio.
+- **Spanish captions everywhere** a student reads instructions: the Level 1 tutorial, defender and creature cards, hero powers, placement hints and upgrade popups.
+- **One-tap ELL preset** in Settings that turns on every Spanish support at once.
+- **Teacher note** lists which ELL supports were on and how often each was used (Spanish meanings, voice fit matches, tap checks, Slow Blend).
+- **Slow Blend** (for every reader): a Slow button beside the word speaker plays each sound while its letter lights up, then the whole word.
+- **Spanish review rule:** Mr. Scott does not speak Spanish, and AI-drafted Spanish can be off. The Gemini build's `src/data/ellSpanish.ts` is a starting draft. A Spanish-speaking colleague or student reviews the Spanish lines in `game/data/strings.json` before students see them.
+
 ---
 
 ## 9. Accessibility and IEP-friendly features
