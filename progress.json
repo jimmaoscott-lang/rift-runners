@@ -145,6 +145,24 @@
    "done": true
   },
   {
+   "id": "M6g",
+   "name": "Graphics test (animated 3D); painted look chosen",
+   "sessions": [
+    1,
+    1
+   ],
+   "done": true
+  },
+  {
+   "id": "M6p",
+   "name": "Painted battlefield rebuild (like the Studio version)",
+   "sessions": [
+    4,
+    6
+   ],
+   "done": false
+  },
+  {
    "id": "M7",
    "name": "Thorn King boss and Rift Seal (read aloud and WCPM built in Session 14)",
    "sessions": [

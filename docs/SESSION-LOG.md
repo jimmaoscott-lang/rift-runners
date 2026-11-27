@@ -33,7 +33,9 @@ Checklist Step 2. A separate test page; the game itself is unchanged.
 - **Try (Chromebook):** open the link, leave Quality on High, press Run 30-second test, wait 30 seconds, press Copy result and paste it to Claude. Then try Auto for a minute with 40 creatures and say whether it looks smooth to your eye.
 - **What the result decides:** 40 creatures at 45 fps or better means the animated 3D direction is safe. Fine at 15 but slow at 80 means big waves need instancing (drawing many copies of a creature in one call), about one Opus session. Choppy at 15 means the painted 2D fallback.
 - **Mic test (Step 1):** Mr. Scott tested the warm mic on a Chromebook: passed.
-- **Next up:** Mr. Scott runs the graphics test on a Chromebook (Step 2, last box), then Step 3 AI Studio work orders.
+- **Result (Mr. Scott's MSI laptop):** 60 fps at 15, 40 and 80 creatures, on High. He found the 3D look still lacking next to the Studio version.
+- **Decision:** full painted rebuild of the battlefield, like the Studio version (Claude offered a cheaper hybrid; he chose the full rebuild). Checklist, DESIGN 3, 13 and 14 and the progress page updated. The Studio version draws a painted map per level on a flat canvas with one painted picture per creature and defender, and that art (made by Mr. Scott in Gemini) can come over first.
+- **Next up:** Step 3a, the rebuild plan (Opus).
 
 ---
 

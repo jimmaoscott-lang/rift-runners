@@ -46,7 +46,9 @@ Students should experience it as a game they want to beat. The reading instructi
 | Huddle Up | A good read makes the action stronger; streaks matter |
 | Super Mario Bros. 3 | A big world map with every level visible, each one locked until the one before it is beaten |
 
-**Look:** low-poly 3D built with three.js (the same engine as The Exiled Crown, already proven on school Chromebooks), with a darker magic palette: glowing rift light, spell effects, particles. All models are original, built from simple shapes in code. Mockups: `mockups/hold-the-rift.html` (`?view=battle`, `?view=map`) and the screenshots beside it.
+**Look (changed November 27): painted 2D battlefield.** After the Step 2 graphics test (`game/graphics-test.html`), Mr. Scott chose a full painted rebuild like his Studio (Gemini) version: one painted map picture per level, painted pictures for every creature and defender that bob, lean, squash and flash, drawn on a flat canvas. The world map and level cards are painted too. The Studio art he made in Gemini is brought in first (allowed under the asset rule); AI Studio work orders fill the gaps, including walk frames so characters move. Rebuild steps: CHECKLIST Step 3. Everything below about 3D describes the build before this change.
+
+**Earlier look (Nov 21 to Nov 27):** low-poly 3D built with three.js (the same engine as The Exiled Crown, already proven on school Chromebooks), with a darker magic palette: glowing rift light, spell effects, particles. All models are original, built from simple shapes in code. Mockups: `mockups/hold-the-rift.html` (`?view=battle`, `?view=map`) and the screenshots beside it.
 
 ---
 
@@ -548,7 +550,8 @@ If a number drops (common when a new world brings harder words), the screen show
 
 ## 13. Technology
 
-- **Engine:** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and was removed in M3.
+- **Engine change (November 27):** the battlefield and world map move to a painted 2D canvas (CHECKLIST Step 3). The rebuild plan (Step 3a) will update this section. Until then the notes below describe the 3D build.
+- **Engine (until the rebuild):** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and was removed in M3.
 - **Speed on Chromebooks (M3):** all still scenery (trees, rocks, camp) is merged into a few big meshes, so a battle draws in about 125 calls. On machines with 4 or fewer cores the game also uses smaller shadows, fewer trees and no antialiasing. Add `?low` or `?high` to the address to force either mode.
 - **Code files (M3):** `game/src/models.js` (3D models), `level.js` (map), `battle.js` (tower defense), `forge.js` (Rune Forge), `screens.js` (menus), `dom.js` (page helpers), `app.js` (start-up and frame loop), `core.js` (data, settings, voice), `metrics.js` (progress record).
 - **Hosting:** GitHub Pages from this repo
@@ -585,6 +588,7 @@ Each milestone is a playable, testable step.
 | M5b | Azure pronunciation check (built Session 11) | Speak mode scored sound by sound through the speech checker, Chrome as the backup; pin, pen, ten, win speakable again; spoken runes in Test mode |
 | M6 | Full arsenal | All World 1 defenders, tier 3 specialties, hero powers (done Session 16; Armory dropped) |
 | M6w | World 1 Levels 4 and 5 | Rift Bats and Splitters, short u, all five vowels mixed (done Session 17) |
+| M6p | Painted battlefield rebuild | Painted map and creature art like the Studio version, World 1 on the new battlefield, painted world map (CHECKLIST Step 3) |
 | M7 | Boss and Rift Seal | Thorn King, Rift Seal fluency passage with WCPM (read aloud, WCPM and personal best built in Session 14 for the final level; the karaoke beat and tempo choice come with the Thorn King) |
 | M8 | Placement mission | Opening mission that places students |
 | M9 | Worlds 2 to 8 | Content, maps, creatures and defenders for the rest |

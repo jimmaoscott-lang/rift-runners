@@ -8,7 +8,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ## Decisions
 
-- [x] **Graphics:** keep the 3D battlefield, with painted art for the world map and level cards (the painted mockup from Nov 26). Decided Nov 27.
+- [x] **Graphics:** full painted rebuild of the battlefield, like the Studio version (painted map per level, painted creature and defender pictures). Decided Nov 27 after the Step 2 graphics test. Replaces the earlier choice to keep the 3D battlefield.
 - [ ] **Normal difficulty:** keep today's balance or make it a little harder. Decide after the Step 5 playtest.
 - [ ] **Expert grace:** suggested rule: a word read right on the second try earns half crystals, and misses never end the level. Mr. Scott to approve or change.
 
@@ -35,17 +35,22 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 2. Graphics test (Opus)
 - [x] Small animated 3D test scene with moving characters. `game/graphics-test.html`, Session 23
-- [ ] Mr. Scott: open it on a Chromebook and check that it runs smoothly
+- [x] Mr. Scott ran it (smooth on his MSI) and chose the full painted rebuild. Chromebook 3D check no longer needed
 
-### Step 3. AI Studio art (AI Studio does the work)
-- [ ] Claude writes work orders in `docs/WORK-ORDERS.md`: World 1 painted map, level cards, tower art
+### Step 3. Painted battlefield rebuild (about 4 to 6 sessions)
+The Studio version's look, rebuilt inside the main build. Keeps the Rune Forge, speech, waves from reading, metrics, settings, tutorial and teacher note. Only the battlefield drawing and the world map change.
+- [ ] 3a. Rebuild plan (Opus): how the painted battle engine fits the current code, the art list, level path data, and what carries over. Written into DESIGN 3 and 13
+- [ ] 3b. Bring in Mr. Scott's Studio art (maps, creature and defender pictures he made in Gemini): check, resize, compress, record in CREDITS (Sonnet). Read from rift-runners-studio only; never change it
+- [ ] 3c. Painted battle engine, World 1 Level 1 playable: painted map, trail, creatures and defenders that bob, lean, squash and flash, shots and sparks, free placement with ghost preview, range ring and "On road" warning (Sonnet, Opus reviews)
+- [ ] 3d. Studio gameplay: enemy resistances (fire, frost, shock, arrows, gravity) with color badges on health bars; tower targeting First, Last, Strong (Sonnet)
+- [ ] 3e. All World 1 levels, the final level slice and the tutorial on the painted battlefield (Sonnet)
+- [ ] 3f. Painted world map and level cards (Sonnet)
+- [ ] 3g. Mr. Scott: play Level 1 on a Chromebook and check it runs smoothly
+
+### Step 4. AI Studio art for the gaps (AI Studio does the work)
+- [ ] Claude writes work orders in `docs/WORK-ORDERS.md` for anything 3b does not cover (missing creatures or defenders, walk frames so characters move, level cards)
 - [ ] Mr. Scott pastes each order into AI Studio
 - [ ] Mr. Scott uploads the results in a Claude chat; Claude checks them and adds them. AI Studio never pushes to this repo.
-
-### Step 4. Bring over Studio gameplay (Sonnet)
-- [ ] Free placement polish: ghost preview, range ring, "On road" warning
-- [ ] Enemy resistances (fire, frost, shock, arrows, gravity) with color badges on health bars
-- [ ] Tower targeting: First, Last, Strong
 
 ### Step 5. Playtest Normal (Mr. Scott)
 - [ ] Play 2 or 3 levels, then make the Normal difficulty decision
