@@ -18,7 +18,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 - [x] **Main build:** the AI Studio version (`rift-runners-studio`). Claude directs, tests and writes prompts; AI Studio builds; Claude never changes Studio code. The old Claude build is frozen as an archive. Nov 27
 - [x] **Level 1 on Hard and Expert:** spot on (Mr. Scott played it, Nov 27). Keep those numbers.
-- [ ] **Level 1 on Easy and Normal:** Claude suggests making these two easier so a student who misses about 4 words in 10 can still win on Easy. Mr. Scott approves or changes.
+- [x] **Easy and Normal:** all four difficulties are good as they are (Mr. Scott, Nov 27). No balance change.
+- [x] **Difficulty dials:** builder-only tool for Mr. Scott while building future levels. Teachers and students never see them. Good values get written into the game, and the dials come out before release. Nov 27
 - [x] **Kill rewards:** a few crystals per kill is fine (Mr. Scott, Nov 27). Replaces the Nov 21 reading-only rule.
 - [x] **Walkthrough skip:** students may skip it (Mr. Scott, Nov 27).
 - [x] **Lock counts:** a miss lowering a lock count is fine (Mr. Scott, Nov 27).
@@ -53,9 +54,11 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] S-01: Teacher lock. Hide the Playtest buttons, scene previews, lock Clear button, Unlock All Levels and Reset Placement behind a teacher code. (Prompt ready)
 - [x] Claude tests S-01: passed (Test 2, Nov 27)
 
-### Step 2. Easy and Normal balance (after the decision above)
-- [ ] S-02: Claude writes exact numbers for Easy and Normal only; Hard and Expert stay as they are (Opus)
-- [ ] Claude re-runs the scripted player: a strong reader wins Level 1 on Normal; a 60% reader wins on Easy
+### Step 2. Builder-only difficulty dials
+- [x] S-02 prompt written: Builder Mode (code `runner-build`) with dials for Easy, Normal, Hard and Expert; nothing saved; game unchanged at default (Nov 27)
+- [ ] Mr. Scott runs S-02 and syncs
+- [ ] Claude tests S-02 (Sonnet)
+- [ ] Before release: remove Builder Mode and the dials (one prompt)
 
 ### Step 3. Keep the GitHub sync working
 - [x] Mr. Scott syncs after every build (no prompt needed)
