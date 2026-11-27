@@ -68,10 +68,10 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 4. Reading rules the Studio build is missing
 - [ ] Level card story paragraph gets a speaker: moved to the final static story pass, since its audio and text are redone then
-- [ ] S-04: hero powers (Rally, Meteor, Time Freeze) use the recorded clips (prompt ready)
+- [x] S-04: hero powers (Rally, Meteor, Time Freeze) use the recorded clips; passed (Test 4, Nov 27)
 - [ ] S-05: walkthrough steps get a recorded voice (prompt ready)
 - [ ] S-06: level names and the silent e rule get recorded voices (prompt ready)
-- [ ] Claude tests S-04 to S-06 (Sonnet)
+- [ ] Claude tests S-05 and S-06 (Sonnet)
 - [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
 
 ### Step 5. Small fixes from Test 1

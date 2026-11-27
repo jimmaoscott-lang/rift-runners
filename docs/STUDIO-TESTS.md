@@ -4,7 +4,23 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
-## Test 3: November 27, 2026 (S-02 Builder Mode and S-03 top bar, Studio commit b4049ab)
+## Test 4: November 27, 2026 (S-04 hero power voices, Studio commit af697b2)
+
+Result: **S-04 passed.** Lint and build clean. Only the three speech ids and the Studio session log changed.
+
+| Done when | Result |
+|---|---|
+| Rally, Meteor and Time Freeze play a recorded clip, no computer voice | Pass: each started its `hero.*` clip during a live wave |
+| On-screen messages unchanged | Pass (code) |
+
+- AI Studio's log says the clips say "Rally.", "Meteor." and "Time Freeze." Claude cannot hear them. Mr. Scott checks by ear.
+- Still on the computer voice: walkthrough speaker button (S-05). Level names and silent e rule wait for S-06.
+- Studio repo: 146 files, 15,495,248 bytes.
+- S-07 has not been run yet.
+
+---
+
+ November 27, 2026 (S-02 Builder Mode and S-03 top bar, Studio commit b4049ab)
 
 Result: **S-02 passed. S-03 passed.** Lint and build clean, no page errors.
 

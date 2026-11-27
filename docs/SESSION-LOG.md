@@ -21,6 +21,13 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 29c: November 27, 2026 (S-04 tested)
+
+- S-04 passed (Test 4, Studio commit af697b2).
+- Next up: Mr. Scott runs S-07, S-05 and S-06, then a Sonnet chat tests them.
+
+---
+
 ## Session 29b: November 27, 2026 (standard difficulty chosen)
 
 - Mr. Scott's dial settings: Easy 50 health / 90 speed, Normal 60 / 90, Hard 100 / 100, Expert 100 health / 110 speed / 110 creatures. All levels base off these.

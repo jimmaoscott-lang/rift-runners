@@ -137,7 +137,7 @@ CLAUDE TESTS AFTER:
 
 ## S-04: Hero powers use the recorded voice
 
-Status: ready
+Status: tested (passed, Claude Test 4, Nov 27)
 Goes with: CHECKLIST Step 4; Test 3 voice problem 1
 
 PASTE INTO AI STUDIO:
