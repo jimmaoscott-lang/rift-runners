@@ -165,6 +165,20 @@ A structured literacy sequence built for older readers. Each world adds to every
 
 The opening mission doubles as a placement check. It quickly samples each world's pattern with real words and runes, then opens the worlds the student has already mastered. The student sees it as a tutorial mission, never a test.
 
+**Boot Camp (designed by Claude, November 26; Mr. Scott approved. His Gemini version has a similar boot camp with a few additions, to be merged here when he shares them):** a level before Level 1 that finds each student's starting world in 8 to 12 minutes without feeling like a test.
+
+- **One short drill per world, in skill order.** Each drill is 4 real words and 2 runes for that world's pattern (section 5 table). Runes carry the most weight because they show real decoding; a real word can be known by sight.
+- **Climb until they slip, then stop.** Start with World 1 (mixed short vowels). Passing a drill means 5 of 6 right on the first try, including at least one rune. Pass and the next world's drill begins. The first world not passed is the starting world. Two misses in a row ends a drill early (standard discontinue rule), so a struggling reader is done in about 3 minutes and never sees words far above their level.
+- **Place lower when in doubt.** A bare pass (exactly 5 of 6, or a pass made in tap mode) starts the student at that world's last level as review instead of skipping it. Placing a little low costs a few easy minutes; placing too high costs a frustrated student who quits.
+- **Guessing control.** Boot Camp uses 4 tap choices (3 elsewhere) and counts first tries only. Speak mode is used when the mic and checker are up.
+- **Hearing counts as help.** The speaker works on every word (hard rule), but a word read after tapping the speaker does not count toward passing.
+- **No timers.** Speed is never scored.
+- **Feel:** the Rift Warden's training range. Each drill is a firing lane; every correct read fires at a target or a rift creature. Every answer, even a miss, earns crystals and rank progress (Recruit, Runner, Veteran). No fail screen. It ends with a rank and an assignment ("Report to the Sunken Foundry"), never a level number or grade.
+- **What it sets:** the starting world (earlier worlds open as bonus missions); rift locks for passed patterns start partly filled (about 6 of 10), so mastery is still shown in play.
+- **Self-correcting:** if a student is under 70% first try across the first two levels of the placed world, the game quietly offers a supply run back one world.
+- **Teacher control:** Teacher settings can override the starting world or rerun Boot Camp. The result (each drill's score, the starting world and the date) feeds the teacher note and the Starting level line in reports (12.2).
+- **Content:** drill words follow the decodability checker like any level. AI Studio may draft drill word lists through a work order; Claude checks and picks the final set.
+
 ### 5.3 Comprehension strand (added Nov 21)
 
 Decoding and fluency are needed for comprehension but do not finish the job (the Simple View of Reading: decoding times language comprehension). So meaning runs alongside the decoding sequence, always using only words the student can already decode plus heart words:

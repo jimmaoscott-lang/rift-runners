@@ -28,6 +28,7 @@ Built while Mr. Scott was away from his computer; both pieces were tested here w
 - **Classroom-safe sound check:** `tools/check_decodable.py` already blocked crude words by fingerprint. It now also flags a made-up rune or answer choice that sounds like a blocked word when read aloud (same-sound spellings like c/k/ck, x/ks, ph/f, z/s and doubled endings, plus at most one near sound: i/e, or a final consonant with or without voice, as in shid). Real words are exempt, since they are picked on purpose. It caught two in World 1, both replaced (Claude's call): rune **fim** became **zib** (options zab, zub), and the answer choice **wob** for web became **wab**. The new rune has no Say it history yet; runes are tap only by default. Audio for the new words is made automatically on push.
 - **Copy teacher note (v0.17.0):** a small "Teacher: copy progress note" button at the bottom of the end screen copies a plain summary (DESIGN 12.3). Tested in a headless browser for a World 1 level and the World 8 story level; the copy and the "Copied" message work, with no console errors.
 - **Try:** finish any level, tap the teacher button, and paste into a doc or email. Check that the wording fits your logs.
+- **Boot Camp designed:** placement level before Level 1, written into DESIGN 5.2 (Mr. Scott approved). Build after the mic fix and graphics test. Mr. Scott's Gemini version has a similar boot camp with a few additions; ask him to share them before building.
 - **Next up:** unchanged. Friday: mic fix (Opus), then the animated 3D test scene.
 
 ---
