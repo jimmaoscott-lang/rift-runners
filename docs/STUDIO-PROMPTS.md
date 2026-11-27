@@ -22,8 +22,8 @@ CLAUDE TESTS AFTER:
 
 ## S-10: Expert grace, part 2: overtime waves stop growing on Expert
 
-Status: ready
-Goes with: CHECKLIST decision "Expert grace"; Test 7, problem 1. Run after S-09.
+Status: cancelled (Mr. Scott, Nov 27: missing many words should be able to cost the level; that is motivation to read carefully). Do not run.
+Goes with: CHECKLIST decision "Expert grace"; Test 7, problem 1.
 
 Why: a level is won only after every Rift Lock fills, and a lock needs nearly all first-try reads (for example 10 of the last 11). Each miss delays the locks. After the level's listed waves run out, every extra wave gets 10 to 18% more creature health and about 14% more creatures. On Expert, a student who misses words falls into extra waves that keep growing until the anchor falls. That is a miss ending the level.
 
@@ -74,7 +74,7 @@ Task: Expert grace, part 1. On Expert only, a word read right on the second try 
 4. A second-try read still does not count as a clean read: no Mega Forge pip, no Rift Lock credit, and the word still goes on the practice list.
 5. In completeForge, when the Expert half payout is used, change the feedback line to exactly "Second try, and it landed. Half crystals." (with voice fit: "Second try, and it landed (matched your voice profile). Half crystals."). Other difficulties keep the current lines.
 6. Do not change: the simulate buttons (computeSimRound), lock rules, wave timing, the difficulty presets, Builder Mode dials, speech checking, voice fits, Spanish supports, the miss instruction card, or save data.
-7. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: Expert grace part 1: on Expert, a word read right on the second try earns half crystals (real word 6, rune 13). Misses never cost crystals. Part 2 (S-10) keeps misses from making an Expert level unwinnable."
+7. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: Expert grace part 1: on Expert, a word read right on the second try earns half crystals (real word 6, rune 13). Misses never cost crystals. One miss never ends a level; missing many words can, and that is intended."
 8. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry; report how many files you added or changed and their total size.
 
 Done when:

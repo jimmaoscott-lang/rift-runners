@@ -25,7 +25,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] **Lock counts:** a miss lowering a lock count is fine (Mr. Scott, Nov 27).
 - [x] **GitHub sync:** sync after every AI Studio build. The old size trouble came from one huge first sync. Nov 27
 - [x] **Cutscenes paused:** AI Studio makes no new cutscenes until the rest of the build is done. Redoing all story scripts and cutscenes as static files is the last step; the look is still undecided. Nov 27
-- [x] **Expert grace:** approved (Nov 27). A word read right on the second try earns half crystals, and misses never end the level. Checked in Test 7: misses can end an Expert level today through growing extra waves. Prompts S-09 and S-10 written (Step 4b).
+- [x] **Expert grace:** approved (Nov 27). A word read right on the second try earns half crystals, and misses never end the level. Meaning (Mr. Scott, Nov 27): one miss never ends a level; missing many words can, and that is intended motivation. Prompt S-09 written (Step 4b); S-10 cancelled.
 
 ## Dec 2 meeting
 
@@ -81,9 +81,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ### Step 4b. Expert grace
 - [x] Claude checks how the Studio build handles misses (Test 7, Nov 27)
 - [ ] Mr. Scott runs S-09 (half crystals on a second try, Expert), checks it, syncs
-- [ ] Mr. Scott runs S-10 (extra waves stop growing on Expert), checks it, syncs
-- [ ] Claude tests S-09 and S-10
-- [ ] Mr. Scott plays Expert with some misses: extra waves still hard enough?
+- [x] S-10 cancelled: growing extra waves stay (Mr. Scott, Nov 27)
+- [ ] Claude tests S-09
 
 ### Step 5. Small fixes from Test 1
 - [x] S-03: top bar fits small Chromebook screens; passed (Test 3, Nov 27)
