@@ -47,7 +47,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ## Build order (AI Studio builds every step from Claude's prompts)
 
 ### Step 0. Connect AI Studio to this repo
-- [ ] Mr. Scott gives AI Studio the setup prompt; it copies the decisions into its BUILD.md
+- [x] Mr. Scott gives AI Studio the setup prompt; it copies the decisions into its BUILD.md (done Nov 27; it can read this repo)
 
 ### Step 1. Classroom-safe screens (before Dec 2)
 - [ ] S-01: Teacher lock. Hide the Playtest buttons, scene previews, lock Clear button, Unlock All Levels and Reset Placement behind a teacher code. (Prompt ready)
