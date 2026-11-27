@@ -20,6 +20,57 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-02: Difficulty dials for Easy and Normal (replaces AI Studio's "dynamic spawn" idea)
+
+Status: ready (run only if Mr. Scott agrees Easy and Normal should be easier)
+Goes with: CHECKLIST Step 2; Test 1 problem 2
+
+PASTE INTO AI STUDIO:
+
+```
+Task: make Easy and Normal easier using a fixed dial table. Hard and Expert must play exactly as they do now. Do only this task.
+
+Use this instead of a dynamic or adaptive system. Difficulty must never change during a battle based on how the student is doing, because teachers read the results as a picture of the student's reading.
+
+1. In src/data/level1.ts, add two fields to each entry in DIFFICULTIES and set these exact values:
+
+   | Difficulty | hpMult | speedMult | countMult | extraWordsPerWave |
+   | easy   | 0.65 | 0.92 | 0.6 | 2 |
+   | normal | 0.78 | 0.95 | 0.8 | 1 |
+   | hard   | 0.92 | 0.98 | 1.0 | 0 |
+   | expert | 1.00 | 1.00 | 1.0 | 0 |
+
+   Hard and Expert keep their current hpMult and speedMult.
+
+2. countMult: when a wave is built, multiply every group's count by countMult and round to the nearest whole number, with a minimum of 1. Bosses are never removed or reduced in count. Do this in one place where wave groups are queued in src/game/CanvasBattleEngine.ts, not per level.
+
+3. extraWordsPerWave: the words between waves become the level's waveEvery plus extraWordsPerWave, never more than 15. Write one helper function that returns this number and use it everywhere waveEvery is read (the wave counter in the top bar, the Rune Forge, the engine). Rift Lock targets do not change.
+
+4. Change the difficulty descriptions shown on the title screen:
+   - Easy: "Fewer, weaker creatures and more reading time between waves."
+   - Normal: "A few fewer creatures than Hard."
+   Spanish lines in src/data/ellSpanish.ts (mark both "needs Spanish speaker review"):
+   - Easy: "Menos criaturas, más débiles, y más tiempo para leer entre oleadas."
+   - Normal: "Un poco menos criaturas que en Difícil."
+
+5. Do not change anything else: word lists, crystal rewards, speech checking, voice fits, Spanish supports, Runner Basic Training, defender stats, wave definitions in the level data, save data keys.
+
+6. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry; update the difficulty table in docs/DESIGN.md; add to "Mr. Scott's decisions" in BUILD.md: "Difficulty uses fixed dials per level of difficulty (enemy health, speed, count, words between waves). No adaptive difficulty during a battle. Hard and Expert stay as tuned on Nov 27."
+
+Done when:
+- On Easy, Level 1 wave 1 has 6 Rift Wisps and 2 Thornbacks (from 10 and 4), and the top bar counts 10 words to the first wave.
+- On Normal, wave 1 has 8 Rift Wisps and 3 Thornbacks, and 9 words to the first wave.
+- On Hard and Expert, wave 1 still has 10 Rift Wisps and 4 Thornbacks and 8 words to the first wave.
+- The new Easy and Normal descriptions show on the title screen.
+```
+
+CLAUDE TESTS AFTER:
+- Wave counts and words-to-wave on all four difficulties, Level 1 and one World 2 level.
+- Scripted player: strong reader (1.0) wins Level 1 on Normal; struggling reader (0.6) wins Level 1 on Easy. If not, a follow-up prompt with new numbers.
+- Hard and Expert unchanged (compare wave counts to the level data).
+
+---
+
 ## S-01: Teacher lock for test and setup tools
 
 Status: ready
