@@ -152,7 +152,15 @@ window.RF = window.RF || {};
     const consPass = avg >= (s.consonantAvgMin || 40) && cons.every(function (c) { return c >= (s.consonantEachMin || 15); });
     const wordPass = topOK || (w.accuracy || 0) >= (s.wordMin || 45);
     out.outcome = vowelPass && consPass && wordPass ? 'match' : 'miss';
-    out.note = (offGuess ? 'azure expected ' + v.p + ', checked as ' + want + '; ' : '') + 'vowel ' + v.p + ' ' + Math.round(vs) + (top ? ' (sounded most like ' + top + ')' : '') +
+    // Timing collapse (Session 22, bugs B2 and B5): when the start of a word is clipped, Azure
+    // lines the sounds up wrong and scores the first sound and the vowel very low together
+    // ("pin" read right: first sound 30, vowel 21; "dig": 29 and 58). A misread rarely looks like
+    // that, because the student says the first sound clearly. The forge gives one free redo.
+    const first = vi > 0 ? (ph[0].score || 0) : vs;
+    if (out.outcome === 'miss' && first < (s.collapseFirstMax || 45) && vs < (s.collapseVowelMax || 60)) {
+      out.collapse = true;
+    }
+    out.note = (out.collapse ? 'timing collapse; ' : '') + (offGuess ? 'azure expected ' + v.p + ', checked as ' + want + '; ' : '') + 'vowel ' + v.p + ' ' + Math.round(vs) + (top ? ' (sounded most like ' + top + ')' : '') +
       ', other sounds ' + cons.map(Math.round).join(' ') + ', word ' + Math.round(w.accuracy || 0);
     return out;
   };
@@ -184,6 +192,70 @@ window.RF = window.RF || {};
     return out;
   }
 
+  // ---- Warm mic (Session 22, bug B2) ----
+  // Opening the mic takes about half a second, so a student who reads the instant Say it is
+  // pressed lost the first sound, and Azure then misjudged the whole word. The mic now opens once
+  // and stays open between words. While no one is reading, it keeps only the last few chunks (the
+  // pre-roll, about a third of a second) and throws the rest away, so a word that starts right as
+  // the button is pressed is kept whole. Nothing is recorded or sent until Say it is pressed.
+  // It closes when the level ends, when the tab is hidden, and after warmIdleMs with no reading.
+  const WARM = { stream: null, ctx: null, proc: null, rate: 16000, chunkMs: 128, ring: [], quiet: [], sink: null, opening: null, idle: 0 };
+  MIC.warmState = function () { return WARM.proc ? 'warm' : WARM.opening ? 'opening' : 'cold'; };
+  const PREROLL = 3;
+  function warmOpen() {
+    if (WARM.proc) { if (WARM.ctx.state === 'suspended') WARM.ctx.resume().catch(function () {}); return Promise.resolve(true); }
+    if (WARM.opening) return WARM.opening;
+    WARM.opening = navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } }).then(function (s) {
+      WARM.opening = null;
+      WARM.stream = s;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      try { WARM.ctx = new AC({ sampleRate: 16000 }); } catch (e) { WARM.ctx = new AC(); }
+      if (WARM.ctx.state === 'suspended') WARM.ctx.resume().catch(function () {});
+      WARM.rate = WARM.ctx.sampleRate;
+      const src = WARM.ctx.createMediaStreamSource(s);
+      const size = WARM.rate > 20000 ? 4096 : 2048; // about 0.1 to 0.13 seconds per chunk
+      WARM.chunkMs = size / WARM.rate * 1000;
+      WARM.proc = WARM.ctx.createScriptProcessor(size, 1, 1);
+      const mute = WARM.ctx.createGain(); mute.gain.value = 0;
+      src.connect(WARM.proc); WARM.proc.connect(mute); mute.connect(WARM.ctx.destination);
+      WARM.ring = []; WARM.quiet = [];
+      WARM.proc.onaudioprocess = function (ev) {
+        const d = new Float32Array(ev.inputBuffer.getChannelData(0));
+        let sum = 0; for (let i = 0; i < d.length; i++) sum += d[i] * d[i];
+        const rms = Math.sqrt(sum / d.length);
+        if (WARM.sink) return WARM.sink(d, rms);
+        WARM.ring.push(d); if (WARM.ring.length > PREROLL) WARM.ring.shift();
+        // Room noise between words, for a fair loudness line when the student reads.
+        WARM.quiet.push(rms); if (WARM.quiet.length > 24) WARM.quiet.shift();
+      };
+      s.getTracks().forEach(function (t) { t.onended = function () { MIC.cool(); }; });
+      return false;
+    }, function (e) { WARM.opening = null; throw e; });
+    return WARM.opening;
+  }
+  function idleCool() {
+    clearTimeout(WARM.idle);
+    WARM.idle = setTimeout(function () { if (!WARM.sink) MIC.cool(); }, cfg().warmIdleMs || 90000);
+  }
+  // Open the mic ahead of time, only when the browser already has permission (no surprise prompt)
+  // and the Azure check is the one in use. Otherwise it opens on the first Say it press.
+  MIC.warm = function () {
+    if (cfg().warmMic === false || !azOK() || MIC.state !== 'ok' || WARM.proc || WARM.opening) return;
+    if (!navigator.permissions || !navigator.permissions.query) return;
+    navigator.permissions.query({ name: 'microphone' }).then(function (p) {
+      if (p.state === 'granted' && !WARM.proc && !WARM.opening && document.visibilityState !== 'hidden') warmOpen().then(idleCool).catch(function () {});
+    }).catch(function () {});
+  };
+  MIC.cool = function () {
+    clearTimeout(WARM.idle);
+    WARM.sink = null;
+    if (WARM.proc) { WARM.proc.onaudioprocess = null; try { WARM.proc.disconnect(); } catch (e) { /* ignore */ } }
+    if (WARM.stream) WARM.stream.getTracks().forEach(function (t) { t.onended = null; t.stop(); });
+    if (WARM.ctx) WARM.ctx.close().catch(function () {});
+    WARM.stream = WARM.ctx = WARM.proc = null; WARM.ring = []; WARM.quiet = [];
+  };
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && !WARM.sink) MIC.cool(); });
+
   let current = null; // the listen in progress: { stop() }
   MIC.stop = function () {
     const c = current; current = null; MIC.busy = false;
@@ -201,7 +273,7 @@ window.RF = window.RF || {};
     const st = { heard: [], error: null, seen: { audio: false, sound: false, speech: false }, ended: false };
     let settle = 0;
     const end = function () { if (st.ended) return; st.ended = true; clearTimeout(settle); try { rec.abort(); } catch (e) { /* ignore */ } onDone(st); };
-    rec.onaudiostart = function () { st.seen.audio = true; };
+    rec.onaudiostart = function () { st.seen.audio = true; if (opts.onAudio) { const f = opts.onAudio; opts.onAudio = null; f(); } };
     rec.onsoundstart = function () { st.seen.sound = true; };
     rec.onspeechstart = function () { st.seen.speech = true; };
     rec.onresult = function (ev) {
@@ -259,7 +331,10 @@ window.RF = window.RF || {};
     };
     const me = { stop: function () { done = true; ch.abort(); } };
     current = me;
-    const ch = chromeListen(word.w, word.sayAlso, opts,
+    // Show Listening when Chrome's mic is really open (or after a second if that event never comes).
+    let started = false;
+    const go = function () { if (started || done) return; started = true; if (opts.onStart) opts.onStart(false); };
+    const ch = chromeListen(word.w, word.sayAlso, { maxMs: opts.maxMs, onAudio: go },
       function (st) { finish({ matched: true, heard: st.heard[0] || '', outcome: 'match', diag: chromeDiag(st) }); },
       function (st) {
         const down = chromeDown(st.error);
@@ -271,19 +346,16 @@ window.RF = window.RF || {};
         if (MIC.matches(word.w, st.heard, word.sayAlso)) return finish({ matched: true, heard: st.heard[0], outcome: 'match', diag: chromeDiag(st) });
         finish({ matched: false, heard: st.heard[0] || '', outcome: st.heard.length ? 'miss' : 'nothing', diag: chromeDiag(st) });
       });
-    if (opts.onStart) opts.onStart();
+    setTimeout(go, 1000);
   }
 
   function listenAzure(word, cb, opts) {
     const c = cfg();
-    let done = false, stream = null, ctx = null, proc = null, ch = null, ctl = null, maxTimer = 0;
-    const chunks = [];
+    let done = false, ch = null, ctl = null, maxTimer = 0, listening = false;
+    let chunks = [];
     const stopAudio = function () {
       clearTimeout(maxTimer);
-      if (proc) { proc.onaudioprocess = null; try { proc.disconnect(); } catch (e) { /* ignore */ } }
-      if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
-      if (ctx) ctx.close().catch(function () {});
-      stream = ctx = proc = null;
+      if (listening) { listening = false; WARM.sink = null; WARM.ring = []; idleCool(); }
     };
     const finish = function (res) {
       if (done) return; done = true;
@@ -322,6 +394,7 @@ window.RF = window.RF || {};
       (function wait() { if (done) return; if (prev.ended) { clearTimeout(t); decide(); } else setTimeout(wait, 100); })();
     };
 
+    let startNote = '';
     const send = function (samples) {
       const wav = encodeWav(samples, 16000);
       ctl = new AbortController();
@@ -336,42 +409,45 @@ window.RF = window.RF || {};
             if (!j.ok) return fallBack('checker error');
             AZ.failures = 0;
             const sc = MIC.score(j, word.w);
-            finish({ matched: sc.outcome === 'match', heard: j.heard || '', outcome: sc.outcome, engine: 'azure', diag: 'azure: ' + sc.note });
+            // Azure scores sounds against the target word and never writes down what was said, so
+            // the "heard" line in Test mode shows Chrome's guess instead (bug B5 readout).
+            const heard = ch && ch.st.heard[0] ? ch.st.heard[0] : '';
+            finish({ matched: sc.outcome === 'match', heard: heard, outcome: sc.outcome, collapse: !!sc.collapse, engine: 'azure',
+              diag: 'azure: ' + sc.note + '; ' + startNote + (heard ? '' : '; azure does not write down words') });
           });
         })
         .catch(function (e) { clearTimeout(t); if (!done) fallBack(e && e.name === 'AbortError' ? 'slow answer' : 'blocked or offline'); });
     };
 
-    // Open the mic with Chrome's audio cleanup off (DESIGN.md 10 rule), at 16 kHz if allowed.
-    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } }).then(function (s) {
-      if (done) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
-      stream = s;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      try { ctx = new AC({ sampleRate: 16000 }); } catch (e) { ctx = new AC(); }
-      const rate = ctx.sampleRate;
-      const src = ctx.createMediaStreamSource(stream);
-      const size = rate > 20000 ? 4096 : 2048; // about 0.1 to 0.13 seconds per chunk
-      proc = ctx.createScriptProcessor(size, 1, 1);
-      const mute = ctx.createGain(); mute.gain.value = 0;
-      src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
-      const chunkMs = size / rate * 1000;
+    // Open the mic (or use the one already open) with Chrome's audio cleanup off (DESIGN.md 10).
+    warmOpen().then(function (wasWarm) {
+      if (done) { idleCool(); return; }
+      const rate = WARM.rate, chunkMs = WARM.chunkMs;
+      // The pre-roll: the moment just before the press. Only used when the voice runs into it.
+      const pre = wasWarm ? WARM.ring.splice(0) : [];
+      chunks = pre.slice();
+      const preN = pre.length;
       const quietNeeded = Math.ceil((c.endSilenceMs || 700) / chunkMs);
-      let floor = 0, seenChunks = 0, speechAt = -1, lastLoud = -1, peak = 0;
+      // Room noise: the quiet between words when the mic was warm, else the first few chunks.
+      const q = wasWarm ? WARM.quiet.slice().sort(function (x, y) { return x - y; }) : [];
+      let floor = q.length >= 3 ? q[Math.floor(q.length * 0.25)] : 0;
+      let seenChunks = q.length >= 3 ? 3 : 0;
+      let speechAt = -1, lastLoud = -1, peak = 0;
+      startNote = (wasWarm ? 'warm mic, pre-roll ' + Math.round(preN * chunkMs) + ' ms' : 'cold mic start');
       const wrap = function () {
-        // Keep from a moment before the voice started to a moment after it stopped.
+        // Keep from a moment before the voice started (reaching into the pre-roll) to a moment after it stopped.
         const a = Math.max(0, speechAt - 3), b = Math.min(chunks.length, lastLoud + 3);
+        if (speechAt === preN && !wasWarm) startNote += ', voice at first chunk (start may be clipped)';
         stopAudio();
         send(to16k(chunks.slice(a, b), rate));
       };
-      proc.onaudioprocess = function (ev) {
+      listening = true;
+      WARM.sink = function (d, rms) {
         if (done) return;
-        const d = new Float32Array(ev.inputBuffer.getChannelData(0));
         chunks.push(d);
-        let sum = 0; for (let i = 0; i < d.length; i++) sum += d[i] * d[i];
-        const rms = Math.sqrt(sum / d.length);
         peak = Math.max(peak, rms);
-        // Room noise level: the quietest of the first few chunks (a student who starts talking
-        // right away must not raise it), capped so a loud room still works.
+        // A student who starts talking right away must not raise the noise line, so it is the
+        // quietest of the first few chunks, capped so a loud room still works.
         seenChunks++;
         if (seenChunks <= 3) floor = seenChunks === 1 ? rms : Math.min(floor, rms);
         const thr = Math.max(0.012, Math.min(floor, 0.05) * 2.5);
@@ -380,16 +456,17 @@ window.RF = window.RF || {};
         else if (speechAt >= 0 && i - lastLoud >= quietNeeded) wrap();
       };
       maxTimer = setTimeout(function () {
-        if (done || !proc) return;
+        if (done || !listening) return;
         if (speechAt < 0) {
           // Heard no voice at all. Count it as "nothing", unless Chrome caught the word.
           stopAudio();
           if (ch && MIC.matches(word.w, ch.st.heard, word.sayAlso)) return finish({ matched: true, heard: ch.st.heard[0], outcome: 'match', engine: 'chrome', diag: 'azure heard no voice (level ' + Math.round(peak * 1000) + '); chrome caught it' });
-          return finish({ matched: false, heard: '', outcome: 'nothing', diag: 'azure: no voice heard, level ' + Math.round(peak * 1000) });
+          return finish({ matched: false, heard: '', outcome: 'nothing', diag: 'azure: no voice heard, level ' + Math.round(peak * 1000) + '; ' + startNote });
         }
         wrap();
       }, c.maxListenMs || 5000);
-      if (opts.onStart) opts.onStart();
+      // The mic is really recording now: the forge shows the Listening signal.
+      if (opts.onStart) opts.onStart(wasWarm);
     }).catch(function (e) {
       if (done) return;
       const name = e && e.name;
@@ -510,6 +587,7 @@ window.RF = window.RF || {};
   // Returns { next(), stop() }: next() ends the current sentence (the student's Next button).
   MIC.readPassage = function (sentences, opts) {
     MIC.stop();
+    MIC.cool(); // the passage reader opens its own mic stream
     const c = cfg(), pc = c.passage || {};
     const refs = sentences.map(refTokens);
     const useAz = azOK();

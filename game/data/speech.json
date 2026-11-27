@@ -1,17 +1,21 @@
 {
-  "_note": "Speak mode checker settings (DESIGN.md section 6 and 10). checkUrl is the Cloudflare Worker that holds the Azure key. If it cannot be reached, the game uses Chrome's recognizer. Score numbers are 0 to 100 from Azure Pronunciation Assessment; tune them from Test mode readouts.",
+  "_note": "Speak mode checker settings (DESIGN.md section 6 and 10). checkUrl is the Cloudflare Worker that holds the Azure key. If it cannot be reached, the game uses Chrome's recognizer. Score numbers are 0 to 100 from Azure Pronunciation Assessment; tune them from Test mode readouts. warmMic (Session 22): keep the mic open between words with a short pre-roll so the first sound is never clipped; it closes after warmIdleMs with no reading, at level end, and when the tab is hidden. collapseFirstMax and collapseVowelMax: a miss with the first sound and the vowel both under these is a timing collapse and gets one free redo (no try counted, streak and crystals kept).",
   "checkUrl": "https://rift-runners-speech.jimmaoscott.workers.dev",
   "healthTimeoutMs": 3500,
   "checkTimeoutMs": 4000,
   "maxListenMs": 5000,
   "endSilenceMs": 700,
   "spokenRunes": false,
+  "warmMic": true,
+  "warmIdleMs": 90000,
   "score": {
     "vowelMin": 60,
     "vowelClearMiss": 80,
     "consonantAvgMin": 40,
     "consonantEachMin": 15,
-    "wordMin": 45
+    "wordMin": 45,
+    "collapseFirstMax": 45,
+    "collapseVowelMax": 60
   },
   "passage": {
     "_note": "Read aloud for World 8 story cards and the Rift Seal (Session 14). wordMin: Azure word score that still counts an accented read as right (35 until Session 15, raised to 50 after Mr. Scott found mangled words passing). vowelCheck (Session 15): every vowel sound in a word must not sound most like a different vowel (unless it scores vowelClearMiss or more) and must score vowelMin or more; accent variants are allowed (see speech.js PSAME). chromeRescue: let Chrome's follow-along rescue a word Azure called skipped (off since Session 15; Chrome fills in words from context). endQuietMs: pause after the last word that ends a sentence. stuckQuietMs: a long pause that moves on (the student can also press Next). clipMaxMs: Azure takes about 30 seconds per check. lineQuietMs: with no Chrome follow-along, this pause ends a sentence.",

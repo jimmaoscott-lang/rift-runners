@@ -92,6 +92,7 @@ window.RF = window.RF || {};
       optsRow.style.display = hide ? 'none' : '';
       forgeBtn.style.display = hide ? 'none' : '';
       micBtn.style.display = micOn() ? '' : 'none';
+      if (micOn() && RF.mic.warm) RF.mic.warm(); // open the mic ahead of time (no clipped first sound)
       D.clear(prompt);
       const id = hide ? 'forge.sayIt' : micOn() ? 'forge.whichOrSay' : F.cur.kind === 'rune' ? 'forge.whichRune' : 'forge.which';
       D.line(id, '', prompt);
@@ -101,9 +102,14 @@ window.RF = window.RF || {};
       }
       renderMic();
     }
+    // listening: false (Say it), 'wait' (pressed, the mic is still opening: hold on) or true
+    // (really recording: read now). The Listening signal only shows once sound is being kept.
     function renderMic(listening) {
-      micBtn.classList.toggle('listening', !!listening);
-      micBtn.innerHTML = D.MIC + '<span>' + D.esc(RF.t(listening ? 'forge.listening' : 'forge.say')).toUpperCase() + '</span>' +
+      const wait = listening === 'wait';
+      micBtn.classList.toggle('listening', listening === true);
+      micBtn.classList.toggle('micWait', wait);
+      const id = wait ? 'forge.micWait' : listening ? 'forge.listening' : 'forge.say';
+      micBtn.innerHTML = D.MIC + '<span>' + D.esc(RF.t(id)).toUpperCase() + '</span>' +
         (listening ? '' : ' ' + D.CRYSTAL(20) + ' +' + payout('speak'));
     }
     function payout(mode) {
@@ -152,7 +158,7 @@ window.RF = window.RF || {};
       F.cur = w;
       F.recentWords = [w.w].concat(F.recentWords).slice(0, 5);
       F.choices = shuffle([{ w: w.w, ok: true }, { w: w.options[0], ok: false }, { w: w.options[1], ok: false }]);
-      F.sel = -1; F.tries = 0; F.speakTries = 0; F.matchNote = null; F.help = false; F.revealed = false;
+      F.sel = -1; F.tries = 0; F.speakTries = 0; F.matchNote = null; F.help = false; F.revealed = false; F.redoUsed = false;
       if (RF.mic) RF.mic.stop();
       F.shownAt = F.lastAction = performance.now();
       wordBox.classList.toggle('rune', w.kind === 'rune');
@@ -308,7 +314,8 @@ window.RF = window.RF || {};
       const w = F.cur;
       RF.stopSpeaking();
       if (RF.audio) RF.audio.duck(2); // keep game sound out of the mic
-      renderMic(true);
+      // A warm mic records the instant the button is pressed; a cold one shows Wait first.
+      renderMic(RF.mic.warmState && RF.mic.warmState() === 'warm' ? true : 'wait');
       RF.sfx('tap');
       RF.mic.listen(w, function (res) {
         if (RF.audio) RF.audio.duck(0);
@@ -326,6 +333,16 @@ window.RF = window.RF || {};
         if (res.outcome === 'again' || res.outcome === 'switch') {
           renderMode();
           say(res.outcome === 'again' ? 'forge.checkAgain' : 'forge.checkSwitch', true, RF.unlocks.testMode() ? testHeard(res.heard, res.engine + ' / ' + res.diag) : null);
+          return;
+        }
+        // Timing collapse (Session 22): Azure lost the start of the word, which looks like a clipped
+        // mic, not a misread. One clean redo per word: no try counted, streak and crystals kept.
+        if (res.outcome === 'miss' && res.collapse && !F.redoUsed) {
+          F.redoUsed = true;
+          F.stats.redos = (F.stats.redos || 0) + 1;
+          F.lastAction = performance.now();
+          renderMode();
+          say('forge.checkAgain', true, RF.unlocks.testMode() ? testHeard(res.heard, res.engine + ' / ' + res.diag + ' (free redo)') : null);
           return;
         }
         // Any real try counts, even if no word was caught (DESIGN.md 6, item 2).
@@ -351,7 +368,10 @@ window.RF = window.RF || {};
         }
         renderForgeBtn();
         renderMode();
-      }, { also: w.sayAlso, onStart: function () { RF.metrics.support('micPress'); } });
+      }, { also: w.sayAlso, onStart: function () {
+        RF.metrics.support('micPress');
+        if (F.cur === w && root.parentNode && RF.mic.busy) renderMic(true);
+      } });
     };
 
     F.pick = function (i) {
@@ -500,7 +520,7 @@ window.RF = window.RF || {};
       return false;
     };
     F.state = function () { return { stats: F.stats, streak: F.streak, recent: F.recent, overheats: F.overheats }; };
-    F.destroy = function () { document.querySelectorAll('.ruleShade').forEach(function (e) { e.remove(); }); F.ruleUp = false; if (RF.mic) RF.mic.stop(); if (RF.audio) RF.audio.duck(0); if (opts.onHold) opts.onHold(false); if (root.parentNode) root.parentNode.removeChild(root); };
+    F.destroy = function () { document.querySelectorAll('.ruleShade').forEach(function (e) { e.remove(); }); F.ruleUp = false; if (RF.mic) { RF.mic.stop(); if (RF.mic.cool) RF.mic.cool(); } if (RF.audio) RF.audio.duck(0); if (opts.onHold) opts.onHold(false); if (root.parentNode) root.parentNode.removeChild(root); };
 
     // ---- Story mode (World 8, DESIGN.md section 7 "Final level preview") ----
     // A story card to read (every word can be tapped), then a question with three answers.

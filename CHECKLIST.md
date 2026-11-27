@@ -29,8 +29,8 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ## Build order
 
 ### Step 1. Mic fix (Opus)
-- [ ] Warm mic with a short pre-roll so the first sound is never clipped (bug B2)
-- [ ] Zero-penalty retry when Azure's timing collapses (keeps streak and crystals)
+- [x] Warm mic with a short pre-roll so the first sound is never clipped (bug B2). v0.17.1, Session 22
+- [x] Zero-penalty retry when Azure's timing collapses (keeps streak and crystals). v0.17.1, Session 22
 - [ ] Mr. Scott: test the mic on a Chromebook, especially short u and short a
 
 ### Step 2. Graphics test (Opus)
