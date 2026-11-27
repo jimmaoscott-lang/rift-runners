@@ -31,7 +31,7 @@ Use the model listed for the step. When a step is done, check it off here and ad
 ### Step 1. Mic fix (Opus)
 - [x] Warm mic with a short pre-roll so the first sound is never clipped (bug B2). v0.17.1, Session 22
 - [x] Zero-penalty retry when Azure's timing collapses (keeps streak and crystals). v0.17.1, Session 22
-- [ ] Mr. Scott: test the mic on a Chromebook, especially short u and short a
+- [x] Mr. Scott: test the mic on a Chromebook, especially short u and short a. Passed Nov 27
 
 ### Step 2. Graphics test (Opus)
 - [x] Small animated 3D test scene with moving characters. `game/graphics-test.html`, Session 23
