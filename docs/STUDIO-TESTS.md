@@ -4,6 +4,48 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 5: November 27, 2026 (S-05, S-06 and S-07, Studio commit 05a82e3)
+
+Result: **S-05 passed. S-06 passed. S-07 passed.** The two voice tasks still need Mr. Scott's listening check. Lint and build clean.
+
+| Step | Checked | Result |
+|---|---|---|
+| S-05 | All 7 walkthrough speaker buttons at 1366 x 768 and 1093 x 614 (each step opened directly, not played through) | Pass: each played its own `walk.step` clip, no computer voice |
+| S-06 | All 11 level card speakers | Pass: each played its own `level.*` clip, no computer voice |
+| S-06 | Silent e card after a missed word in World 3, both screen sizes | Pass: `rule.magice.v1` played when the card opened and when tapped |
+| S-05, S-06 | Audio file | Pass: 19 new clips inside the sprite, no overlaps, none silent. 77 old entries unchanged and old audio identical sample for sample |
+| S-07 | New build at default dials against commit b4049ab at Mr. Scott's dials: 11 levels, regular, extra and bonus waves, 558 creature groups per difficulty | Pass: no mismatches in counts, health or speed. 48 boss checks, no boss count changed. Dials start at 100 |
+| S-07 | Difficulty descriptions and BUILD.md decision line | Pass (code) |
+
+A scripted Level 1 run on Normal (about 2 minutes, 31 words) reached wave 3 with no page crash. Console errors were failed or missing resource loads in the test setup.
+
+### Not verified
+- How the new clips sound. A basic offline speech-to-text tool followed the walkthrough text roughly and could not judge single names or pronunciation. AI Studio's log says it listened to the clips.
+- Walkthrough steps 1 and 5 and the silent e rule start with no quiet lead-in, unlike the other new clips. Listen for a clipped first sound.
+- Microphone and the online speech checker (not reachable from the test computer).
+
+### Size
+146 tracked files, 16.3 MB (15.5 MB before these tasks). AI Studio's log reports 147 files and 29 MB with no total change, which does not match this count. The syncs succeeded.
+
+### Correction to Test 1, problem 4
+Test 1 called it certain that the repo was past its sync limit. That was wrong. See "GitHub and sync limits" below.
+
+### GitHub and sync limits (checked November 27, 2026)
+
+| Limit | Number | Source |
+|---|---|---|
+| GitHub: one file | blocked over 100 MiB, warning over 50 MiB | GitHub Docs, About large files |
+| GitHub: one push | 2 GB | GitHub Docs, Repository limits |
+| GitHub: whole repository | recommended under 10 GB on disk (the large files page says ideally under 1 GB) | GitHub Docs |
+| GitHub Pages: published site | 1 GB | GitHub Docs, Pages limits |
+| AI Studio: GitHub import | 1,000 files | Google AI developers forum reports, not official documentation |
+
+- No GitHub or Google documentation found in this search gives a 150 file or 15 MB limit. Those were this project's own safety numbers.
+- Project history: the Studio BUILD.md says a 653 file commit failed. In the last 30 commits, the 106 file, 9.0 MB commit is the largest by file count and by size, and it is on GitHub. Syncs also succeeded with the whole repo at 16.3 MB.
+- Conclusion: the evidence fits a problem with how much one sync carries. The exact per sync limit is unknown. 150 files and 15 MB per sync are kept as cautious project numbers.
+
+---
+
 ## Test 4: November 27, 2026 (S-04 hero power voices, Studio commit af697b2)
 
 Result: **S-04 passed.** Lint and build clean. Only the three speech ids and the Studio session log changed.

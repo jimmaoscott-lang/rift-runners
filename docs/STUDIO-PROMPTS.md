@@ -20,9 +20,39 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-08: Correct the GitHub sync rule in BUILD.md
+
+Status: ready
+Goes with: CHECKLIST Step 3; Test 5 limits check
+
+PASTE INTO AI STUDIO:
+
+```
+Task: correct the GitHub sync rule. This is a documentation task only. Do only this task.
+
+1. In BUILD.md section 6, replace the whole "GitHub Sync File-Count and Size Lock" bullet with:
+   - **GitHub Sync Rules**: Each sync (one task) changes fewer than 150 files and less than 15 MB, counting the full size of every added or changed file. These are cautious project numbers; the exact limit is not published. Split bigger work into more than one task and sync. The 150 file and 15 MB numbers do not apply to the whole repo. Keep the whole repo under 1,000 files (the reported AI Studio GitHub import limit), every file under 50 MB (GitHub blocks files over 100 MiB), and the published site under 1 GB. Project history: a 653 file commit failed; a 106 file, 9.0 MB commit worked.
+2. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: the 150 file and 15 MB numbers apply to each sync, not to the whole repo. See the GitHub Sync Rules in section 6."
+3. Search BUILD.md, README.md and docs/DESIGN.md for any other line that applies 150 files or 15 MB to the whole repo, and change it to match. Leave old docs/SESSION-LOG.md entries as they are.
+4. Keep the Audio Sprite Packing Rule and the Image and Voice Compression Rule as they are.
+5. From now on, at the end of each task, report how many files the task added or changed and their total size.
+6. Change no code, art or audio.
+7. Housekeeping: add a docs/SESSION-LOG.md entry.
+
+Done when:
+- BUILD.md says the 150 file and 15 MB numbers are per sync.
+- No current rule applies them to the whole repo.
+- Only documentation files changed.
+```
+
+CLAUDE TESTS AFTER:
+- Diff shows only documentation changes; rule and decision lines match.
+
+---
+
 ## S-07: Make Mr. Scott's difficulty numbers the standard
 
-Status: ready (can run any time; Mr. Scott runs it first)
+Status: tested (passed, Claude Test 5, Nov 27)
 Goes with: CHECKLIST Step 2; Mr. Scott's dial test, Nov 27
 
 His dial settings: Easy health 50, speed 90. Normal health 60, speed 90. Hard 100, 100. Expert health 100, speed 110, creatures 110. Extra words 0 on all four.
@@ -63,7 +93,7 @@ CLAUDE TESTS AFTER:
 
 ## S-06: Level names and the silent e rule get recorded voices
 
-Status: ready (run after S-05)
+Status: tested (passed, Claude Test 5, Nov 27; Mr. Scott's listening check pending)
 Goes with: CHECKLIST Step 4; Test 3 voice problem 3
 
 PASTE INTO AI STUDIO:
@@ -106,7 +136,7 @@ CLAUDE TESTS AFTER:
 
 ## S-05: Walkthrough steps get a recorded voice
 
-Status: ready (run after S-04)
+Status: tested (passed, Claude Test 5, Nov 27; Mr. Scott's listening check pending)
 Goes with: CHECKLIST Step 4; Test 3 voice problem 2
 
 PASTE INTO AI STUDIO:

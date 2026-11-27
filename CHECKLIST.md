@@ -59,19 +59,23 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] Mr. Scott runs S-02 and syncs (Nov 27)
 - [x] Claude tests S-02: passed (Test 3, Nov 27)
 - [x] Mr. Scott found the sweet spot with the dials; all levels base off it (Nov 27)
-- [ ] S-07: build those numbers into the standard difficulties (prompt ready)
-- [ ] Claude tests S-07 (Sonnet)
+- [x] S-07: build those numbers into the standard difficulties (Nov 27)
+- [x] Claude tests S-07: passed (Test 5, Nov 27)
 - [ ] Before release: remove Builder Mode and the dials (one prompt)
 
 ### Step 3. Keep the GitHub sync working
 - [x] Mr. Scott syncs after every build (no prompt needed)
+- [x] Claude checks GitHub limits: 150 files and 15 MB now apply to each sync, not the whole repo (Test 5, Nov 27)
+- [ ] S-08: AI Studio corrects the sync rule in its BUILD.md (prompt ready)
+- [ ] Claude tests S-08 (Haiku)
 
 ### Step 4. Reading rules the Studio build is missing
 - [ ] Level card story paragraph gets a speaker: moved to the final static story pass, since its audio and text are redone then
 - [x] S-04: hero powers (Rally, Meteor, Time Freeze) use the recorded clips; passed (Test 4, Nov 27)
-- [ ] S-05: walkthrough steps get a recorded voice (prompt ready)
-- [ ] S-06: level names and the silent e rule get recorded voices (prompt ready)
-- [ ] Claude tests S-05 and S-06 (Sonnet)
+- [x] S-05: walkthrough steps get a recorded voice; passed (Test 5, Nov 27)
+- [x] S-06: level names and the silent e rule get recorded voices; passed (Test 5, Nov 27)
+- [x] Claude tests S-05 and S-06 (Test 5, Nov 27)
+- [ ] Mr. Scott listens to the new clips, starting with walkthrough steps 1 and 5 and the silent e rule
 - [ ] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Opus picks fixes)
 
 ### Step 5. Small fixes from Test 1

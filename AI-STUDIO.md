@@ -38,6 +38,7 @@ Settled. Do not change them unless Mr. Scott says so.
 - A few crystals per creature kill and a small wave-clear bonus are fine. Reading stays the main income. (Nov 27)
 - A miss lowering a lock's count is fine. (Nov 27)
 - Sync to GitHub after every build. (Nov 27)
+- The 150 file and 15 MB numbers apply to each sync, not to the whole repo. Details are in prompt S-08. Where an older prompt says to keep the whole repo under 150 files, this replaces it. (Nov 27)
 - Cutscene pause: no new cutscene images, narration or story scripts until the rest of the build is finished. All story scripts and cutscenes will be redone as static files as the last step. (Nov 27)
 - Student screens show no test or setup tools; those go behind Teacher Mode. (Nov 27)
 - No student data in either repo, ever. Both repos are public. (Nov 27)

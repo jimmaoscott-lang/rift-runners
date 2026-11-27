@@ -50,7 +50,10 @@ Each prompt in `docs/STUDIO-PROMPTS.md` uses the template at the top of that fil
 - **Protect what works.** List the features that must keep working (speech checking, voice fits, Spanish supports, save data).
 - **Include a "Done when" list** Claude can test and Mr. Scott can check.
 - **Tell AI Studio to finish its own housekeeping:** run `npm run lint` and `npm run build`, add a `docs/SESSION-LOG.md` entry in its repo, and update its `BUILD.md` or `docs/DESIGN.md` if a rule changed.
-- **Keep the GitHub sync working:** the Studio repo must stay under 150 files and 15 MB (its sync fails above that). Ask for compressed art and packed audio sprites.
+- **Keep the GitHub sync working:**
+  - **Each sync:** change fewer than 150 files and less than 15 MB (added and changed files, full size). These are cautious project numbers; no published source gives the exact limit. Split bigger work into more than one task and sync.
+  - **Whole repo:** the 150 file and 15 MB numbers do not apply to the total. Stay under 1,000 files (AI Studio's reported GitHub import limit), keep every file under 50 MB, and keep the published site under 1 GB.
+  - Still ask for compressed art and packed audio sprites, so syncs stay small and the game loads well on Chromebooks. Sources are in `docs/STUDIO-TESTS.md`, Test 5.
 - **Words and runes:** Claude writes or approves every word list. AI Studio may draft them, but Claude runs `tools/check_decodable.py` and the classroom-safe word check on the Studio's word data before a level ships.
 - Write prompts in plain English. AI Studio reads them; Mr. Scott should be able to follow them too.
 

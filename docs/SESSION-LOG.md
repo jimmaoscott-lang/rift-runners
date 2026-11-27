@@ -21,6 +21,15 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 30: November 27, 2026 (S-05 to S-07 tested, sync limits checked)
+
+- S-05, S-06 and S-07 passed (Test 5, Studio commit 05a82e3). Listening check on the new clips is pending.
+- Checked GitHub limits. No published 150 file limit found. Updated the CLAUDE.md sync rule: 150 files and 15 MB apply to each sync.
+- Wrote S-08 so AI Studio corrects its BUILD.md. The Studio repo was not changed by Claude.
+- Next up: Mr. Scott runs S-08 and does the listening check. Then an Opus chat checks the Studio word lists.
+
+---
+
 ## Session 29c: November 27, 2026 (S-04 tested)
 
 - S-04 passed (Test 4, Studio commit af697b2).
