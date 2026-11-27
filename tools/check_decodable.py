@@ -50,6 +50,52 @@ def blocked(word):
     return hashlib.sha1(word.lower().encode("utf-8")).hexdigest()[:10] in BLOCKED
 
 
+# Spellings that sound the same (or close enough that a teen would hear it) when a
+# made-up rune is read aloud. Used to catch runes that sound like a blocked word
+# even though they are spelled differently (the Gemini build had to replace "shid").
+SAME_SOUND = [
+    ("ck", "k"), ("k", "ck"), ("c", "k"), ("k", "c"), ("c", "ck"),
+    ("x", "ks"), ("x", "cks"), ("ph", "f"), ("f", "ph"), ("qu", "kw"),
+    ("z", "s"), ("s", "z"),
+]
+# Close sounds a reader might slide into: only one of these per word.
+NEAR_SOUND = [("i", "e"), ("e", "i")]
+# A final consonant read with or without voice (shid / shit). Counts as the one near sound.
+FINAL_SWAPS = {"d": "t", "t": "d", "b": "p", "p": "b", "z": "s", "s": "z", "v": "f", "f": "v"}
+
+
+def _swaps(w, table):
+    out = set()
+    for a, b in table:
+        i = w.find(a)
+        while i != -1:
+            out.add(w[:i] + b + w[i + len(a):])
+            i = w.find(a, i + 1)
+    return out
+
+
+def sound_variants(word):
+    """Spellings that sound the same, plus at most one near sound."""
+    w = word.lower()
+    near = {w} | _swaps(w, NEAR_SOUND)
+    if w and w[-1] in FINAL_SWAPS:
+        near.add(w[:-1] + FINAL_SWAPS[w[-1]])
+    out = set(near)
+    for _ in range(2):
+        grown = set()
+        for v in out:
+            grown |= _swaps(v, SAME_SOUND)
+            if v and v[-1] in "bdfgklmnprstz":
+                grown.add(v + v[-1])  # a doubled ending sounds the same
+        out |= grown
+    out.discard(w)
+    return out
+
+
+def sounds_blocked(word):
+    return any(blocked(v) for v in sound_variants(word))
+
+
 def heart_words(world):
     path = os.path.join(DATA, "heart-words.json")
     table = json.load(open(path, encoding="utf-8"))
@@ -99,11 +145,14 @@ def check_file(path):
     real = {item["w"] for item in data.get("words", [])}
     count = 0
 
-    def word_ok(word, where):
+    def word_ok(word, where, sound_check=False):
         nonlocal count
         count += 1
         if blocked(word):
             errors.append(f"{name}: '{word}' ({where}) is on the blocked list. Pick another word.")
+            return
+        if sound_check and sounds_blocked(word):
+            errors.append(f"{name}: '{word}' ({where}) sounds like a word on the blocked list when read aloud. Pick another word.")
             return
         if word.lower() in hearts:
             return
@@ -117,14 +166,15 @@ def check_file(path):
             if w in seen:
                 errors.append(f"{name}: '{w}' is listed twice in {group}")
             seen.add(w)
-            word_ok(w, group)
+            # Real words were picked on purpose; made-up runes also get the sound-alike check.
+            word_ok(w, group, sound_check=(group == "runes"))
             if group == "runes" and w in real:
                 errors.append(f"{name}: rune '{w}' is also a real word in this file")
             opts = item.get("options", [])
             if len(opts) != 2 or len(set(opts)) != 2:
                 errors.append(f"{name}: '{w}' needs exactly 2 different options")
             for o in opts:
-                word_ok(o, f"option for {w}")
+                word_ok(o, f"option for {w}", sound_check=(o not in real))
                 if o == w:
                     errors.append(f"{name}: '{w}' lists itself as an option")
                 elif world == 1 and len(o) == 3 and (o[0] != w[0] or o[2] != w[2]):

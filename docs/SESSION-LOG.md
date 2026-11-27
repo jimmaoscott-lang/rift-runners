@@ -21,6 +21,17 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 21: November 26, 2026 (safe-word sound check, copy teacher note)
+
+Built while Mr. Scott was away from his computer; both pieces were tested here without a mic or Chromebook.
+
+- **Classroom-safe sound check:** `tools/check_decodable.py` already blocked crude words by fingerprint. It now also flags a made-up rune or answer choice that sounds like a blocked word when read aloud (same-sound spellings like c/k/ck, x/ks, ph/f, z/s and doubled endings, plus at most one near sound: i/e, or a final consonant with or without voice, as in shid). Real words are exempt, since they are picked on purpose. It caught two in World 1, both replaced (Claude's call): rune **fim** became **zib** (options zab, zub), and the answer choice **wob** for web became **wab**. The new rune has no Say it history yet; runes are tap only by default. Audio for the new words is made automatically on push.
+- **Copy teacher note (v0.17.0):** a small "Teacher: copy progress note" button at the bottom of the end screen copies a plain summary (DESIGN 12.3). Tested in a headless browser for a World 1 level and the World 8 story level; the copy and the "Copied" message work, with no console errors.
+- **Try:** finish any level, tap the teacher button, and paste into a doc or email. Check that the wording fits your logs.
+- **Next up:** unchanged. Friday: mic fix (Opus), then the animated 3D test scene.
+
+---
+
 ## Planning: November 26, 2026 (Gemini build review, AI Studio workflow)
 
 - **Main repo confirmed:** this repo stays the main Rift Runners build. The Gemini build (`jimmaoscott-lang/rift-runners-studio`) is a reference for ideas only; never change it.

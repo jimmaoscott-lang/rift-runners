@@ -658,7 +658,62 @@ window.RF = window.RF || {};
       D.button('res.tryAgain', again, 'big go', row).btn.dataset.first = '1';
       D.button('res.toMap', function () { RF.sfx('back'); RF.map.show(stoneIdx); }, '', row);
     }
+    // Teacher note: a plain summary to paste into IEP, ELL or progress logs. No names; the teacher adds them.
+    const tn = D.button('res.teacherNote', function (b) {
+      const text = S.teacherNote(r);
+      const done = function () { b.textContent = RF.t('res.teacherCopied'); RF.sfx('select'); };
+      const fallback = function () {
+        const ta = D.el('textarea', null, null, document.body);
+        ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px';
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { /* copy blocked */ }
+        ta.remove();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+      else fallback();
+    }, '', p);
+    tn.row.style.cssText = 'justify-content:center;opacity:.85';
+    tn.btn.style.cssText += ';font-size:calc(14px * var(--ts));padding:4px 14px';
     RF.speak(r.win ? winId : 'res.lose');
     D.nav(box);
+  };
+
+  // The teacher note text. Facts only, from this battle's record and this device's history.
+  S.teacherNote = function (r) {
+    const st = r.stats;
+    const m = RF.metrics.data();
+    const rec = RF.metrics.lastBattle(r.L.id);
+    const startMs = rec ? Date.parse(rec.t) - (rec.ms || 0) : 0;
+    const tries = m.attempts.filter(function (a) { return a.battle === r.L.id && Date.parse(a.t) >= startMs; });
+    const count = function (fn) { return tries.filter(fn).length; };
+    const pct = function (a, b) { return b ? Math.round(a / b * 100) + '%' : 'n/a'; };
+    const idm = /^w(\d+)-l(\d+)/.exec(r.L.id) || /^w(\d+)-(\w+)/.exec(r.L.id) || [];
+    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const mins = rec && rec.ms ? Math.max(1, Math.round(rec.ms / 60000)) : null;
+    const lines = [];
+    const where = idm[1] ? 'World ' + idm[1] + (/^\d+$/.test(idm[2]) ? ' Level ' + idm[2] : ' ' + idm[2] + ' level') : r.L.id;
+    lines.push('Rift Runners, ' + where + ' (' + RF.t(r.L.name) + '), ' + date + (mins ? ', about ' + mins + ' min' : ''));
+    lines.push('Result: ' + (r.win ? 'won (' + r.stars + ' of 3 stars)' : 'did not finish the level') + ', ' + r.waves + ' waves survived.');
+    if (r.L.story) {
+      lines.push('Story cards read: ' + (st.cards || 0) + ', right on the first try: ' + pct(st.cardsFirst || 0, st.cards || 0) + '.');
+      if (st.aloudWords) lines.push('Read aloud: ' + st.aloudRight + ' of ' + st.aloudWords + ' words read correctly (' + pct(st.aloudRight, st.aloudWords) + ').');
+      if (st.sealRead) lines.push('Rift Seal passage: best ' + st.sealRead.best.wcpm + ' words correct per minute.');
+    } else {
+      lines.push('Words decoded: ' + st.forged + ', right on the first try with no help: ' + st.firstTry + ' (' + pct(st.firstTry, st.forged) + ').');
+      const pats = (r.locks || []).map(function (k) {
+        const bp = st.byPat[k.pat] || { n: 0, first: 0 };
+        return RF.t('pat.' + k.pat) + ' ' + bp.first + ' of ' + bp.n + (k.done ? ' (mastered: 9 of last 10)' : '');
+      });
+      if (pats.length) lines.push('By pattern, first try: ' + pats.join('; ') + '.');
+      if (st.runes) lines.push('Made-up words (pure decoding): ' + st.runeFirst + ' of ' + st.runes + ' on the first try.');
+    }
+    const practice = r.L.story ? (st.aloudMissed || []) : (st.practice || []);
+    lines.push('Words to practice: ' + (practice.length ? practice.slice(0, 12).join(', ') : 'none') + '.');
+    const speak = count(function (a) { return a.mode === 'speak'; }), tap = count(function (a) { return a.mode === 'tap'; });
+    const sup = ['Answered by reading aloud: ' + speak, 'by tapping: ' + tap, 'used audio help: ' + count(function (a) { return a.help; })];
+    if (RF.settings && RF.settings.lang === 'es') sup.push('Spanish supports on');
+    lines.push('Supports: ' + sup.join(', ') + '.');
+    if (speak) lines.push('Reading aloud was checked by ' + (RF.mic && RF.mic.engine && RF.mic.engine() === 'azure' ? 'a pronunciation check (Azure), sound by sound.' : "Chrome's speech recognizer (less strict)."));
+    return lines.join('\n');
   };
 })(window.RF);

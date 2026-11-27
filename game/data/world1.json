@@ -94,7 +94,7 @@
     {
       "w": "web",
       "options": [
-        "wob",
+        "wab",
         "wub"
       ],
       "es": "telaraña o red"
@@ -467,11 +467,10 @@
       ]
     },
     {
-      "w": "fim",
-      "noSpeak": true,
+      "w": "zib",
       "options": [
-        "fam",
-        "fum"
+        "zab",
+        "zub"
       ]
     },
     {

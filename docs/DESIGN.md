@@ -483,6 +483,7 @@ Fallback: a teacher screen on the device itself (opened with a teacher PIN) can 
 
 ### 12.3 Reports
 
+- **Copy teacher note (built v0.17.0, idea from the Gemini build):** a small "Teacher: copy progress note" button at the bottom of every end screen copies a plain summary to paste into IEP, ELL or progress logs: world and level, date, minutes played, result, words decoded and first-try rate, first-try counts by pattern with mastered locks, made-up words, words to practice, how many answers were read aloud or tapped, audio help, and which checker scored reading aloud. Story levels list cards, read-aloud accuracy and best Rift Seal WCPM instead. No names: the teacher adds them. Works on one device until shared teacher reports exist.
 - **Student report:** one page per student code with starting level vs. current level, a WCPM line graph, an accuracy-by-pattern chart, play frequency and trouble words. Includes a plain-language progress summary the teacher can adapt for IEP progress reports (example: "Since placement on 9/2, he has mastered 3 of 8 patterns. WCPM on boss passages rose from 48 to 71, scored by pronunciation check.").
 - **Class overview:** every student code on one table, with current world, minutes played this week, last played date and a flag for students who have not played in 7 days or are stuck on one pattern.
 - **Date range filter** for grading periods and progress report windows.
