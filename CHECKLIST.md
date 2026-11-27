@@ -39,16 +39,16 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 3. Painted battlefield rebuild (about 4 to 6 sessions)
 The Studio version's look, rebuilt inside the main build. Keeps the Rune Forge, speech, waves from reading, metrics, settings, tutorial and teacher note. Only the battlefield drawing and the world map change.
-- [ ] 3a. Rebuild plan (Opus): how the painted battle engine fits the current code, the art list, level path data, and what carries over. Written into DESIGN 3 and 13
-- [ ] 3b. Bring in Mr. Scott's Studio art (maps, creature and defender pictures he made in Gemini): check, resize, compress, record in CREDITS (Sonnet). Read from rift-runners-studio only; never change it
-- [ ] 3c. Painted battle engine, World 1 Level 1 playable: painted map, trail, creatures and defenders that bob, lean, squash and flash, shots and sparks, free placement with ghost preview, range ring and "On road" warning (Sonnet, Opus reviews)
-- [ ] 3d. Studio gameplay: enemy resistances (fire, frost, shock, arrows, gravity) with color badges on health bars; tower targeting First, Last, Strong (Sonnet)
-- [ ] 3e. All World 1 levels, the final level slice and the tutorial on the painted battlefield (Sonnet)
-- [ ] 3f. Painted world map and level cards (Sonnet)
+- [x] 3a. Rebuild plan (Opus): written into DESIGN 13.1 (pointer in DESIGN 3). Session 24
+- [ ] 3b. Bring in the Studio art (Sonnet): 7 maps (6 levels plus Boot Camp), 13 creature and defender pictures, the hero, the Thorn King, the 7 later-world pictures and the opening cut scene stills for level cards. Cut out the white backgrounds ahead of time, save as WebP, record in CREDITS, post a contact sheet. Copy the trail data (`pathUv`, `riftUv`, `noBuild`) for each level from the Studio's `src/data/level1.ts` using the map table in DESIGN 13.1, and set each level's `trailTime` (DESIGN 13.1). Read from rift-runners-studio only; never change it
+- [ ] 3c. Painted battle engine, World 1 Level 1 playable (Sonnet, about 2 sessions, Opus reviews): `art.js` and `paint.js`, rules stay in `battle.js`, painted map, creatures and defenders that bob, lean, squash and flash, shots and sparks, free placement with ghost preview, range ring and red reason. `?3d` keeps the old battlefield for comparison
+- [ ] 3d. Damage types and traits from ARSENAL section 1 (this is Arsenal build step 1), shown with Studio-style color badges on health bars; tower targeting First, Last, Strong (Sonnet, Opus checks)
+- [ ] 3e. Levels 2 to 5, the final level slice and the tutorial on the painted battlefield; stone pads retired (Sonnet)
+- [ ] 3f. Painted world map and level cards, then remove the 3D code and three.js (Sonnet). The world map picture comes from a Step 4 work order; use a plain placeholder until it arrives
 - [ ] 3g. Mr. Scott: play Level 1 on a Chromebook and check it runs smoothly
 
 ### Step 4. AI Studio art for the gaps (AI Studio does the work)
-- [ ] Claude writes work orders in `docs/WORK-ORDERS.md` for anything 3b does not cover (missing creatures or defenders, walk frames so characters move, level cards)
+- [ ] Claude writes work orders in `docs/WORK-ORDERS.md` for anything 3b does not cover. Known gaps (DESIGN 13.1): Vine Snare, Healing Shrine, Barricade, a wooden Ballista, the painted world map, a Thorn King boss map, a World 8 map, walk frames so characters move
 - [ ] Mr. Scott pastes each order into AI Studio
 - [ ] Mr. Scott uploads the results in a Claude chat; Claude checks them and adds them. AI Studio never pushes to this repo.
 

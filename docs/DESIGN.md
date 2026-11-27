@@ -46,7 +46,7 @@ Students should experience it as a game they want to beat. The reading instructi
 | Huddle Up | A good read makes the action stronger; streaks matter |
 | Super Mario Bros. 3 | A big world map with every level visible, each one locked until the one before it is beaten |
 
-**Look (changed November 27): painted 2D battlefield.** After the Step 2 graphics test (`game/graphics-test.html`), Mr. Scott chose a full painted rebuild like his Studio (Gemini) version: one painted map picture per level, painted pictures for every creature and defender that bob, lean, squash and flash, drawn on a flat canvas. The world map and level cards are painted too. The Studio art he made in Gemini is brought in first (allowed under the asset rule); AI Studio work orders fill the gaps, including walk frames so characters move. Rebuild steps: CHECKLIST Step 3. Everything below about 3D describes the build before this change.
+**Look (changed November 27): painted 2D battlefield.** After the Step 2 graphics test (`game/graphics-test.html`), Mr. Scott chose a full painted rebuild like his Studio (Gemini) version: one painted map picture per level, painted pictures for every creature and defender that bob, lean, squash and flash, drawn on a flat canvas. The world map and level cards are painted too. The Studio art he made in Gemini is brought in first (allowed under the asset rule); AI Studio work orders fill the gaps, including walk frames so characters move. Rebuild steps: CHECKLIST Step 3. Rebuild plan (how the code, art and level data change): section 13.1. Everything below about 3D describes the build before this change.
 
 **Earlier look (Nov 21 to Nov 27):** low-poly 3D built with three.js (the same engine as The Exiled Crown, already proven on school Chromebooks), with a darker magic palette: glowing rift light, spell effects, particles. All models are original, built from simple shapes in code. Mockups: `mockups/hold-the-rift.html` (`?view=battle`, `?view=map`) and the screenshots beside it.
 
@@ -550,7 +550,7 @@ If a number drops (common when a new world brings harder words), the screen show
 
 ## 13. Technology
 
-- **Engine change (November 27):** the battlefield and world map move to a painted 2D canvas (CHECKLIST Step 3). The rebuild plan (Step 3a) will update this section. Until then the notes below describe the 3D build.
+- **Engine change (November 27):** the battlefield and world map move to a painted 2D canvas (CHECKLIST Step 3). The plan is section 13.1. The notes after it describe the 3D build until Step 3f removes it.
 - **Engine (until the rebuild):** three.js r128 for the 3D map and battles (same as The Exiled Crown), with menus and the Forge as regular web page parts on top. Plain JavaScript, static files. Phaser 3 ran M1 and M2 and was removed in M3.
 - **Speed on Chromebooks (M3):** all still scenery (trees, rocks, camp) is merged into a few big meshes, so a battle draws in about 125 calls. On machines with 4 or fewer cores the game also uses smaller shadows, fewer trees and no antialiasing. Add `?low` or `?high` to the address to force either mode.
 - **Code files (M3):** `game/src/models.js` (3D models), `level.js` (map), `battle.js` (tower defense), `forge.js` (Rune Forge), `screens.js` (menus), `dom.js` (page helpers), `app.js` (start-up and frame loop), `core.js` (data, settings, voice), `metrics.js` (progress record).
@@ -566,6 +566,106 @@ If a number drops (common when a new world brings harder words), the screen show
   - A GitHub Action (`.github/workflows/deploy.yml`) builds both versions on every push: the website and the all-in-one file. The all-in-one file is published at `dist/rift-runners-offline.html` on the website (download it for the offline backup) and as `dist/apps-script/index.html` with a small `Code.gs` for Apps Script. The builder is `tools/build_single.py`.
   - Speak mode must be tested inside Apps Script early, because the microphone may be blocked inside Google's frame. Tap mode always works as the fallback.
   - **Size limit (Nov 21):** the all-in-one file was 8 MB after M2, mostly voice files, and the full game will be far bigger. It stays a backup for the December 2 demo only. The long-term home is the website. If the district keeps github.io blocked, the plan is an Apps Script version that loads the art and audio as separate files (for example from Google Drive) instead of packing everything into one file. The file is built by GitHub for free on each push; Claude only tests it right before December 2.
+
+### 13.1 Painted battlefield rebuild plan (Step 3a, Session 24)
+
+**Goal:** the Studio version's look inside the main build. Only the drawing changes. Everything the student reads, hears or earns stays as it is.
+
+**What carries over untouched:** the Rune Forge (`forge.js`), speech and the mic (`speech.js`), audio and voices, waves earned by reading, mastery and rift locks, metrics and the teacher note, settings, the Level Clear growth screen, hero powers, defender stats and upgrade paths in `units.json`, and every word list.
+
+**What changes:**
+
+| Part | Now (3D) | After the rebuild |
+|---|---|---|
+| Battlefield | three.js scene built from code models (`level.js`, `models.js`) | One painted map picture drawn on a flat canvas |
+| Creatures and defenders | Code-built 3D models | Painted pictures that bob, lean, squash, flash and pop |
+| Building | Fixed stone pads and trail spots | Free placement anywhere open, with a ghost preview, range ring and a red reason ("On road", "Too close", "Blocked") |
+| Effects | 3D sparks and shots | Canvas shots, sparks, embers, lightning arcs, frost rings |
+| World map | 3D island (`map.js`) | Painted world map with level stones and level cards |
+
+**How the code fits.** The battle logic in `battle.js` already works in plain map units (x and z), separate from the camera. The rebuild splits it in two:
+
+1. `battle.js` keeps the rules: spawning, movement along the trail, targeting, damage, waves, crystals. Every three.js call comes out.
+2. A new `paint.js` draws each frame from that state: map, shadows, creatures, defenders, shots, health bars, floating numbers. It also turns a screen tap into a map point and a map point into a screen point (`screenOf`, which the tutorial already uses, keeps its name and job).
+3. A new `art.js` loads the pictures listed in `game/data/art.json` (one entry per creature, defender, hero and map, with draw size, foot point and optional walk frames).
+
+**Map units stay the same size,** so no balance number changes. The painted map is 1600 x 900 picture points and covers 64 x 36 map units (25 picture points per unit). Defender ranges and creature speeds keep their numbers. Trail length was checked (Session 24): Level 1's painted trail is the same length as today's (84 units against 87), but Levels 2 to 5 and the final level are 22 to 41% shorter, so creatures would reach the anchor sooner. Each level therefore gets a `trailTime` setting that scales creature speed so the walk from rift to anchor takes as long as it does now. The Normal difficulty decision (Step 5) is then only about feel.
+
+**Level data.** Each level in `levels-w1.json` gains:
+- `map`: which painted map to show
+- `pathUv`: the trail as points from 0 to 1 across the picture (the Studio levels already have these, traced on the same pictures)
+- `riftUv` and `anchorUv`: where creatures appear and where the Rift Anchor stands
+- `noBuild`: circles and outlines where nothing can be placed (rivers, cliffs, thick forest, the HUD corners)
+- `trailTime`: speed scale so the walk down a shorter painted trail takes as long as before (1.0 for Level 1)
+- `hintSpots`: two or three good open spots the tutorial arrow can point to
+
+`towerPads` and `trailPads` retire once every level runs on the painted battlefield (Step 3e). Waves, words, rune rate and mastery settings do not change.
+
+**Which map goes with which level (Claude's call from looking at the pictures):**
+
+| Level | Painted map (Studio) | Trail data from |
+|---|---|---|
+| Level 1 Thornwood Edge (and the tutorial) | Thornwood Edge | Studio w1-l1 |
+| Level 2 Bramble Crossing | Bramble Crossing | Studio w1-l2 |
+| Level 3 The Hollow Trail | Hollow Bridge | Studio w1-l3 |
+| Level 4 Wisp Hollow | Thornking Heart (dark hollow, glowing crystals) | Studio w1-l5 |
+| Level 5 Old Watch Ruins | Sunless Ruins | Studio w1-l4 |
+| Final level, Heart of the Rift | Furnace Core, as a stand-in until a World 8 map is made | Studio w2-l5 |
+| Boot Camp (Step 7) | Basic Training | Studio placement level |
+| Thorn King boss (M7) | New map from an AI Studio work order | Traced when it arrives |
+
+Level names stay as they are. The pictures fit them well enough.
+
+**Art we have and art we need.**
+
+| Ours | Studio picture | Status |
+|---|---|---|
+| Thornback, Rift Wisp, Bramble, Shield Brute, Rift Bat, Splitter | thornback, rift wisp, bramble stalker, ironbark brute, rift bat, rift splitter | Ready |
+| Splitling | rift splitter, drawn small with a lighter tint | Ready |
+| Archer Tower, Spike Pit, Stone Golem, Frost Totem, Ember Cannon | same names | Ready |
+| Lightning Spire | tesla spire | Ready |
+| Ballista | rail turret | Stand-in (looks like a machine); work order for a wooden ballista |
+| Warden (hero) | rift warden | Ready |
+| Vine Snare, Healing Shrine, Barricade | none | Work order (Step 4) |
+| Thorn King | thornking boss | Ready for M7 |
+| Later worlds | cinder imp, gale wraith, shieldbearer, rift shrieker, forge weaver, iron warden, gravity snare | Kept for their worlds |
+| World map | none | Work order (Step 4) |
+| Level cards | the Studio opening cut scene stills | Ready (a cut scene still per level makes a good card picture) |
+| Walk frames | none | Work order (Step 4). The engine works without them and uses them when they arrive |
+
+New creatures from the Arsenal plan (Bark Beetle, Moss Mender, Iron Boar, Shade Stalker, Dart Runner) and the Sniper Nest get work orders when Arsenal step 4 comes up.
+
+**Getting the pictures ready (Step 3b, done once on import, never while playing):**
+1. Cut the white background away with an edge flood fill (the same method the Studio uses while playing, done ahead of time here so Chromebooks skip the work), keeping white highlights inside the outline.
+2. Trim to the picture, save as WebP with see-through edges at 256 points across (creatures and defenders) and 1600 x 900 (maps), about 20 KB and 150 to 250 KB each.
+3. Record each one in `assets/CREDITS.md` as made by Mr. Scott in Gemini for this project.
+4. A contact sheet of every cut-out picture on a dark background goes in the session log so halos or chewed edges get caught.
+
+**How characters move without walk frames** (the Studio's tricks, which read as alive): a bounce in step with walking speed, a lean toward the direction of travel, flip to face left or right, a squash and a white flash on each hit, a short slow-down and shake on big hits, a pop and fade when defeated, a swirl from the rift on spawn. Fliers ride higher with a shadow on the ground below and a gentle sway. Defenders recoil when they fire and glow when upgraded. Each tier (1 to 3) draws the defender a little larger with a colored base ring, and specialties add a badge.
+
+**Free placement rules:**
+- Tower defenders (archer, frost, ember, lightning, ballista, shrine) go on open ground at least a trail width from the trail's center, outside `noBuild`, and not overlapping another defender.
+- Trail defenders (spike, golem, vine, barricade) snap to the nearest point on the trail and need space from other trail defenders, the rift and the anchor.
+- While a defender is picked, open ground glows faintly and the ghost follows the finger or mouse with its range ring. Green ghost means it can go there; red shows the reason.
+- Touch: tap to show the ghost, tap the same spot again (or Build) to place. Mouse: click to place. Both keep the Esc and tap-away cancel that exist now.
+
+**Speed on Chromebooks:**
+- The map is drawn once to a hidden background layer; each frame copies it in one step.
+- Each picture is shrunk once to the size it is drawn at, so frames never draw a 256-point picture smaller.
+- Sharpness capped at normal on low-power machines (the `?low` check stays), with a soft cap on sparks and floating numbers.
+- Target: smooth (50 or more frames a second) with 80 creatures on a school Chromebook. The speed meter from the graphics test comes over as `?fps`.
+
+**Damage types and badges (Step 3d).** The Studio shows five resistances with colored badges. Our own plan for the same idea is ARSENAL.md section 1 (damage types and traits, approved November 22, not built yet). Step 3d builds the ARSENAL version (Arsenal build step 1) and borrows the Studio's look: a small colored badge on each creature's health bar for each trait (orange Fireproof, blue Frostproof, yellow Grounded, gray Armored, white Shielded), and a short floating "RESISTS" tag the first time a defender's hit is cut down. Tower targeting comes in the same step: First (default), Last and Strong, picked in the defender popup and saved per defender. Ballista starts on Strong.
+
+**Removing the 3D build (end of Step 3f):** `models.js`, `level.js`, the 3D parts of `map.js`, `game/lib/three.min.js` and `game/graphics-test.html` are deleted once the painted battlefield and world map both work, which also makes the all-in-one file smaller. Until then a `?3d` address switch keeps the old battlefield for side-by-side checks.
+
+**Build order inside Step 3:**
+1. 3b: import and cut out the art (Sonnet).
+2. 3c: `art.js`, `paint.js`, Level 1 on the painted map with free placement, all World 1 defenders and creatures drawn (Sonnet builds over two sessions, Opus reviews the look and the feel).
+3. 3d: damage types, traits, badges, targeting (Sonnet, Opus checks against ARSENAL).
+4. 3e: Levels 2 to 5, the final level and the tutorial moved over; pads retired (Sonnet).
+5. 3f: painted world map and level cards; 3D code removed (Sonnet).
+6. 3g: Mr. Scott plays Level 1 on a Chromebook.
 
 ---
 

@@ -1,7 +1,7 @@
 {
  "_note": "Build progress shown on progress.html. Update at the end of every session: mark milestones done, adjust session estimates. A session = one small work session with Claude.",
  "updated": "2026-11-27",
- "sessionsSoFar": 23,
+ "sessionsSoFar": 24,
  "milestones": [
   {
    "id": "M0",
@@ -155,9 +155,9 @@
   },
   {
    "id": "M6p",
-   "name": "Painted battlefield rebuild (like the Studio version)",
+   "name": "Painted battlefield rebuild (plan done Session 24)",
    "sessions": [
-    4,
+    5,
     6
    ],
    "done": false

@@ -21,6 +21,20 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 24: November 27, 2026 (painted battlefield rebuild plan)
+
+Checklist Step 3a. Planning only; the game is unchanged.
+
+- **Plan written:** DESIGN 13.1 (pointer in DESIGN 3). Rules stay in `battle.js`; a new `paint.js` draws the painted battlefield and a new `art.js` loads pictures from `game/data/art.json`. Map units keep their size (the 1600 x 900 painted map is 64 x 36 units), so defender ranges and creature speeds keep their numbers.
+- **Studio art checked (read only):** 12 maps, 22 character pictures, 23 cut scene stills. Every picture is a JPG with a white background, so 3b cuts the backgrounds out ahead of time and saves WebP. Ready now: all six World 1 creatures, seven defenders (the rail turret stands in for the Ballista), the Warden and the Thorn King. Missing: Vine Snare, Healing Shrine, Barricade, a wooden Ballista, the world map, a Thorn King map, a World 8 map, walk frames. Those go to Step 4 work orders. The opening cut scene stills become level card pictures.
+- **Maps picked:** Level 1 Thornwood Edge, Level 2 Bramble Crossing, Level 3 Hollow Bridge, Level 4 Thornking Heart, Level 5 Sunless Ruins, final level Furnace Core (stand-in), Boot Camp Basic Training. The Studio's traced trails come with them.
+- **Found:** the painted trails for Levels 2 to 5 and the final level are 22 to 41% shorter than today's, which would make those levels harder. Fix in the plan: a per-level `trailTime` speed scale so the walk takes as long as now.
+- **Decided (Claude):** Step 3d builds the ARSENAL damage types and traits (Arsenal build step 1, already approved) with the Studio's colored health bar badges, instead of copying the Studio's five resistances. Tower targeting First, Last, Strong comes in the same step.
+- **Checklist:** 3a checked; 3b to 3f filled in with the details; Step 4 lists the known art gaps.
+- **Next up:** Step 3b, bring in the Studio art (Sonnet).
+
+---
+
 ## Session 23: November 27, 2026 (animated 3D graphics test)
 
 Checklist Step 2. A separate test page; the game itself is unchanged.
