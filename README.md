@@ -6,7 +6,9 @@ Students play a retro adventure game where reading is their power. Across 8 worl
 - Progress: [docs/SESSION-LOG.md](docs/SESSION-LOG.md)
 - Project directions: [CLAUDE.md](CLAUDE.md)
 
-Play: https://jimmaoscott-lang.github.io/rift-runners/
+Main build (AI Studio version): https://jimmaoscott-lang.github.io/rift-runners-studio/
+
+This repo holds the project directions, checklist, AI Studio prompts and test reports. The older build here is kept as an archive: https://jimmaoscott-lang.github.io/rift-runners/
 
 Status: Hold the Rift, a 3D tower defense powered by the Rune Forge. The World 1 map and Levels 1 to 3 are playable, with speak mode and ten defenders.
 

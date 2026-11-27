@@ -1,5 +1,7 @@
 # Google AI Studio Work Orders
 
+**Replaced November 27, 2026.** The AI Studio version is now the main build, so new prompts go in `docs/STUDIO-PROMPTS.md`. This file is kept for history.
+
 Claude writes each order. Mr. Scott copies the prompt box into Google AI Studio, downloads the results, and uploads them in a Claude chat. Claude checks them and builds them into the game. Process rules are in `CLAUDE.md` ("Google AI Studio work orders").
 
 ## Rules for every order

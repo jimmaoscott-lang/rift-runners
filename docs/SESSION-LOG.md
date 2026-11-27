@@ -21,6 +21,18 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 27: November 27, 2026 (AI Studio version becomes the main build)
+
+**New arrangement (Mr. Scott's decision):** `jimmaoscott-lang/rift-runners-studio` is the main build. Claude directs, tests and writes AI Studio prompts; AI Studio builds; Claude never changes Studio code (read access only). This repo is now the director's office. The `game/` folder is frozen as an archive and stays live as a backup.
+
+- **Rules rewritten:** `CLAUDE.md` and `CHECKLIST.md` for the new arrangement. New files: `docs/STUDIO-PROMPTS.md` (prompts, newest first) and `docs/STUDIO-TESTS.md` (test reports).
+- **Studio build tested** (commit 8ceb3df): builds clean, looks finished, no game errors. Ranked problems in Test 1. Top two: test tools on student screens, and Level 1 likely too hard since this morning's balance change.
+- **First prompt written:** S-01, Teacher lock.
+- **Dec 2 list updated:** IT must also unblock the speech worker address and Google Fonts.
+- **Next up:** Mr. Scott runs S-01 in AI Studio, syncs to GitHub, plays Level 1 on Normal once. Then a Sonnet chat tests S-01 and an Opus chat writes S-02 (balance).
+
+---
+
 ## Session 26: November 27, 2026 (painted battlefield, Level 1), v0.18.0
 
 Checklist Step 3c. **Level 1 and its tutorial now play on the painted map.** Levels 2 to 5 and the final level still use the 3D field. Boot Camp is not built yet.
