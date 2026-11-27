@@ -58,6 +58,9 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] S-02 prompt written: Builder Mode (code `runner-build`) with dials for Easy, Normal, Hard and Expert; nothing saved; game unchanged at default (Nov 27)
 - [x] Mr. Scott runs S-02 and syncs (Nov 27)
 - [x] Claude tests S-02: passed (Test 3, Nov 27)
+- [x] Mr. Scott found the sweet spot with the dials; all levels base off it (Nov 27)
+- [ ] S-07: build those numbers into the standard difficulties (prompt ready)
+- [ ] Claude tests S-07 (Sonnet)
 - [ ] Before release: remove Builder Mode and the dials (one prompt)
 
 ### Step 3. Keep the GitHub sync working

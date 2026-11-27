@@ -20,6 +20,47 @@ CLAUDE TESTS AFTER:
 
 ---
 
+## S-07: Make Mr. Scott's difficulty numbers the standard
+
+Status: ready (can run any time; Mr. Scott runs it first)
+Goes with: CHECKLIST Step 2; Mr. Scott's dial test, Nov 27
+
+His dial settings: Easy health 50, speed 90. Normal health 60, speed 90. Hard 100, 100. Expert health 100, speed 110, creatures 110. Extra words 0 on all four.
+
+PASTE INTO AI STUDIO:
+
+```
+Task: Mr. Scott tested the difficulty dials and chose new standard numbers for every level. Build them into the difficulty presets, so the game plays his way with all dials at their default of 100. Do only this task.
+
+1. In src/data/level1.ts add a countMult number to DifficultyConfig, then set DIFFICULTIES to exactly:
+   - easy: hpMult 0.38, speedMult 0.828, countMult 1.0
+   - normal: hpMult 0.504, speedMult 0.855, countMult 1.0
+   - hard: hpMult 0.92, speedMult 0.98, countMult 1.0
+   - expert: hpMult 1.0, speedMult 1.1, countMult 1.1
+2. In startNextWave in src/game/CanvasBattleEngine.ts, apply the preset countMult together with the count dial, rounding once: for creatures that are not bosses, count = Math.max(1, Math.round(baseCount * preset countMult * dial countPct / 100)). Boss counts never change. Keep the existing local wave countMult for bonus and endless waves working as it does now (rename it if the names are confusing). This applies to every level and every wave, including bonus and endless waves.
+3. Change the four desc texts to exactly:
+   - easy: "Weakest creatures, so students can focus on reading."
+   - normal: "Balanced for steady runs."
+   - hard: "Tough waves that reward smart upgrades."
+   - expert: "The most, fastest and strongest creatures for veteran Rift Runners."
+4. Keep the Builder Mode dials. All of them stay at default 100 (extra words 0), and Reset to default returns to 100.
+5. Do not change anything else: no level data, creature stats, defenders, crystals, words between waves, speech checking or save data.
+6. In BUILD.md "Mr. Scott's decisions", add: "Nov 27: standard difficulty for all levels is Easy health 0.38 and speed 0.828; Normal health 0.504 and speed 0.855; Hard health 0.92 and speed 0.98; Expert health 1.0, speed 1.1 and creature count 1.1. This replaces the earlier note to keep the Level 1 Hard and Expert numbers."
+7. Housekeeping: npm run lint and npm run build; add a docs/SESSION-LOG.md entry.
+
+Done when:
+- With every dial at 100, Easy and Normal creatures are clearly weaker and a little slower than before.
+- Hard plays exactly as before.
+- Expert creatures are a little faster, and bigger groups have more creatures.
+- Boss counts are unchanged.
+```
+
+CLAUDE TESTS AFTER:
+- Run commit b4049ab with his dial settings and the new build with default dials: counts, health and speed match on all four difficulties in several levels, including bonus waves (health may differ by 1 from rounding).
+- Boss counts unchanged; dials still default to 100.
+
+---
+
 ## S-06: Level names and the silent e rule get recorded voices
 
 Status: ready (run after S-05)

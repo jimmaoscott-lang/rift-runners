@@ -33,7 +33,7 @@ Rules:
 Settled. Do not change them unless Mr. Scott says so.
 
 - Claude directs and tests; AI Studio builds. Claude never edits the Studio repo. (Nov 27)
-- Level 1 difficulty on Hard and Expert is right. Keep those numbers. (Nov 27)
+- Standard difficulty for all levels is set by prompt S-07, from Mr. Scott's dial test: Easy health 50% and speed 90% of the earlier preset, Normal health 60% and speed 90%, Hard unchanged, Expert speed 110% and creature count 110%. This replaces the earlier note to keep Hard and Expert as they were. (Nov 27)
 - Students may skip the Level 1 walkthrough. (Nov 27)
 - A few crystals per creature kill and a small wave-clear bonus are fine. Reading stays the main income. (Nov 27)
 - A miss lowering a lock's count is fine. (Nov 27)
