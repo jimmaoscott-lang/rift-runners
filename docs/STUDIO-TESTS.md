@@ -26,6 +26,12 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 | 8 | **Small screen overlap:** at 1093 x 614 (a Chromebook at 125% zoom) the pause button covers "Send now". | Hard to tap on some Chromebooks. | Certain, small. S-07 |
 | 9 | **A lock count went down after a miss** (Easy run: short a went from 7/9 to 6/9). | May feel like a penalty for a miss. Could be on purpose. | Medium. Check the code first (S-08). |
 
+### Mr. Scott's answers (Nov 27)
+- 2: Hard and Expert are spot on for Level 1. Open: make Easy and Normal easier for struggling readers.
+- 4: Not a problem. The trouble came from one huge first sync; syncing after every build keeps it small.
+- 5: The story paragraph needs a speaker now; rewriting the text waits for the final static story-script pass. Hero power names play in a robotic voice.
+- 6, 7, 9: Fine as they are. Walkthrough skip, a few crystals per kill and lock counts stay.
+
 ### For Mr. Scott to check by hand
 - Play Level 1 on Normal once: too hard, about right, or too easy?
 - On a Chromebook: SAY IT on "pin", "cut" and "top" (the words the old build's mic missed).
