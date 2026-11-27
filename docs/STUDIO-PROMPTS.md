@@ -58,7 +58,7 @@ CLAUDE TESTS AFTER:
 
 ## S-09: Expert grace, part 1: half crystals for a second-try read on Expert
 
-Status: ready
+Status: tested (passed, Claude Test 8, Nov 27)
 Goes with: CHECKLIST decision "Expert grace"; Test 7, problem 2.
 
 Today every difficulty pays 30% for a second-try read (real word 4, rune 8). The approved Expert grace pays half on Expert.

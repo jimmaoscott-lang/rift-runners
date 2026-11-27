@@ -4,6 +4,30 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 8: S-09 half crystals on Expert (November 27, 2026)
+
+Studio commit 4008919. **S-09 passed.** Lint and build clean. No page errors in the payout runs.
+
+| Checked | Result |
+|---|---|
+| 48 payout cases: four difficulties; first try, second try, heard first, heard first then second try, shown; real words and runes (tap), real words spoken first and second try | Pass. Only Expert second try changed: real word 6, rune 13, spoken 6. Other difficulties still pay 4, 8 and 4 |
+| Feedback line | Pass: the new line shows only on the Expert half payout. Fits on screen at 1093 x 614 |
+| Streak and Rift Lock counts, Expert and Normal | Pass: a second try reset the streak to 0 and added no lock credit |
+| Files changed | Pass: BUILD.md, session log, RuneForgePanel.tsx, level1.ts (4 files, about 300 KB full size) |
+
+### Ranked problems
+
+| # | Problem | Why it matters | How sure |
+|---|---|---|---|
+| 1 | The sound rule card after a first miss ends by saying the missed word. The second try then pays half (6 or 13), while tapping the speaker before answering pays 4 or 8. This card behavior is older than S-09; S-09 raises what the second try pays on Expert. | A student can miss on purpose or guess, hear the word, then pick from the two choices left for half pay. A miss still resets the streak and gives no lock credit. | High (from code; audio cannot be heard in testing) |
+
+### Not verified
+- Real microphone and Azure scoring. Spoken reads used a stand-in for Chrome's recognizer, which does not check spoken runes.
+- The voice fit version of the new line (code read only).
+- A full 8 word Mega Forge run after a miss. The practice list code did not change.
+
+---
+
 ## Test 7: How the Studio build handles missed words (code read, November 27, 2026)
 
 Studio commit 72b0305. Read the code and ran lint (clean). No play test; nothing changed since Test 6. Checked before writing the Expert grace prompts.

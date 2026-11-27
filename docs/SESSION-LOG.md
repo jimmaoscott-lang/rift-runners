@@ -21,6 +21,12 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 33: November 27, 2026 (S-09 tested)
+
+- S-09 passed (Test 8, Studio commit 4008919). Studio repo only read.
+- Noted for Mr. Scott: the miss card says the word before the second try. No change made.
+- Next up: Claude checks the Studio word lists (CHECKLIST Step 4, Opus).
+
 ## Session 32: November 27, 2026 (Expert grace checked, S-09 and S-10 written)
 
 - Read the Studio miss handling (Test 7, commit 72b0305). Studio repo only read.

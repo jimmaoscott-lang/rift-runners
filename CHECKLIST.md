@@ -80,9 +80,9 @@ Use the model listed for the step. When a step is done, check it off here and ad
 
 ### Step 4b. Expert grace
 - [x] Claude checks how the Studio build handles misses (Test 7, Nov 27)
-- [ ] Mr. Scott runs S-09 (half crystals on a second try, Expert), checks it, syncs
+- [x] Mr. Scott runs S-09 (half crystals on a second try, Expert) and syncs (Nov 27)
 - [x] S-10 cancelled: growing extra waves stay (Mr. Scott, Nov 27)
-- [ ] Claude tests S-09
+- [x] Claude tests S-09: passed (Test 8, Nov 27)
 
 ### Step 5. Small fixes from Test 1
 - [x] S-03: top bar fits small Chromebook screens; passed (Test 3, Nov 27)
