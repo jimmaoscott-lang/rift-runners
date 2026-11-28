@@ -77,8 +77,9 @@ Use the model listed for the step. When a step is done, check it off here and ad
 - [x] Claude tests S-05 and S-06 (Test 5, Nov 27)
 - [x] Mr. Scott listens to the new clips, starting with walkthrough steps 1 and 5 and the silent e rule: passed (Nov 27)
 - [x] Claude checks every Studio word list with the decodability checker and the classroom-safe word check (Test 9, Nov 27; fixes picked)
-- [ ] Mr. Scott runs S-11 (word list fixes) and syncs
-- [ ] Claude tests S-11: word check shows 0 flags (Sonnet)
+- [x] Mr. Scott runs S-11 (word list fixes) and syncs (Nov 27)
+- [x] Claude tests S-11: passed, word check shows 0 flags (Test 10, Nov 27)
+- [ ] Word session (Opus): Mr. Scott lists the words that sound wrong and Claude gets all the words correct, including the quiet clips in Test 10
 
 ### Step 4b. Expert grace
 - [x] Claude checks how the Studio build handles misses (Test 7, Nov 27)

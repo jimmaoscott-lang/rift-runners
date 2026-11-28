@@ -22,7 +22,7 @@ CLAUDE TESTS AFTER:
 
 ## S-11: Word list fixes (choices, runes and a few words)
 
-Status: ready
+Status: tested (passed, Claude Test 10, Nov 27)
 Goes with: CHECKLIST Step 4 (word list check); Test 9, problems 1 to 5
 
 Why: Test 9 found tap choices that are slurs or crude words when the game says them aloud, short i and short e choice pairs before m or n that sound the same for many Gulf Coast speakers, one choice that sounds exactly like its word, three words that use patterns not taught yet, and one rune with a spelling English does not use. Every new word below already has a clip in the word sprite, so no audio is added.

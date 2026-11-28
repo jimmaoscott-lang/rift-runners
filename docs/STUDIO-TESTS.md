@@ -4,6 +4,37 @@ Claude's tests of `jimmaoscott-lang/rift-runners-studio`. Newest at the top. Eac
 
 ---
 
+## Test 10: S-11 word list fixes (November 27, 2026)
+
+Studio commit 0e92c26. **S-11 passed.** The Studio repo was only read.
+
+| Checked | Result |
+|---|---|
+| Word check | 0 flags in 333 words and runes, 11 levels. The commit before S-11 still gives 33 |
+| Data compared before and after | Word changes match S-11. Level settings, placement data and pattern rules in the dump are unchanged. No i/e choice pairs before m or n found |
+| Word clips | All 410 words and choices are listed in the audio manifest |
+| Files changed | Pass: BUILD.md, session log, level1.ts (3 files, about 251 KB full size) |
+| Lint and build | Pass |
+| W1 L3, tap mode, headless Chrome 1093 x 614 | 28 of 29 words and runes seen, with bed, leg, set, beg and let. No removed words seen. No computer voice calls. Level reached the victory screen. Progress was seeded by the test to open L3 |
+| Choice playback | One first tap on a "pin" choice logged no clip. The other first-time choice taps logged the matching clip |
+| Opening battle screen, 1366 x 768 and 1093 x 614 | Ran. Console showed failed resource loads (404s and one blocked connection); the addresses were not logged in this run |
+
+In the L3 run, failed loads were the local speech health check, the L3 victory narration files and the cutscene voice service. No page errors were logged.
+
+### Ranked problems
+
+| # | Problem | Why it matters | How sure |
+|---|---|---|---|
+| 1 | **Some word clips measure quiet** in sprite.mp3. Nearly silent by file level: bamp, bet, bite, get, dak. Very faint: bake, hate, kide, tape. Some "snd:" sounds also measured quiet (bl and cl close to silent). S-11 did not change the audio, and Test 9 only checked that clips were listed. Mr. Scott says he can hear the words but some need fixing; which ones is not recorded yet | Every word must be heard clearly | File levels: certain. How they sound in the game: for Mr. Scott's word session |
+
+### Not verified
+- Sound by ear (headless testing cannot hear), real mic, speech worker.
+
+### Next
+- No new prompt written. Mr. Scott chose a separate session focused on getting all the words correct (Opus).
+
+---
+
 ## Test 9: Every Studio word list (November 27, 2026)
 
 Studio commit 4008919 (same as Test 8). Code and data read only; nothing in the Studio repo was changed.

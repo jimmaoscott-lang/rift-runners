@@ -21,6 +21,12 @@ Newest at the top. Fix in a real session; move each one into a session entry whe
 
 ---
 
+## Session 35: November 27, 2026 (S-11 tested)
+
+- S-11 passed (Test 10, Studio commit 0e92c26). Studio repo only read.
+- Found word clips that measure quiet (Test 10, problem 1). Mr. Scott can hear the words, but some need fixing. He is saving that for a separate session on getting all the words correct. No S-12 is in the prompts file. A draft S-12 for quiet clips was given in chat; Mr. Scott should not run it.
+- Next up: word session (Opus). Mr. Scott brings each wrong word, its level and what sounds wrong. Also check the quiet clips and the bl and cl sounds. Playtest on Normal (Step 6) is still open.
+
 ## Session 34: November 27, 2026 (Studio word lists checked, S-11 written)
 
 - Checked all 11 Studio levels (335 words and runes, 670 tap choices) at commit 4008919. Test 9. Studio repo only read.
